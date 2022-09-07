@@ -1,9 +1,11 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
-import { AppRouter } from './AppRouter'
+import { NavBar, AppRouter } from './router';
 
 function App() {
   return (
     <>
+      <NavBar />
       <AppRouter />
     </>
   )
