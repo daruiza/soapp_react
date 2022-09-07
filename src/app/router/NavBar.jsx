@@ -1,9 +1,9 @@
 import { Container, Navbar, Nav } from "react-bootstrap"
-import { Link, NavLink } from "react-router-dom";
-import asistirEnSaludBran from '../../../../assets/asistirEnSaludBran.png';
+import { Link } from "react-router-dom";
+import { NavBarAccesEnd, NavBarAccesInit } from "../modules/access";
+import { NavBarUsers } from "../modules/users/NavBarUsers";
 
-
-export const NavBarHome = () => {
+export const NavBar = () => {
     return (
         <>
             <Navbar bg="light" expand="lg">
@@ -15,15 +15,14 @@ export const NavBarHome = () => {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
-                            <NavLink className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="/"> Inicio </NavLink>
+                            <NavBarAccesInit />
+                            <NavBarUsers />
                         </Nav>
                     </Navbar.Collapse>
-                    
+
                     <Navbar.Collapse className="justify-content-end">
-                        <Navbar.Text></Navbar.Text>
                         <Nav>
-                            <NavLink className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="/singin"> Registro </NavLink>
-                            <NavLink className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="/login"> Acceso </NavLink>
+                            <NavBarAccesEnd />
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
