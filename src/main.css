@@ -11,3 +11,8 @@
 .nav-link.active{
     color: rgb(248, 245, 245) !important;
 }
+
+
+.box-shadow{
+    box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.2);
+}

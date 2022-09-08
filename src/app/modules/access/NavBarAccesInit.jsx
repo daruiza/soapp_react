@@ -6,7 +6,7 @@ export const NavBarAccesInit = () => {
     return (
         <>
             <PublicNavBar>
-                <NavLink className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="users/"> Inicio </NavLink>
+                <NavLink className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="/"> Inicio </NavLink>
             </PublicNavBar>
 
             <PrivateNavBar>
