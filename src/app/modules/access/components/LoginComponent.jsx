@@ -5,7 +5,7 @@ import { useContext } from 'react';
 import { AuthTypes } from '../../../types';
 import { AuthContext } from '../context/AuthContext'
 
-export const LoginComponent = () => {
+export const LoginComponent = ({ navBarWidth = 56 }) => {
 
     const { user, authDispatch } = useContext(AuthContext);
 
@@ -24,12 +24,15 @@ export const LoginComponent = () => {
         authDispatch(action);
     }
 
-
     return (
-        <Grid container spacing={0} alignItems="center" justifyContent="center"
-            sx={{ minHeight: '100vh', backgroundColor: 'primary.main', padding: 2 }}>
-            <Grid item xs={1} md={3}></Grid>
-            <Grid item xs={10} md={6} className='box-shadow'
+        <Grid container spacing={0} justifyContent="center"
+            sx={{
+                minHeight: `calc(100vh - ${navBarWidth}px)`,
+                backgroundColor: 'primary.main',
+                padding: 2,
+                alignItems: { xs: 'start', md: 'center' }
+            }}>
+            <Grid item xs={10} md={4} className='box-shadow'
                 sx={{ backgroundColor: 'white', padding: 2, borderRadius: 2 }}>
                 <Typography variant='h5' sx={{ mb: 1 }}>Login</Typography>
                 <form>
@@ -73,7 +76,6 @@ export const LoginComponent = () => {
                     </Grid>
                 </form>
             </Grid >
-            <Grid item xs={1} md={3}></Grid>
         </Grid >
     )
 }
