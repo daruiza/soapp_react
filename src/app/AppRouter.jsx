@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { UserRoute } from '../modules/users';
-import { HomeComponent } from '../modules/home';
-import { AccesRoute } from '../modules/access';
+import { UserRoute } from './modules/users';
+import { HomeComponent } from './modules/home';
+import { AuthRoute } from './modules/auth';
 
 export const AppRouter = () => {
     return (
@@ -9,7 +9,7 @@ export const AppRouter = () => {
             <Routes>
                 <Route path="/" element={<HomeComponent />} />
                 <Route path="users/*" element={<UserRoute />} />
-                <Route path="acces/*" element={<AccesRoute />} />
+                <Route path="auth/*" element={<AuthRoute />} />
                 {/* <Route path="/*" element={<Navigate to="/" />} /> */}
             </Routes>
         </>

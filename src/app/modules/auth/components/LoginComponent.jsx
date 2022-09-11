@@ -1,28 +1,50 @@
+import { useDispatch } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import { Button, Grid, Link, TextField, Typography } from '@mui/material';
 import { Google } from '@mui/icons-material';
 import { useContext } from 'react';
 import { AuthTypes } from '../../../types';
 import { AuthContext } from '../context/AuthContext'
+import { useForm } from '../../../../hooks';
+import { checkingAuthentication, initDispatcher } from '../../../../store';
+
 
 export const LoginComponent = ({ navBarWidth = 56 }) => {
 
-    const { user, authDispatch } = useContext(AuthContext);
 
-    console.log('LoginComponent', user);
-    const onLogin = () => {
-        const user = {
-            id: '123',
-            name: 'John',
-            rol: 3
-        }
-        const action = {
-            type: AuthTypes.login,
-            payload: user
-        }
-        localStorage.setItem('user', JSON.stringify(user));
-        authDispatch(action);
+    const dispatch = useDispatch();
+    // const { user, authDispatch } = useContext(AuthContext);
+
+    const onLogin = async () => {
+        // const user = {
+        //     id: '123',
+        //     name: 'John',
+        //     rol: 3
+        // }
+        // const action = {
+        //     type: AuthTypes.login,
+        //     payload: user
+        // }
+        // localStorage.setItem('user', JSON.stringify(user));
+        // authDispatch(action);
     }
+
+    const { email, password, onInputChange } = useForm({
+        email: 'email@example.com',
+        password: 'password',
+    });
+
+    const onSubmit = (event) => {
+        event.preventDefault();
+        dispatch(checkingAuthentication(email, password));
+    }
+
+    const onOtto = (event) => {
+        event.preventDefault();
+        dispatch(initDispatcher());
+    }
+
+    
 
     return (
         <Grid container spacing={0} justifyContent="center"
@@ -35,7 +57,7 @@ export const LoginComponent = ({ navBarWidth = 56 }) => {
             <Grid item xs={10} md={4} className='box-shadow'
                 sx={{ backgroundColor: 'white', padding: 2, borderRadius: 2 }}>
                 <Typography variant='h5' sx={{ mb: 1 }}>Login</Typography>
-                <form>
+                <form onSubmit={onSubmit}>
                     <Grid container>
                         <Grid item xs={12} md={12} sx={{ mb: 1 }} >
                             <TextField
@@ -43,6 +65,9 @@ export const LoginComponent = ({ navBarWidth = 56 }) => {
                                 type="email"
                                 placeholder='correo@example.com'
                                 fullWidth
+                                name="email"
+                                value={email}
+                                onChange={onInputChange}
                             />
                         </Grid>
                         <Grid item xs={12} md={12} sx={{ mb: 1 }}>
@@ -51,25 +76,26 @@ export const LoginComponent = ({ navBarWidth = 56 }) => {
                                 type="password"
                                 placeholder='Contraseña'
                                 fullWidth
+                                name="password"
+                                value={password}
+                                onChange={onInputChange}
                             />
                         </Grid>
                         <Grid container spacing={2} sx={{ mb: 2, mt: 1 }} >
                             <Grid item xs={12} sm={6}>
-                                <Button variant="contained" fullWidth>
-                                    Login
+                            <Button variant="contained" fullWidth onClick={onOtto}>
+                                    Otto
                                 </Button>
                             </Grid>
-
                             <Grid item xs={12} sm={6}>
-                                <Button variant="contained" fullWidth>
-                                    <Google />
-                                    <Typography sx={{ ml: 1 }}>Google</Typography>
+                                <Button type="submit" variant="contained" fullWidth>
+                                    Login
                                 </Button>
                             </Grid>
                         </Grid>
 
                         <Grid container direction="row" justifyContent="end">
-                            <Link component={RouterLink} color='inherit' to='/acces/singin'>
+                            <Link component={RouterLink} color='inherit' to='/auth/singin'>
                                 Crear Una cuenta
                             </Link>
                         </Grid>

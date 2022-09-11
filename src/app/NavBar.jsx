@@ -1,14 +1,13 @@
 import { useTheme } from "@mui/material";
 import { Container, Navbar, Nav } from "react-bootstrap"
 import { Link } from "react-router-dom";
-import { NavBarAccesEnd, NavBarAccesInit } from "./modules/access";
+import { NavBarAuthEnd, NavBarAuthStart } from "./modules/auth";
 import { NavBarUsers } from "./modules/users/NavBarUsers";
 
 export const NavBar = () => {
 
     const theme = useTheme();
-    console.log('theme',theme);
-    
+    // console.log('theme',theme);    
     return (
         <>
             <Navbar className="bglight" bg="light" expand="lg">
@@ -20,14 +19,14 @@ export const NavBar = () => {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
-                            <NavBarAccesInit />
+                            <NavBarAuthStart />
                             <NavBarUsers />
                         </Nav>
                     </Navbar.Collapse>
 
                     <Navbar.Collapse className="justify-content-end">
                         <Nav>
-                            <NavBarAccesEnd />
+                            <NavBarAuthEnd />
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

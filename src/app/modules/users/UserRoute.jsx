@@ -1,6 +1,6 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { PrivateResponsibleRoute } from '../../router'
+import { PrivateResponsibleRoute } from '../../middleware'
 import { UserComponent } from './components'
 
 export const UserRoute = () => {

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { PrivateResponsibleRoute } from '../../router'
+import { PrivateResponsibleRoute } from '../../middleware'
 
 export const NavBarUsers = () => {
     return (

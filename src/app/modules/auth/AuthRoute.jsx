@@ -1,12 +1,12 @@
-import React, { useContext } from 'react'
+import { useSelector } from 'react-redux'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { PrivateRoute, PublicRoute } from '../../router'
+import { authstatusTypes } from '../../../store'
+import { PrivateRoute, PublicRoute } from '../../middleware'
 import { LoginComponent, LogoutComponent, SinginComponent } from './components'
-import { AuthContext } from './context'
 
-export const AccesRoute = () => {
-    const { logged } = useContext(AuthContext)
-    return (logged)
+export const AuthRoute = () => {
+    const { status } = useSelector(state => state.auth);
+    return (status === authstatusTypes.AUTHENTICATED)
         ? <PrivateRoute>
             <Routes>
                 <Route path="logout" element={<LogoutComponent />} />

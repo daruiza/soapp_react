@@ -1,12 +1,12 @@
 import { Navbar } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import { PrivateNavBar, PublicNavBar } from "../../router";
+import { PrivateNavBar, PublicNavBar } from "../../../middleware";
 
-export const NavBarAccesInit = () => {
+export const NavBarAuthStart = () => {
     return (
         <>
             <PublicNavBar>
-                <NavLink className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="/"> Inicio </NavLink>
+                <NavLink className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="auth/logout"> Inicio </NavLink>
             </PublicNavBar>
 
             <PrivateNavBar>
