@@ -13,7 +13,7 @@ export const authSlice = createSlice({
             state.token = payload.auht.access_token;
             state.user = payload.user;
         },
-        logout: (state, payload) => {
+        logout: (state) => {
             state.status = 'not-authenticated';
             state.token = null;
             state.user = null;

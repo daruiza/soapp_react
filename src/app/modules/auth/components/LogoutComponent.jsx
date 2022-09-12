@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap';
 import { AuthTypes } from "../../../types";
 import { useContext } from "react";
 import { AuthContext } from "../context";
-import { logout } from "../../../../store";
+import { logoutDispatcher } from "../../../../store";
 
 export const LogoutComponent = () => {
 
@@ -18,8 +18,7 @@ export const LogoutComponent = () => {
     //   payload: user
     // }
     // authDispatch(action);
-    localStorage.removeItem('accesstoken');
-    dispatch(logout())
+    dispatch(logoutDispatcher())
   }
 
 

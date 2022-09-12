@@ -1,33 +1,13 @@
 import { useDispatch } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import { Button, Grid, Link, TextField, Typography } from '@mui/material';
-import { Google } from '@mui/icons-material';
-import { useContext } from 'react';
-import { AuthTypes } from '../../../types';
-import { AuthContext } from '../context/AuthContext'
 import { useForm } from '../../../../hooks';
-import { checkingAuthentication, initDispatcher } from '../../../../store';
+import { checkingAuthentication } from '../../../../store';
 
 
 export const LoginComponent = ({ navBarWidth = 56 }) => {
 
-
     const dispatch = useDispatch();
-    // const { user, authDispatch } = useContext(AuthContext);
-
-    const onLogin = async () => {
-        // const user = {
-        //     id: '123',
-        //     name: 'John',
-        //     rol: 3
-        // }
-        // const action = {
-        //     type: AuthTypes.login,
-        //     payload: user
-        // }
-        // localStorage.setItem('user', JSON.stringify(user));
-        // authDispatch(action);
-    }
 
     const { email, password, onInputChange } = useForm({
         email: 'email@example.com',
@@ -39,18 +19,11 @@ export const LoginComponent = ({ navBarWidth = 56 }) => {
         dispatch(checkingAuthentication(email, password));
     }
 
-    const onOtto = (event) => {
-        event.preventDefault();
-        dispatch(initDispatcher());
-    }
-
-    
-
     return (
         <Grid container spacing={0} justifyContent="center"
             sx={{
                 minHeight: `calc(100vh - ${navBarWidth}px)`,
-                backgroundColor: 'primary.main',
+                backgroundColor: 'secondary.main',
                 padding: 2,
                 alignItems: { xs: 'start', md: 'center' }
             }}>
@@ -82,23 +55,13 @@ export const LoginComponent = ({ navBarWidth = 56 }) => {
                             />
                         </Grid>
                         <Grid container spacing={2} sx={{ mb: 2, mt: 1 }} >
-                            <Grid item xs={12} sm={6}>
-                            <Button variant="contained" fullWidth onClick={onOtto}>
-                                    Otto
-                                </Button>
-                            </Grid>
+                            <Grid item xs={12} sm={6}></Grid>
                             <Grid item xs={12} sm={6}>
                                 <Button type="submit" variant="contained" fullWidth>
                                     Login
                                 </Button>
                             </Grid>
-                        </Grid>
-
-                        <Grid container direction="row" justifyContent="end">
-                            <Link component={RouterLink} color='inherit' to='/auth/singin'>
-                                Crear Una cuenta
-                            </Link>
-                        </Grid>
+                        </Grid>                        
                     </Grid>
                 </form>
             </Grid >

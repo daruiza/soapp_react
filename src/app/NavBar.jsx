@@ -1,16 +1,14 @@
-import { useTheme } from "@mui/material";
+import { useTheme } from "@emotion/react";
 import { Container, Navbar, Nav } from "react-bootstrap"
 import { Link } from "react-router-dom";
 import { NavBarAuthEnd, NavBarAuthStart } from "./modules/auth";
 import { NavBarUsers } from "./modules/users/NavBarUsers";
 
-export const NavBar = () => {
-
-    const theme = useTheme();
-    // console.log('theme',theme);    
+export const NavBar = (props) => {
+    const { palette } = useTheme();
     return (
         <>
-            <Navbar className="bglight" bg="light" expand="lg">
+            <Navbar style={{ backgroundColor: `${palette.primary.main}` }} expand="lg">
                 <Container>
                     <Navbar.Brand as={Link} to="/">
                         {/* <img src={asistirEnSaludBran} alt="asistirEnSaludBran" /> */}
