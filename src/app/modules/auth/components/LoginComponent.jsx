@@ -1,13 +1,10 @@
 import { useDispatch } from 'react-redux';
-import { Link as RouterLink } from 'react-router-dom';
-import { Button, Grid, Link, TextField, Typography } from '@mui/material';
+import { Button, Grid, TextField, Typography } from '@mui/material';
 import { useForm } from '../../../../hooks';
 import { checkingAuthentication } from '../../../../store';
 
-
 export const LoginComponent = ({ navBarWidth = 56 }) => {
-
-    const dispatch = useDispatch();
+    const dispatch = useDispatch();       
 
     const { email, password, onInputChange } = useForm({
         email: 'email@example.com',
@@ -58,7 +55,7 @@ export const LoginComponent = ({ navBarWidth = 56 }) => {
                             <Grid item xs={12} sm={6}></Grid>
                             <Grid item xs={12} sm={6}>
                                 <Button type="submit" variant="contained" fullWidth>
-                                    Login
+                                    Continuar
                                 </Button>
                             </Grid>
                         </Grid>                        

@@ -1,19 +1,19 @@
 import { createTheme } from "@mui/material";
-import { red } from "@mui/material/colors";
+import { green, red } from "@mui/material/colors";
 
-export const skyTheme = createTheme({
+export const superTheme = createTheme({
     palette: {
         primary: {
-            main: '#69a1f3'
+            main: '#000000'
         },
         secondary: {
             main: '#dce8f9'
         },
         text: { 
-            primary: '#0000008C'
+            primary: green.A400
         },
         error: {
             main: red.A400
-        },
+        },        
     }
 })

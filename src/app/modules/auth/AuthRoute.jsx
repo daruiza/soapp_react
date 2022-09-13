@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { authstatusTypes } from '../../../store'
@@ -6,7 +7,8 @@ import { LoginComponent, LogoutComponent, SinginComponent } from './components'
 
 export const AuthRoute = () => {
     const { status } = useSelector(state => state.auth);
-    return (status === authstatusTypes.AUTHENTICATED)
+    const AUTHENTICATED = useMemo(() => status === authstatusTypes.AUTHENTICATED, [status])
+    return (AUTHENTICATED)
         ? <PrivateRoute>
             <Routes>
                 <Route path="logout" element={<LogoutComponent />} />

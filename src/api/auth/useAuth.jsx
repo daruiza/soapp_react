@@ -22,9 +22,10 @@ export const useAuth = (dispatch) => {
     );
 
     authApi.interceptors.response.use((response) => {
+        const {data: {message}} = response;
         dispatch(backdropPop(
             {
-                message: `${response.config.url} ${response.statusText}`,
+                message: `${message}`,
                 alert: 'success'
             }
         ));

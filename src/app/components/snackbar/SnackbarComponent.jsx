@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import CloseIcon from '@mui/icons-material/Close';
 import { Alert, IconButton, Snackbar } from '@mui/material';
-import { useEffect } from 'react';
 
 export const SnackbarComponent = () => {
     const [open, setOpen] = useState(false);
@@ -10,11 +9,9 @@ export const SnackbarComponent = () => {
 
     useEffect(() => {
         if (message) {
-            console.log('SnackbarComponent', { stateOpen, message });
             setOpen(true);
             setTimeout(() => handleClose, 6000);
         }
-
     }, [stateOpen, message])
 
     const handleClose = (event) => {
@@ -34,16 +31,16 @@ export const SnackbarComponent = () => {
         </React.Fragment>
     );
 
-    return (
+    return (alert && message) ?
         <Snackbar
             open={open}
             autoHideDuration={6000}
             onClose={handleClose}
             action={action}
         >
-            <Alert onClose={handleClose} severity={alert ? alert : 'info'} sx={{ width: '100%' }}>
+            <Alert action={action} severity={alert ? alert : 'info'} sx={{ width: '100%', border: '1px solid' }}>
                 {message}
             </Alert>
-        </Snackbar>
-    )
+        </Snackbar> : <></>
+
 }
