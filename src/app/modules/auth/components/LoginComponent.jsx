@@ -1,19 +1,39 @@
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button, Grid, TextField, Typography } from '@mui/material';
 import { useForm } from '../../../../hooks';
 import { checkingAuthentication } from '../../../../store';
 
-export const LoginComponent = ({ navBarWidth = 56 }) => {
-    const dispatch = useDispatch();       
+const formData = { email: '', password: '' }
 
-    const { email, password, onInputChange } = useForm({
-        email: 'email@example.com',
-        password: 'password',
-    });
+const formValidations = {
+    email: [(value) => value.includes('@'), 'El correo debe tener una @.'],
+    password: [(value) => value.length >= 1, 'La Contraseña es obligatoria.']
+}
+
+export const LoginComponent = ({ navBarWidth = 56 }) => {
+
+    const dispatch = useDispatch();
+
+    const [formSubmitted, setformSubmitted] = useState(false);
+    const {
+        onInputChange,
+        onInputClick,
+        emailToched,
+        passwordToched,
+        email,
+        password,
+        isFormValid,
+        emailValid,
+        passwordValid
+    } = useForm(formData, formValidations);
 
     const onSubmit = (event) => {
         event.preventDefault();
-        dispatch(checkingAuthentication(email, password));
+        setformSubmitted(true);
+        if (isFormValid) {
+            dispatch(checkingAuthentication(email, password));
+        }
     }
 
     return (
@@ -26,7 +46,7 @@ export const LoginComponent = ({ navBarWidth = 56 }) => {
             }}>
             <Grid item xs={10} md={4} className='box-shadow'
                 sx={{ backgroundColor: 'white', padding: 2, borderRadius: 2 }}>
-                <Typography variant='h5' sx={{ mb: 1 }}>Login</Typography>
+                <Typography variant='h5' sx={{ mb: 1 }}>Inicio de Sesión</Typography>
                 <form onSubmit={onSubmit}>
                     <Grid container>
                         <Grid item xs={12} md={12} sx={{ mb: 1 }} >
@@ -37,7 +57,11 @@ export const LoginComponent = ({ navBarWidth = 56 }) => {
                                 fullWidth
                                 name="email"
                                 value={email}
+                                onClick={onInputClick}
                                 onChange={onInputChange}
+                                helperText={emailValid}
+                                error={!!emailValid && emailToched}
+                                inputProps={{ className: `` }}
                             />
                         </Grid>
                         <Grid item xs={12} md={12} sx={{ mb: 1 }}>
@@ -48,17 +72,20 @@ export const LoginComponent = ({ navBarWidth = 56 }) => {
                                 fullWidth
                                 name="password"
                                 value={password}
+                                onClick={onInputClick}
                                 onChange={onInputChange}
+                                helperText={passwordValid}
+                                error={!!passwordValid && passwordToched}
                             />
                         </Grid>
                         <Grid container spacing={2} sx={{ mb: 2, mt: 1 }} >
                             <Grid item xs={12} sm={6}></Grid>
                             <Grid item xs={12} sm={6}>
-                                <Button type="submit" variant="contained" fullWidth>
+                                <Button disabled={!isFormValid} type="submit" variant="contained" fullWidth>
                                     Continuar
                                 </Button>
                             </Grid>
-                        </Grid>                        
+                        </Grid>
                     </Grid>
                 </form>
             </Grid >
