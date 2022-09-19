@@ -17,6 +17,13 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         return true;
     }, [formValidation]);
 
+    const setInput = (name, value) => {
+        setFormState({
+            ...formState,
+            [name]: value
+        });
+    }
+
     const onInputChange = ({ target }) => {
         const { name, value } = target;
         setFormState({
@@ -32,7 +39,7 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
                 ...formTouched,
                 [`${name}Toched`]: true
             });
-        }        
+        }
     }
 
 
@@ -57,6 +64,7 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         formState,
         formValidation,
         formTouched,
+        setInput,
         onInputChange,
         onInputClick,
         onResetForm,

@@ -1,15 +1,12 @@
+import { capitalize } from "@mui/material";
 import { useAuth } from "../../api";
 import { checkingCredentials, logout, login } from "./";
-
-const capitalizeFirstLowercaseRest = str => {
-    return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : str;
-};
 
 const setLoginResponse = (dispatch, user, auht) => {
     dispatch(login({
         user: {
             ...user.User,
-            fullname: `${capitalizeFirstLowercaseRest(user.User.name)} ${capitalizeFirstLowercaseRest(user.User.lastname)}`,
+            fullname: `${capitalize(user.User.name)} ${capitalize(user.User.lastname)}`,
             capital: `${user?.User?.name?.charAt(0).toUpperCase()}`
         },
         auht: auht
