@@ -5,8 +5,8 @@ import { ThemeTypes } from '../app/types';
 import { skyTheme } from './skyTheme';
 
 export const AppTheme = ({ children }) => {
-    const { user } = useSelector(state => state.auth);
-    const theme = user ? ThemeTypes[user?.theme] : skyTheme;
+    const { user } = useSelector(state => state.auth);    
+    const theme = user && ThemeTypes[user?.theme] ? ThemeTypes[user?.theme] : skyTheme;
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />

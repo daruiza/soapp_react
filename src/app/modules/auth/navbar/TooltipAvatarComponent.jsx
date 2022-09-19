@@ -1,21 +1,28 @@
 import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Avatar, Box, Divider, IconButton, ListItemIcon, Menu, MenuItem, Tooltip } from "@mui/material";
+import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
+import CloseIcon from '@mui/icons-material/Close';
 import { PersonAdd, Settings } from "@mui/icons-material";
 import { PrivateNavBar } from '../../../middleware';
 import { logoutDispatcher } from '../../../../store';
+import { UserComponent } from '../components';
 
 export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
-    const { user: userauth } = useSelector(state => state.auth);
-    const user = useMemo(() => userauth, [userauth])
     const dispatch = useDispatch();
 
-    const [anchorEl, setAnchorEl] = useState(null);
-    const open = Boolean(anchorEl);
+    const { user: userauth } = useSelector(state => state.auth);
+    const user = useMemo(() => userauth, [userauth])
 
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [openUser, setOpenUser] = useState(false);
 
     const handleClick = (event) => setAnchorEl(event.currentTarget);
     const handleClose = () => setAnchorEl(null);
+
+    const handleUserOpen = () => setOpenUser(true);
+    const handleUserClose = () => setOpenUser(false);
+
     const onLogout = () => dispatch(logoutDispatcher());
 
     return (
@@ -26,16 +33,16 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
                         onClick={handleClick}
                         size="small"
                         sx={{ ml: 1 }}
-                        aria-controls={open ? 'account-menu' : undefined}
+                        aria-controls={Boolean(anchorEl) ? 'account-menu' : undefined}
                         aria-haspopup="true"
-                        aria-expanded={open ? 'true' : undefined}                                >
+                        aria-expanded={Boolean(anchorEl) ? 'true' : undefined}                                >
                         <Avatar sx={{ backgroundColor: 'secondary.main', color: 'primary.main', width: 32, height: 32 }}>{user?.capital ?? 'A'}</Avatar>
                     </IconButton>
                 </Tooltip>
                 <Menu
                     anchorEl={anchorEl}
                     id="account-menu"
-                    open={open}
+                    open={Boolean(anchorEl)}
                     onClose={handleClose}
                     onClick={handleClose}
                     PaperProps={{
@@ -68,33 +75,36 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
                     transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                     anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                 >
-                    <MenuItem>
-                        <Avatar /> Profile
-                    </MenuItem>
-                    <MenuItem>
-                        <Avatar /> My account
+                    <MenuItem onClick={handleUserOpen}>
+                        {/* <Avatar /> Perfil */}
+                        <ListItemIcon>
+                            {/* <Settings fontSize="small" /> */}
+                            <SettingsSuggestIcon fontSize="medium"></SettingsSuggestIcon>
+                        </ListItemIcon>
+                        Perfil
                     </MenuItem>
                     <Divider />
-                    <MenuItem>
+                    {/* <MenuItem>
                         <ListItemIcon>
                             <PersonAdd fontSize="small" />
                         </ListItemIcon>
                         Add another account
-                    </MenuItem>
-                    <MenuItem>
+                    </MenuItem> */}
+                    {/* <MenuItem>
                         <ListItemIcon>
                             <Settings fontSize="small" />
                         </ListItemIcon>
                         Settings
-                    </MenuItem>
+                    </MenuItem> */}
                     <MenuItem onClick={onLogout}>
                         <ListItemIcon>
-                            <Settings fontSize="small" />
+                            <CloseIcon fontSize="medium"></CloseIcon>
                         </ListItemIcon>
                         Logout
                     </MenuItem>
                 </Menu>
             </Box>
+            <UserComponent open={openUser} handleClose={handleUserClose} user={userauth}></UserComponent>
         </PrivateNavBar>
     )
 }

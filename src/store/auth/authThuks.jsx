@@ -1,8 +1,5 @@
-
-
-import { useAuth } from "../../api/auth/useAuth";
+import { useAuth } from "../../api";
 import { checkingCredentials, logout, login } from "./";
-
 
 const capitalizeFirstLowercaseRest = str => {
     return str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : str;

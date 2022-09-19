@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button, Grid, TextField, Typography } from '@mui/material';
 import { useForm } from '../../../../hooks';
@@ -15,22 +14,20 @@ export const LoginComponent = ({ navBarWidth = 56 }) => {
 
     const dispatch = useDispatch();
 
-    const [formSubmitted, setformSubmitted] = useState(false);
     const {
         onInputChange,
         onInputClick,
-        emailToched,
-        passwordToched,
         email,
         password,
-        isFormValid,
+        emailToched,
+        passwordToched,
         emailValid,
-        passwordValid
+        passwordValid,
+        isFormValid,
     } = useForm(formData, formValidations);
 
     const onSubmit = (event) => {
         event.preventDefault();
-        setformSubmitted(true);
         if (isFormValid) {
             dispatch(checkingAuthentication(email, password));
         }
