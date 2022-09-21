@@ -2,26 +2,37 @@ import { Avatar, Button, capitalize, Dialog, DialogActions, DialogContent, Dialo
 import { useRef, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { uploadPhoto } from '../../../../api/upload/uploadThuks';
+import { userSave } from '../../../../api/user/userThunks';
 import { useForm } from '../../../../hooks';
 
-const formData = { id: '', name: '', lastname: '', email: '', phone: '', theme: '' }
+const formData = { id: '', name: '', lastname: '', email: '', phone: '', theme: '' };
+const formValidations = {
+    email: [(value) => value.includes('@'), 'El correo debe tener una @.'],
+};
 const setInputsForm = (user) => {
-    console.log('user', user);
     for (const formField of Object.keys(formData)) {
         formData[formField] = user[formField];
     }
     return formData
-}
-
+};
 
 export const UserComponent = ({ user = {}, open = false, handleClose = () => { } }) => {
 
     const dispatch = useDispatch();
 
-    const { formState, name, lastname, email, phone, theme, setInput, onInputChange } = useForm(setInputsForm(user));
+    const {
+        formState,
+        name,
+        lastname,
+        email,
+        phone,
+        theme,
+        setInput,
+        onInputChange } = useForm(setInputsForm(user), formValidations);
 
-    const [file, setFile] = useState();
-    const [image, setImage] = useState();
+    // console.log('user', user);
+    // console.log(`${window.location.origin}${user.photo}`)
+    const [image, setImage] = useState(user.photo ? `${window.location.origin}${user.photo}` : null);
     const inputFileRef = useRef();
 
     const AddImage = () => {
@@ -34,21 +45,19 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
     // Behavior
 
     // Events
-    const handleChange = (event) => {
+    const handleInputFileChange = (event) => {
         const file = event.target.files[0]
-        console.log(file);
         if (file.type.includes('image')) {
-            setFile(event.target.files[0])
             setImage(URL.createObjectURL(event.target.files[0]));
-            dispatch(uploadPhoto(file)).then(({ data }) => {                
-                setInput('photo', data.image_path)
+            dispatch(uploadPhoto(file)).then(({ data }) => {
+                setInput('photo', data.storage_image_path)
             });
         }
     }
 
     const handleSubmit = (event) => {
-        event.preventDefault()
-        console.log('formState', formState)
+        event.preventDefault();
+        dispatch(userSave({ form: { ...user, ...formState }, user: user }));
     }
 
     return (
@@ -79,9 +88,9 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
                 <DialogContentText id="alert-dialog-description" sx={{ mb: 2 }}>Editar y Actualizar mi Información de Usuario</DialogContentText>
 
                 <form onSubmit={handleSubmit}>
-                    <input style={{ display: 'none' }} ref={inputFileRef} type="file" onChange={handleChange} />
-                    <Grid container sx={{ flexWrap: 'nowrap', mb: 2 }}>
-                        <Grid item xs={12} md={6} sx={{ mb: 1, mr: 2 }} >
+                    <input style={{ display: 'none' }} ref={inputFileRef} type="file" onChange={handleInputFileChange} />
+                    <Grid container spacing={0} justifyContent="center" sx={{ mb: 2 }}>
+                        <Grid item xs={12} md={6} sx={{ mb: 1, pr: 0.5, pl: 0.5 }} >
                             <TextField
                                 label="Nombres"
                                 type="text"
@@ -97,7 +106,7 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6} sx={{ mb: 1, mr: 0 }} >
+                        <Grid item xs={12} md={6} sx={{ mb: 1, pr: 0.5, pl: 0.5 }} >
                             <TextField
                                 label="Apellidos"
                                 type="text"
@@ -113,8 +122,8 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
                             />
                         </Grid>
                     </Grid>
-                    <Grid container sx={{ flexWrap: 'nowrap' }}>
-                        <Grid item xs={12} md={6} sx={{ mb: 1, mr: 2 }} >
+                    <Grid container spacing={0} justifyContent="center" sx={{}}>
+                        <Grid item xs={12} md={4} sx={{ mb: 1, pr: 0.5, pl: 0.5 }} >
                             <TextField
                                 label="Celular"
                                 type="phone"
@@ -130,7 +139,7 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6} sx={{ mb: 1, mr: 2 }} >
+                        <Grid item xs={12} md={4} sx={{ mb: 1, pr: 0.5, pl: 0.5 }} >
                             <TextField
                                 label="Correo"
                                 type="email"
@@ -146,7 +155,7 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6} sx={{ mb: 1, mr: 0 }} >
+                        <Grid item xs={12} md={4} sx={{ mb: 1, pr: 0.5, pl: 0.5 }} >
                             <TextField
                                 label="Diseño"
                                 type="theme"
@@ -167,9 +176,7 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose} variant="contained" >Cerrar</Button>
-                <Button onClick={handleSubmit} variant="contained" autoFocus>
-                    Actualizar
-                </Button>
+                <Button onClick={handleSubmit} variant="contained" autoFocus>Actualizar</Button>
             </DialogActions>
         </Dialog>
     )

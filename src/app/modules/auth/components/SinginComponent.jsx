@@ -1,7 +1,7 @@
 import React from 'react'
 
 export const SinginComponent = () => {
-  return (
+  return (    
     <div>SinginComponent</div>
   )
 }

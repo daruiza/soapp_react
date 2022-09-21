@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Avatar, Box, Divider, IconButton, ListItemIcon, Menu, MenuItem, Tooltip } from "@mui/material";
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import CloseIcon from '@mui/icons-material/Close';
-import { PersonAdd, Settings } from "@mui/icons-material";
 import { PrivateNavBar } from '../../../middleware';
 import { logoutDispatcher } from '../../../../store';
 import { UserComponent } from '../components';
@@ -12,7 +11,7 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
     const dispatch = useDispatch();
 
     const { user: userauth } = useSelector(state => state.auth);
-    const user = useMemo(() => userauth, [userauth])
+    const user = useMemo(() => userauth, [userauth])    
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [openUser, setOpenUser] = useState(false);
@@ -36,7 +35,17 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
                         aria-controls={Boolean(anchorEl) ? 'account-menu' : undefined}
                         aria-haspopup="true"
                         aria-expanded={Boolean(anchorEl) ? 'true' : undefined}                                >
-                        <Avatar sx={{ backgroundColor: 'secondary.main', color: 'primary.main', width: 32, height: 32 }}>{user?.capital ?? 'A'}</Avatar>
+                        <Avatar
+                            sx={{
+                                backgroundColor: 'secondary.main',
+                                color: 'primary.main',
+                                width: 32,
+                                height: 32
+                            }}
+                            src={user?.photo ? `${window.location.origin}${user.photo}` : null}
+                        >
+                            {user?.capital ?? 'A'}
+                        </Avatar>
                     </IconButton>
                 </Tooltip>
                 <Menu

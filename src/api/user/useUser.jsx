@@ -1,18 +1,18 @@
 import axios from 'axios';
 import { backdropPop, backdropPush } from '../../store/requestapi/requestApiSlice';
 
-export const useUpload = (dispatch) => {
-    const uploadApi = axios.create({
+export const useUser = (dispatch) => {
+    const userApi = axios.create({
         baseURL: 'http://127.0.0.1:8080/'
         // baseURL: 'http://soapp_laravel.temposolutions.co/'
         
     });
 
-    uploadApi.interceptors.request.use(
+    userApi.interceptors.request.use(
         (config) => {
             dispatch(backdropPush(config.url));
             const token = localStorage.getItem('accesstoken');
-            config.headers['content-type'] = 'multipart/form-data';
+            config.headers['content-type'] = 'application/json;charset=utf-8;multipart/form-data;';
             if (token) {
                 config.headers['Authorization'] = `Bearer ${token}`;
             }
@@ -23,7 +23,7 @@ export const useUpload = (dispatch) => {
         }
     );
 
-    uploadApi.interceptors.response.use((response) => {
+    userApi.interceptors.response.use((response) => {
         const { data: { message } } = response;
         dispatch(backdropPop(
             {
@@ -39,6 +39,5 @@ export const useUpload = (dispatch) => {
         }));
         return Promise.reject(error)
     })
-    
-    return { uploadApi }
+    return { userApi }
 }

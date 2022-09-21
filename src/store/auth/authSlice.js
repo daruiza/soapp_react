@@ -1,27 +1,33 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { authstatusTypes } from "./authstatusTypes";
+import { capitalize } from "@mui/material";
 
 export const authSlice = createSlice({
     name: 'auth',
     initialState: {
-        status: 'not-authenticated', //'checking', 'not-authenticated' , 'authenticated'
+        status: authstatusTypes.NOTAUTHENTICATED,
         token: null,
         user: null,
     },
     reducers: {
         login: (state, { payload }) => {
-            state.status = 'authenticated';
-            state.token = payload.auht.access_token;
-            state.user = payload.user;
+            state.status = authstatusTypes.AUTHENTICATED;
+            state.token = payload?.auht?.access_token ?? state.token;
+            state.user = {
+                ...payload.user,
+                fullname: `${capitalize(payload.user.name)} ${capitalize(payload.user.lastname)}`,
+                capital: `${payload.user?.name?.charAt(0).toUpperCase()}`
+            };
         },
         logout: (state) => {
-            state.status = 'not-authenticated';
+            state.status = authstatusTypes.NOTAUTHENTICATED;
             state.token = null;
             state.user = null;
         },
         checkingCredentials: (state) => {
-            state.status = 'checking';
-        },
+            state.status = authstatusTypes.CHECKING;
+        }        
     }
 })
 
-export const { login, logout, checkingCredentials } = authSlice.actions;
+export const { login, logout, checkingCredentials, updateUser } = authSlice.actions;

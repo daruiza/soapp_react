@@ -7,7 +7,11 @@ export const BackdropComponent = () => {
     const isOpen = useMemo(() => open === true, [open])
     return (
         <Backdrop
-            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            sx={{
+                color: '#fff',
+                // zIndex: (theme) => theme.zIndex.drawer + 1,
+                zIndex: 12000
+            }}
             open={isOpen}
         >
             <CircularProgress color="primary" />
