@@ -1,17 +1,18 @@
 import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
+import { PrivateCustomerRoute, PrivateNavBar } from '../../../middleware';
+import { UserComponent } from '../components';
+import { logoutDispatcher } from '../../../../store';
 import { Avatar, Box, Divider, IconButton, ListItemIcon, Menu, MenuItem, Tooltip } from "@mui/material";
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import CloseIcon from '@mui/icons-material/Close';
-import { PrivateNavBar } from '../../../middleware';
-import { logoutDispatcher } from '../../../../store';
-import { UserComponent } from '../components';
+import { Settings, Work } from '@mui/icons-material';
 
 export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
     const dispatch = useDispatch();
 
     const { user: userauth } = useSelector(state => state.auth);
-    const user = useMemo(() => userauth, [userauth])    
+    const user = useMemo(() => userauth, [userauth])
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [openUser, setOpenUser] = useState(false);
@@ -37,7 +38,7 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
                         aria-expanded={Boolean(anchorEl) ? 'true' : undefined}                                >
                         <Avatar
                             sx={{
-                                backgroundColor: 'secondary.main',
+                                backgroundColor: 'text.primary',
                                 color: 'primary.main',
                                 width: 32,
                                 height: 32
@@ -88,32 +89,35 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
                         {/* <Avatar /> Perfil */}
                         <ListItemIcon>
                             {/* <Settings fontSize="small" /> */}
-                            <SettingsSuggestIcon fontSize="medium"></SettingsSuggestIcon>
+                            <SettingsSuggestIcon sx={{ color: "text.primary" }} fontSize="medium"></SettingsSuggestIcon>
                         </ListItemIcon>
                         Perfil
                     </MenuItem>
-                    <Divider />
+                    <PrivateCustomerRoute>
+                        <MenuItem>
+                            <ListItemIcon>
+                                <Work sx={{ color: "text.primary" }} fontSize="medium" ></Work>
+                            </ListItemIcon>
+                            Negocio
+                        </MenuItem>
+                    </PrivateCustomerRoute>
+                    <Divider  sx={{ bgcolor: "text.primary" }} />
                     {/* <MenuItem>
                         <ListItemIcon>
                             <PersonAdd fontSize="small" />
                         </ListItemIcon>
                         Add another account
                     </MenuItem> */}
-                    {/* <MenuItem>
-                        <ListItemIcon>
-                            <Settings fontSize="small" />
-                        </ListItemIcon>
-                        Settings
-                    </MenuItem> */}
+
                     <MenuItem onClick={onLogout}>
                         <ListItemIcon>
-                            <CloseIcon fontSize="medium"></CloseIcon>
+                            <CloseIcon sx={{ color: "text.primary" }} fontSize="medium"></CloseIcon>
                         </ListItemIcon>
                         Logout
                     </MenuItem>
                 </Menu>
             </Box>
             <UserComponent open={openUser} handleClose={handleUserClose} user={userauth}></UserComponent>
-        </PrivateNavBar>
+        </PrivateNavBar >
     )
 }

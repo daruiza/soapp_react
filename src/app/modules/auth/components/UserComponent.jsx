@@ -1,13 +1,15 @@
+import { useEffect, useRef, useState } from 'react'
 import { Avatar, Button, capitalize, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from '@mui/material'
-import { useRef, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { uploadPhoto } from '../../../../api/upload/uploadThuks';
 import { userSave } from '../../../../api/user/userThunks';
 import { useForm } from '../../../../hooks';
+import { updateUser } from '../../../../store';
 
 const formData = { id: '', name: '', lastname: '', email: '', phone: '', theme: '' };
 const formValidations = {
-    email: [(value) => value.includes('@'), 'El correo debe tener una @.'],
+    name: [(value) => value.length >= 1, 'El Nombre es obligatorio.'],
+    email: [(value) => value.includes('@'), 'El Correo debe tener una @.'],
 };
 const setInputsForm = (user) => {
     for (const formField of Object.keys(formData)) {
@@ -27,11 +29,17 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
         email,
         phone,
         theme,
+        emailValid,
+        nameValid,
+        nameToched,
+        emailToched,
+        isFormValid,
+        formChange,
         setInput,
-        onInputChange } = useForm(setInputsForm(user), formValidations);
+        onInputChange,
+        onInputClick,
+        onResetForm } = useForm(setInputsForm(user), formValidations);
 
-    // console.log('user', user);
-    // console.log(`${window.location.origin}${user.photo}`)
     const [image, setImage] = useState(user.photo ? `${window.location.origin}${user.photo}` : null);
     const inputFileRef = useRef();
 
@@ -43,6 +51,7 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
 
 
     // Behavior
+
 
     // Events
     const handleInputFileChange = (event) => {
@@ -57,7 +66,13 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        dispatch(userSave({ form: { ...user, ...formState }, user: user }));
+        if (isFormValid) {
+            dispatch(userSave({ form: { ...user, ...formState }, user: user })).then(({ data: { data } }) => {
+                // Actualizamos el usuario
+                dispatch(updateUser({ user: { ...user, ...data.user } }))
+                onResetForm({ initialForm: setInputsForm(user), formState });
+            });
+        }
     }
 
     return (
@@ -99,10 +114,9 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
                                 name="name"
                                 value={name}
                                 onChange={onInputChange}
-                            // onClick={onInputClick}
-                            // helperText={emailValid}
-                            // error={!!emailValid && emailToched}
-                            // inputProps={{ className: `` }}
+                                onClick={onInputClick}
+                                helperText={nameValid}
+                                error={!!nameValid && nameToched}
                             />
                         </Grid>
 
@@ -115,10 +129,6 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
                                 name="lastname"
                                 value={lastname}
                                 onChange={onInputChange}
-                            // onClick={onInputClick}
-                            // helperText={emailValid}
-                            // error={!!emailValid && emailToched}
-                            // inputProps={{ className: `` }}
                             />
                         </Grid>
                     </Grid>
@@ -132,10 +142,6 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
                                 name="phone"
                                 value={phone}
                                 onChange={onInputChange}
-                            // onClick={onInputClick}
-                            // helperText={emailValid}
-                            // error={!!emailValid && emailToched}
-                            // inputProps={{ className: `` }}
                             />
                         </Grid>
 
@@ -148,10 +154,10 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
                                 name="email"
                                 value={email}
                                 onChange={onInputChange}
-                            // onClick={onInputClick}
-                            // helperText={emailValid}
-                            // error={!!emailValid && emailToched}
-                            // inputProps={{ className: `` }}
+                                onClick={onInputClick}
+                                helperText={emailValid}
+                                error={!!emailValid && emailToched}
+                                inputProps={{ className: `` }}
                             />
                         </Grid>
 
@@ -164,10 +170,6 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
                                 name="theme"
                                 value={theme}
                                 onChange={onInputChange}
-                            // onClick={onInputClick}
-                            // helperText={emailValid}
-                            // error={!!emailValid && emailToched}
-                            // inputProps={{ className: `` }}
                             />
                         </Grid>
                     </Grid>
@@ -176,7 +178,7 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose} variant="contained" >Cerrar</Button>
-                <Button onClick={handleSubmit} variant="contained" autoFocus>Actualizar</Button>
+                <Button onClick={handleSubmit} disabled={!isFormValid || !formChange} variant="contained" autoFocus>Actualizar</Button>
             </DialogActions>
         </Dialog>
     )

@@ -1,8 +1,16 @@
-import { Typography } from "@mui/material"
+import { Grid, Typography } from "@mui/material";
 
-
-export const HomeComponent = () => {
+export const HomeComponent = ({ navBarWidth = 56 }) => {
   return (
-    <Typography>HomeComponent</Typography>
+    <Grid container spacing={0} justifyContent="center"
+      sx={{
+        minHeight: `calc(100vh - ${navBarWidth}px)`,
+        backgroundColor: 'secondary.main',
+        padding: 2,
+        alignItems: { xs: 'start', md: 'center' }
+      }}
+    >
+      <Typography>HomeComponent</Typography>
+    </Grid>
   )
 }

@@ -26,7 +26,14 @@ export const authSlice = createSlice({
         },
         checkingCredentials: (state) => {
             state.status = authstatusTypes.CHECKING;
-        }        
+        },
+        updateUser: (state, { payload }) => {
+            state.user = {
+                ...payload.user,
+                fullname: `${capitalize(payload.user.name)} ${capitalize(payload.user.lastname)}`,
+                capital: `${payload.user?.name?.charAt(0).toUpperCase()}`
+            };
+        }
     }
 })
 

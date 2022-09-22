@@ -6,9 +6,14 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
     const [formValidation, setformValidation] = useState({});
     const [formTouched, setTouched] = useState({});
 
+    const [formInit, setFormInit] = useState(JSON.stringify(initialForm));
+    const [formChange, setformChange] = useState(false);
+
+    // useEffect(() => { setFormInit(JSON.stringify(initialForm)); }, [])
     useEffect(() => {
         createValidators();
-    }, [formState])
+        setformChange(!(JSON.stringify(formState) === formInit));
+    }, [formState]);
 
     const isFormValid = useMemo(() => {
         for (const formValue of Object.keys(formValidation)) {
@@ -17,18 +22,15 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         return true;
     }, [formValidation]);
 
-    const setInput = (name, value) => {
-        setFormState({
-            ...formState,
-            [name]: value
-        });
-    }
-
     const onInputChange = ({ target }) => {
         const { name, value } = target;
         setFormState({
             ...formState,
             [name]: value
+        });
+        setTouched({
+            ...formTouched,
+            [`${name}Toched`]: true
         });
     }
 
@@ -42,9 +44,10 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         }
     }
 
-
-    const onResetForm = () => {
-        setFormState(initialForm);
+    const onResetForm = ({ initialForm, formState }) => {
+        setFormState(initialForm)
+        setFormInit(JSON.stringify(formState));
+        setformChange(!(JSON.stringify(formState) === formInit));
     }
 
     const createValidators = () => {
@@ -56,6 +59,14 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         setformValidation(formChechedValues)
     }
 
+    // Asignacion simple de un Input del Form
+    const setInput = (name, value) => {
+        setFormState({
+            ...formState,
+            [name]: value
+        });
+    }
+
     return {
         ...formState,
         ...formValidation,
@@ -64,6 +75,7 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         formState,
         formValidation,
         formTouched,
+        formChange,
         setInput,
         onInputChange,
         onInputClick,
