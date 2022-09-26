@@ -1,6 +1,6 @@
 import { Grid, Typography } from '@mui/material';
 
-export const UserComponent = ({ navBarWidth = 56 }) => {
+export const UserComponent = ({ navBarWidth = 58 }) => {
   return (
     <Grid container spacing={0} justifyContent="center"
       sx={{

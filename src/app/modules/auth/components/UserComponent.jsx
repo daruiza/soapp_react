@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Avatar, Button, capitalize, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from '@mui/material'
 import { useDispatch } from 'react-redux';
 import { uploadPhoto } from '../../../../api/upload/uploadThuks';
@@ -6,7 +6,7 @@ import { userSave } from '../../../../api/user/userThunks';
 import { useForm } from '../../../../hooks';
 import { updateUser } from '../../../../store';
 
-const formData = { id: '', name: '', lastname: '', email: '', phone: '', theme: '' };
+const formData = { id: '', name: '', lastname: '', email: '', phone: '', theme: '', photo: '' };
 const formValidations = {
     name: [(value) => value.length >= 1, 'El Nombre es obligatorio.'],
     email: [(value) => value.includes('@'), 'El Correo debe tener una @.'],
@@ -19,9 +19,9 @@ const setInputsForm = (user) => {
 };
 
 export const UserComponent = ({ user = {}, open = false, handleClose = () => { } }) => {
-
+    
+    // Init
     const dispatch = useDispatch();
-
     const {
         formState,
         name,
@@ -36,22 +36,16 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
         isFormValid,
         formChange,
         setInput,
-        onInputChange,
+        onInputChange,        
         onInputClick,
-        onResetForm } = useForm(setInputsForm(user), formValidations);
+        onResetForm
+    } = useForm(setInputsForm(user), formValidations);
 
     const [image, setImage] = useState(user.photo ? `${window.location.origin}${user.photo}` : null);
     const inputFileRef = useRef();
 
-    const AddImage = () => {
-        inputFileRef.current.click();
-    }
-
-    // Init
-
-
     // Behavior
-
+    const AddImage = () => { inputFileRef.current.click(); }
 
     // Events
     const handleInputFileChange = (event) => {

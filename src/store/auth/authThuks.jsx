@@ -1,4 +1,5 @@
 import { useAuth } from "../../api";
+import { getCommerceByUser } from "../commerce/commerceThuks";
 import { checkingCredentials, logout, login } from "./";
 
 const setLoginResponse = (dispatch, user, auht) => {
@@ -6,6 +7,7 @@ const setLoginResponse = (dispatch, user, auht) => {
         user: { ...user.User },
         auht: auht
     }));
+    dispatch(getCommerceByUser(user));
 }
 
 export const checkingAuthentication = (email, password) => {

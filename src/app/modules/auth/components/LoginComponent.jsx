@@ -10,7 +10,7 @@ const formValidations = {
     password: [(value) => value.length >= 1, 'La Contraseña es obligatoria.']
 }
 
-export const LoginComponent = ({ navBarWidth = 56 }) => {
+export const LoginComponent = ({ navBarWidth = 58 }) => {
 
     const dispatch = useDispatch();
 

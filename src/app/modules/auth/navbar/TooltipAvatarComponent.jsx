@@ -7,6 +7,7 @@ import { Avatar, Box, Divider, IconButton, ListItemIcon, Menu, MenuItem, Tooltip
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import CloseIcon from '@mui/icons-material/Close';
 import { Settings, Work } from '@mui/icons-material';
+import { CommerceComponent } from '../../commerce';
 
 export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
     const dispatch = useDispatch();
@@ -16,12 +17,16 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [openUser, setOpenUser] = useState(false);
+    const [openCommerce, setOpenCommerce] = useState(false);
 
     const handleClick = (event) => setAnchorEl(event.currentTarget);
     const handleClose = () => setAnchorEl(null);
 
     const handleUserOpen = () => setOpenUser(true);
     const handleUserClose = () => setOpenUser(false);
+
+    const handleCommerceOpen = () => setOpenCommerce(true);
+    const handleCommerceClose = () => setOpenCommerce(false);
 
     const onLogout = () => dispatch(logoutDispatcher());
 
@@ -94,14 +99,14 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
                         Perfil
                     </MenuItem>
                     <PrivateCustomerRoute>
-                        <MenuItem>
+                        <MenuItem onClick={handleCommerceOpen}>
                             <ListItemIcon>
                                 <Work sx={{ color: "text.primary" }} fontSize="medium" ></Work>
                             </ListItemIcon>
                             Negocio
                         </MenuItem>
                     </PrivateCustomerRoute>
-                    <Divider  sx={{ bgcolor: "text.primary" }} />
+                    <Divider sx={{ bgcolor: "text.primary" }} />
                     {/* <MenuItem>
                         <ListItemIcon>
                             <PersonAdd fontSize="small" />
@@ -118,6 +123,9 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
                 </Menu>
             </Box>
             <UserComponent open={openUser} handleClose={handleUserClose} user={userauth}></UserComponent>
+            <PrivateCustomerRoute>
+                <CommerceComponent open={openCommerce} handleClose={handleCommerceClose} user={userauth}></CommerceComponent>
+            </PrivateCustomerRoute>
         </PrivateNavBar >
     )
 }

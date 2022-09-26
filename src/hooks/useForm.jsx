@@ -9,7 +9,6 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
     const [formInit, setFormInit] = useState(JSON.stringify(initialForm));
     const [formChange, setformChange] = useState(false);
 
-    // useEffect(() => { setFormInit(JSON.stringify(initialForm)); }, [])
     useEffect(() => {
         createValidators();
         setformChange(!(JSON.stringify(formState) === formInit));
@@ -57,6 +56,7 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
             formChechedValues[`${formField}Valid`] = fn(formState[formField]) ? null : errorMessage;
         }
         setformValidation(formChechedValues)
+
     }
 
     // Asignacion simple de un Input del Form
@@ -71,6 +71,7 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         ...formState,
         ...formValidation,
         ...formTouched,
+        formInit,
         isFormValid,
         formState,
         formValidation,
