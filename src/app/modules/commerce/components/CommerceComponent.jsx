@@ -90,8 +90,7 @@ export const CommerceComponent = ({ user = {}, open = false, handleClose = () =>
     const handleSubmit = (event) => {
         event.preventDefault();
         if (isFormValid) {
-            console.log('formState', formState);
-            dispatch(commerceSave({ form: { ...commerce, ...formState }})).then(({ data: { data } }) => {
+            dispatch(commerceSave({ form: { ...commerce, ...formState } })).then(({ data: { data } }) => {
                 // Actualizamos el comercio
                 dispatch(updateCommerce({ commerce: { ...commerce, ...data.commerce } }))
                 onResetForm({ initialForm: setInputsForm(commerce), formState });
