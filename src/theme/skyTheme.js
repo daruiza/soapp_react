@@ -10,7 +10,8 @@ export const skyTheme = createTheme({
             main: '#dce8f9'
         },
         text: { 
-            primary: '#0000008C'
+            primary: '#0000008C',
+            secondary: '#69a1f3'
         },
         error: {
             main: red.A400

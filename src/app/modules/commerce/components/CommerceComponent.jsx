@@ -40,6 +40,7 @@ export const CommerceComponent = ({ user = {}, open = false, handleClose = () =>
     const dispatch = useDispatch();
     const { commerce: commerceState } = useSelector(state => state.commerce);
     const commerce = useMemo(() => commerceState, [commerceState]);
+
     const [departmentArray, setDepartmentArray] = useState([])
     const [cityArray, setCityArray] = useState([]);
 

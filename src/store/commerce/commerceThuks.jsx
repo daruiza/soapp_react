@@ -7,10 +7,9 @@ export const getCommerceByUser = ({ User: user }) => {
         if (user && user?.id && user.rol_id === 2) {
             const { commerceApi } = useCommerce(dispatch);
             return commerceApi.get(`api/commerce/showbyuserid/${user?.id}`)
-                .then(({ data: { data: { Commerce: commerce } } }) => {
+                .then(({ data: { data: { commerce: commerce } } }) => {
                     dispatch(commerceUpdate({ commerce }))
                 })
-
         }
     }
 }

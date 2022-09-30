@@ -46,6 +46,13 @@ export const initDispatcher = () => {
     }
 }
 
+export const getAllRols = () => {
+    return async (dispatch) => {
+        const { authApi } = useAuth(dispatch);
+        return authApi.get(`api/rol/index`);
+    }
+}
+
 export const logoutDispatcher = () => {
     return async (dispatch) => {
         const { authApi } = useAuth(dispatch);

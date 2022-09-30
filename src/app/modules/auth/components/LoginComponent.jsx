@@ -15,8 +15,6 @@ export const LoginComponent = ({ navBarWidth = 58 }) => {
     const dispatch = useDispatch();
 
     const {
-        onInputChange,
-        onInputClick,
         email,
         password,
         emailToched,
@@ -24,6 +22,8 @@ export const LoginComponent = ({ navBarWidth = 58 }) => {
         emailValid,
         passwordValid,
         isFormValid,
+        onInputChange,
+        onInputClick,
     } = useForm(formData, formValidations);
 
     const onSubmit = (event) => {
