@@ -3,8 +3,8 @@ import { backdropPop, backdropPush } from '../../store';
 
 export const useUpload = (dispatch) => {
     const uploadApi = axios.create({
-        baseURL: 'http://127.0.0.1:8080/'
-        // baseURL: 'http://soapp_laravel.temposolutions.co/'
+        baseURL: 'http://soapp_laravel.temposolutions.co/'
+        // baseURL: 'http://127.0.0.1:8080/'
         
     });
 

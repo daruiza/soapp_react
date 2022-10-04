@@ -15,7 +15,7 @@ export const NavBarAuthEnd = ({ isMobile }) => {
     return (
         <>
             <PublicNavBar>
-                <NavLink className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="auth/singin" style={{ color: `${palette.text.primary}` }}> Registro </NavLink>
+                {/* <NavLink className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="auth/singin" style={{ color: `${palette.text.primary}` }}> Registro </NavLink> */}
                 <Button
                     size="small"
                     component={RouterLink}
