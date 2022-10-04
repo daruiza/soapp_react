@@ -12,7 +12,7 @@ export const useCommerce = (dispatch) => {
     commerceApi.interceptors.request.use(
         (config) => {
             dispatch(backdropPush(config.url));
-            const token = localStorage.getItem('accesstoken');
+            const token = localStorage.getItem(`${window.location.hostname}`);
             config.headers['content-type'] = 'application/json;charset=utf-8;multipart/form-data;';
             if (token) {
                 config.headers['Authorization'] = `Bearer ${token}`;

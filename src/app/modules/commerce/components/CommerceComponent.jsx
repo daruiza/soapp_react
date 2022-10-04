@@ -2,7 +2,6 @@ import { useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from '../../../../hooks';
 import { uploadLogo } from '../../../../api/upload/uploadThuks';
-import { updateCommerce } from '../../../../store';
 import { commerceSave, geoDivCommecerDepartamentos, geoDivCommecerMunicipios } from '../../../../store/commerce/commerceThuks';
 import {
     capitalize,
@@ -21,6 +20,7 @@ import {
     InputLabel
 } from '@mui/material'
 import { useEffect } from 'react';
+import { commerceUpdate } from '../../../../store';
 
 
 const formData = { id: '', logo: '', name: '', nit: '', department: '', city: '', adress: '' };
@@ -28,9 +28,12 @@ const formValidations = {
     name: [(value) => value.length >= 1, 'El Nombre es obligatorio.'],
     nit: [(value) => value.length >= 1, 'El NIT es obligatorio.'],
 };
+
 const setInputsForm = (commerce) => {
     for (const formField of Object.keys(formData)) {
-        formData[formField] = commerce ? commerce[formField] : null;
+        if (commerce) {
+            formData[formField] = commerce[formField] ?? '';
+        }
     }
     return formData;
 };
@@ -61,7 +64,7 @@ export const CommerceComponent = ({ user = {}, open = false, handleClose = () =>
         onInputClick,
         setInput,
         onResetForm
-    } = useForm(setInputsForm(commerce), commerce ? formValidations : {});
+    } = useForm(setInputsForm(commerce), formValidations);
 
     const [image, setImage] = useState(commerce?.logo ? `${window.location.origin}${commerce.logo}` : null);
     const inputFileRef = useRef();
@@ -93,7 +96,7 @@ export const CommerceComponent = ({ user = {}, open = false, handleClose = () =>
         if (isFormValid) {
             dispatch(commerceSave({ form: { ...commerce, ...formState } })).then(({ data: { data } }) => {
                 // Actualizamos el comercio
-                dispatch(updateCommerce({ commerce: { ...commerce, ...data.commerce } }))
+                dispatch(commerceUpdate({ commerce: { ...commerce, ...data.commerce } }))
                 onResetForm({ initialForm: setInputsForm(commerce), formState });
             });
         }

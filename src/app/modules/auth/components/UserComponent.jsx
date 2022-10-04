@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Avatar, Button, capitalize, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from '@mui/material'
 import { useDispatch } from 'react-redux';
 import { uploadPhoto } from '../../../../api/upload/uploadThuks';
-import { userSave } from '../../../../api/user/userThunks';
+import { userUpdate } from '../../../../api/user/userThunks';
 import { useForm } from '../../../../hooks';
 import { updateUser } from '../../../../store';
 
@@ -19,7 +19,7 @@ const setInputsForm = (user) => {
 };
 
 export const UserComponent = ({ user = {}, open = false, handleClose = () => { } }) => {
-    
+
     // Init
     const dispatch = useDispatch();
     const {
@@ -36,7 +36,7 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
         isFormValid,
         formChange,
         setInput,
-        onInputChange,        
+        onInputChange,
         onInputClick,
         onResetForm
     } = useForm(setInputsForm(user), formValidations);
@@ -61,7 +61,7 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
     const handleSubmit = (event) => {
         event.preventDefault();
         if (isFormValid) {
-            dispatch(userSave({ form: { ...user, ...formState }, user: user })).then(({ data: { data } }) => {
+            dispatch(userUpdate({ form: { ...user, ...formState } })).then(({ data: { data } }) => {
                 // Actualizamos el usuario
                 dispatch(updateUser({ user: { ...user, ...data.user } }))
                 onResetForm({ initialForm: setInputsForm(user), formState });
@@ -95,7 +95,6 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description" sx={{ mb: 2 }}>Editar y Actualizar mi Información de Usuario</DialogContentText>
-
                 <form onSubmit={handleSubmit}>
                     <input style={{ display: 'none' }} ref={inputFileRef} type="file" onChange={handleInputFileChange} />
                     <Grid container spacing={0} justifyContent="center" sx={{ mb: 2 }}>

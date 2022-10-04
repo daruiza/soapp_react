@@ -1,4 +1,5 @@
 import { useAuth } from "../../api";
+import { commerceUpdate } from "../commerce";
 import { getCommerceByUser } from "../commerce/commerceThuks";
 import { checkingCredentials, logout, login } from "./";
 
@@ -18,13 +19,13 @@ export const checkingAuthentication = (email, password) => {
             email: email,
             password: password
         }).then(({ data: { data } }) => {
-            localStorage.setItem('accesstoken', data.access_token);
+            localStorage.setItem(`${window.location.hostname}`, data.access_token);
             authApi.get('api/auth/user').then(({ data: { data: user } }) => {
                 setLoginResponse(dispatch, user, data);
             })
         }).catch((error) => {
             // Falta mostrar el error
-            localStorage.removeItem('accesstoken');
+            localStorage.removeItem(`${window.location.hostname}`);
             dispatch(logout());
         });
     }
@@ -33,13 +34,13 @@ export const checkingAuthentication = (email, password) => {
 export const initDispatcher = () => {
     return async (dispatch) => {
         const { authApi } = useAuth(dispatch);
-        const token = localStorage.getItem('accesstoken');
+        const token = localStorage.getItem(`${window.location.hostname}`);
         if (token) {
             authApi.get('api/auth/user').then(({ data: { data: user } }) => {
                 setLoginResponse(dispatch, user, { access_token: token });
             }).catch((error) => {
                 // Falta mostrar el error
-                localStorage.removeItem('accesstoken');
+                localStorage.removeItem(`${window.location.hostname}`);
                 dispatch(logout());
             });
         }
@@ -57,8 +58,9 @@ export const logoutDispatcher = () => {
     return async (dispatch) => {
         const { authApi } = useAuth(dispatch);
         authApi.get('api/auth/logout').then((logoutRequest) => {
-            localStorage.removeItem('accesstoken');
+            localStorage.removeItem(`${window.location.hostname}`);
             dispatch(logout());
+            dispatch(commerceUpdate(null));
         });
     }
 }

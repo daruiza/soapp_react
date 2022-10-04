@@ -10,7 +10,8 @@ export const superTheme = createTheme({
             main: '#dce8f9'
         },
         text: { 
-            primary: green.A400
+            primary: green.A400,
+            secondary: 'rgb(72 10 116)'
         },
         error: {
             main: red.A400

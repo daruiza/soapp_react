@@ -6,13 +6,13 @@ export const useAuth = (dispatch) => {
     const authApi = axios.create({
         baseURL: 'http://127.0.0.1:8080/'
         // baseURL: 'http://soapp_laravel.temposolutions.co/'       
-        // 3015909420 
+        // 3015909420
     });
 
     authApi.interceptors.request.use(
         (config) => {
             dispatch(backdropPush(config.url));
-            const token = localStorage.getItem('accesstoken');
+            const token = localStorage.getItem(`${window.location.hostname}`);
             if (token) {
                 config.headers['Authorization'] = `Bearer ${token}`;
             }

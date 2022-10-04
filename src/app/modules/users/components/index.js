@@ -1,1 +1,2 @@
-export * from './UserComponent';
+export * from './UserIndexComponent';
+export * from './UserStoreComponent';

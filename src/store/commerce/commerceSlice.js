@@ -13,15 +13,8 @@ export const commerceSlice = createSlice({
                 fullname: `${capitalize(payload.commerce.name)}`,
                 capital: `${payload.commerce?.name?.charAt(0).toUpperCase()}`
             } : null;
-        },
-        updateCommerce: (state, { payload }) => {
-            state.commerce = {
-                ...payload.commerce,
-                fullname: `${capitalize(payload.commerce.name)}`,
-                capital: `${payload.commerce?.name?.charAt(0).toUpperCase()}`
-            };
         }
     }
 })
 
-export const { commerceUpdate, updateCommerce } = commerceSlice.actions;
+export const { commerceUpdate } = commerceSlice.actions;

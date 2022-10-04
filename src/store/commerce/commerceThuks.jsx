@@ -19,7 +19,6 @@ export const commerceSave = ({ form }) => {
         const { commerceApi } = useCommerce(dispatch);
         if (form && form.id) {
             return commerceApi.put(`api/commerce/update/${form.id}`, form);
-
         }
     }
 }
