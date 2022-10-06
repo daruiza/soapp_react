@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from '../../../../hooks';
 import { useTheme } from '@emotion/react';
 import { userDelete, userIndex } from '../../../../api/user/userThunks';
-import { getAllRols } from '../../../../store';
+import { commerceUpdate, getAllRols, getCommerceByUser } from '../../../../store';
 import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Tooltip, IconButton, Switch, TableFooter, TablePagination, Pagination } from '@mui/material';
 import { DialogAlertComponent } from '../../../components';
 import { UserStoreComponent } from './UserStoreComponent';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Work } from '@mui/icons-material';
+import { RolTypes } from '../../../types';
+import { CommerceComponent } from '../../commerce';
 
 const forminit = { name: '', lastname: '', phone: '', email: '', rol_id: '' };
 export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const { palette } = useTheme();
+  const { commerce: commerceState } = useSelector(state => state.commerce);
   const dispatch = useDispatch();
   const {
     formState,
@@ -31,6 +35,8 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const [flterToggle, setFilterToggle] = useState(false);
   const [openUserStore, setOpenStoreUser] = useState(false);
   const [openUserDelete, setOpenDeleteUser] = useState(false);
+  const [openCommerce, setOpenCommerce] = useState(false);
+
   const [user, setUser] = useState({});
   const [userTable, setUserTable] = useState({});
   const [rolArray, setRolArray] = useState([]);
@@ -70,6 +76,19 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     setOpenStoreUser(true);
   }
 
+  const handleCommeceOpen = (user) => {
+    setUser(user);
+    dispatch(getCommerceByUser({ User: user })).then(({ data: { data: { commerce: commercebyuser } } }) => {
+      dispatch(commerceUpdate({ commerce: commercebyuser }))
+      setOpenCommerce(true);
+    });
+  }
+
+  const handleCommeceClose = () => {
+    setUser({});
+    setOpenCommerce(false)
+  }
+
   const handleUserDeleteClose = () => {
     setUser({});
     setOpenDeleteUser(false);
@@ -90,7 +109,6 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const handlePaginationChange = (event, page) => {
     getUsers({ page: page });
   }
-
 
   // COMPORTAMIENTO
   const changeFilterToggle = (event) => {
@@ -314,6 +332,23 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                               }}></EditIcon>
                             </IconButton>
                           </Tooltip>
+                          {
+                            user?.rol?.id === RolTypes.customer &&
+                            <Tooltip title="Negocio">
+                              <IconButton
+                                sx={{ ml: 0.5 }}
+                                onClick={() => handleCommeceOpen(user)}
+                              >
+                                <Work sx={{
+                                  color: `${palette.text.secondary}`,
+                                  "&:hover": {
+                                    // color: `${palette.text.primary}`,
+                                    cursor: "pointer"
+                                  }
+                                }}></Work>
+                              </IconButton>
+                            </Tooltip>
+                          }
                           <Tooltip title="Eliminar">
                             <IconButton
                               sx={{ ml: 0.5, }}
@@ -359,17 +394,15 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
           </Grid>
         </Grid>
       </Grid>
-      {
-        openUserStore &&
-        <UserStoreComponent
-          open={openUserStore}
-          handleClose={handleUserStoreClose}
-          user={user}
-          rolArray={rolArray}
-          getUsers={getUsers}
-        ></UserStoreComponent>
+      {openUserStore && <UserStoreComponent
+        open={openUserStore}
+        handleClose={handleUserStoreClose}
+        user={user}
+        rolArray={rolArray}
+        getUsers={getUsers}
+      ></UserStoreComponent>
       }
-      <DialogAlertComponent
+      {openUserDelete && <DialogAlertComponent
         open={openUserDelete}
         handleClose={handleUserDeleteClose}
         handleAgree={handleUserDelete}
@@ -377,7 +410,15 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
           tittle: 'Eliminar Usuario',
           message: `Estas segur@ de eliminar el usuario ${user?.name ?? ''}`
         }}
-      ></DialogAlertComponent>
+      ></DialogAlertComponent>}
+      {
+        openCommerce && <CommerceComponent
+          open={openCommerce}
+          handleClose={handleCommeceClose}
+          user={user}
+          commerce={commerceState}>
+        </CommerceComponent>
+      }
     </Grid>
   )
 }

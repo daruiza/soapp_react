@@ -8,13 +8,17 @@ export const commerceSlice = createSlice({
     },
     reducers: {
         commerceUpdate: (state, { payload }) => {
-            state.commerce = payload ? {
+            state.commerce = payload && payload.commerce ? {
                 ...payload.commerce,
-                fullname: `${capitalize(payload.commerce.name)}`,
-                capital: `${payload.commerce?.name?.charAt(0).toUpperCase()}`
+                fullname: `${capitalize(payload?.commerce?.name ?? '')}`,
+                capital: `${payload?.commerce?.name?.charAt(0).toUpperCase()}`
             } : null;
+        },
+
+        commerceInitialState: (state) => {
+            state.commerce = null;
         }
     }
 })
 
-export const { commerceUpdate } = commerceSlice.actions;
+export const { commerceUpdate, commerceInitialState } = commerceSlice.actions;

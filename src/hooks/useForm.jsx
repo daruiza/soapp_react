@@ -55,8 +55,7 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
             const [fn, errorMessage = 'Este Campo es requerido.'] = formValidations[formField];
             formChechedValues[`${formField}Valid`] = fn(formState[formField]) ? null : errorMessage;
         }
-        setformValidation(formChechedValues)
-
+        setformValidation(formChechedValues);
     }
 
     // Asignacion simple de un Input del Form

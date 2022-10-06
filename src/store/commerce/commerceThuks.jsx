@@ -3,22 +3,26 @@ import { useCommerce } from "../../api";
 import { commerceUpdate } from "./commerceSlice";
 
 export const getCommerceByUser = ({ User: user }) => {
-    return async (dispatch) => {
+    return async (dispatch) => new Promise((resolve, reject) => {
         if (user && user?.id && user.rol_id === 2) {
             const { commerceApi } = useCommerce(dispatch);
             return commerceApi.get(`api/commerce/showbyuserid/${user?.id}`)
-                .then(({ data: { data: { commerce: commerce } } }) => {
-                    dispatch(commerceUpdate({ commerce }))
-                })
+                .then((response) => {
+                    resolve(response);
+                });
         }
-    }
+    });
 }
 
 export const commerceSave = ({ form }) => {
     return async (dispatch) => {
         const { commerceApi } = useCommerce(dispatch);
         if (form && form.id) {
+            // Update commerce
             return commerceApi.put(`api/commerce/update/${form.id}`, form);
+        } else {
+            // Store commerce
+            return commerceApi.post(`api/commerce/store`, form);
         }
     }
 }

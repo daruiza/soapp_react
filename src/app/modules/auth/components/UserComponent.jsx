@@ -13,7 +13,7 @@ const formValidations = {
 };
 const setInputsForm = (user) => {
     for (const formField of Object.keys(formData)) {
-        formData[formField] = user[formField];
+        formData[formField] = user ? user[formField] ?? '' : '';
     }
     return formData
 };

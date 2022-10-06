@@ -1,5 +1,5 @@
 import { useAuth } from "../../api";
-import { commerceUpdate } from "../commerce";
+import { commerceInitialState, commerceUpdate } from "../commerce";
 import { getCommerceByUser } from "../commerce/commerceThuks";
 import { checkingCredentials, logout, login } from "./";
 
@@ -8,7 +8,10 @@ const setLoginResponse = (dispatch, user, auht) => {
         user: { ...user.User },
         auht: auht
     }));
-    dispatch(getCommerceByUser(user));
+    dispatch(getCommerceByUser(user))
+        .then(({ data: { data: { commerce } } }) => {
+            dispatch(commerceUpdate({ commerce }))
+        });
 }
 
 export const checkingAuthentication = (email, password) => {
@@ -27,6 +30,7 @@ export const checkingAuthentication = (email, password) => {
             // Falta mostrar el error
             localStorage.removeItem(`${window.location.hostname}`);
             dispatch(logout());
+            dispatch(commerceInitialState());
         });
     }
 }
@@ -42,6 +46,7 @@ export const initDispatcher = () => {
                 // Falta mostrar el error
                 localStorage.removeItem(`${window.location.hostname}`);
                 dispatch(logout());
+                dispatch(commerceInitialState());
             });
         }
     }
@@ -60,7 +65,7 @@ export const logoutDispatcher = () => {
         authApi.get('api/auth/logout').then((logoutRequest) => {
             localStorage.removeItem(`${window.location.hostname}`);
             dispatch(logout());
-            dispatch(commerceUpdate(null));
+            dispatch(commerceInitialState());
         });
     }
 }

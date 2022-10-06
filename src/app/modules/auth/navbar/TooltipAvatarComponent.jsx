@@ -12,6 +12,7 @@ import { CommerceComponent } from '../../commerce';
 export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
     const dispatch = useDispatch();
 
+    const { commerce: commerceState } = useSelector(state => state.commerce);
     const { user: userauth } = useSelector(state => state.auth);
     const user = useMemo(() => userauth, [userauth])
 
@@ -33,7 +34,7 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
     return (
         <PrivateNavBar>
             <Box sx={{ display: { xs: xs, sm: sm }, margin: '0 10px 0 auto' }}>
-                <Tooltip title="Account settings">
+                <Tooltip title="Perfil de Uaurio">
                     <IconButton
                         onClick={handleClick}
                         size="small"
@@ -124,7 +125,7 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
             </Box>
             <UserComponent open={openUser} handleClose={handleUserClose} user={userauth}></UserComponent>
             <PrivateCustomerRoute>
-                <CommerceComponent open={openCommerce} handleClose={handleCommerceClose} user={userauth}></CommerceComponent>
+                <CommerceComponent open={openCommerce} handleClose={handleCommerceClose} user={userauth} commerce={commerceState}></CommerceComponent>
             </PrivateCustomerRoute>
         </PrivateNavBar >
     )

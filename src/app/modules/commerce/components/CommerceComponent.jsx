@@ -31,18 +31,15 @@ const formValidations = {
 
 const setInputsForm = (commerce) => {
     for (const formField of Object.keys(formData)) {
-        if (commerce) {
-            formData[formField] = commerce[formField] ?? '';
-        }
+        formData[formField] = commerce ? commerce[formField] ?? '' : '';
     }
     return formData;
 };
 
-export const CommerceComponent = ({ user = {}, open = false, handleClose = () => { } }) => {
+export const CommerceComponent = ({ commerce = {}, user = {}, open = false, handleClose = () => { } }) => {
 
     const dispatch = useDispatch();
-    const { commerce: commerceState } = useSelector(state => state.commerce);
-    const commerce = useMemo(() => commerceState, [commerceState]);
+    // const commerce = useMemo(() => commerceState, [commerceState]);
 
     const [departmentArray, setDepartmentArray] = useState([])
     const [cityArray, setCityArray] = useState([]);
@@ -94,10 +91,13 @@ export const CommerceComponent = ({ user = {}, open = false, handleClose = () =>
     const handleSubmit = (event) => {
         event.preventDefault();
         if (isFormValid) {
-            dispatch(commerceSave({ form: { ...commerce, ...formState } })).then(({ data: { data } }) => {
+            dispatch(commerceSave({ form: { ...commerce, ...formState, user_id: user.id } })).then(({ data: { data } }) => {
                 // Actualizamos el comercio
-                dispatch(commerceUpdate({ commerce: { ...commerce, ...data.commerce } }))
-                onResetForm({ initialForm: setInputsForm(commerce), formState });
+                dispatch(commerceUpdate({ commerce: { ...commerce, ...data.commerce } }))                
+                onResetForm({
+                    initialForm: setInputsForm({ ...commerce, ...data.commerce }),
+                    formState: { ...formState, id: data?.commerce?.id ?? '' }
+                });
             });
         }
     }
@@ -108,23 +108,19 @@ export const CommerceComponent = ({ user = {}, open = false, handleClose = () =>
         });
     }, [])
 
-    // Espera hasta que este listo commerce para reiniciar el formulario
-    useEffect(() => {
-        if (
-            commerce &&
-            formState &&
-            commerce.id &&
-            formState.id
-        ) {
-            onResetForm({ initialForm: setInputsForm(commerce), formState })
-        }
-    }, [commerce])
-
     useEffect(() => {
         if (department) {
             geoMunicipiosByDepartamento({ target: { value: department } })
         }
     }, [department])
+
+    useEffect(() => {
+        // Update de Formulario
+        onResetForm({
+            initialForm: commerce ?? formData,
+            formState: { ...formState }
+        })
+    }, [commerce])
 
     return (
         <Dialog
