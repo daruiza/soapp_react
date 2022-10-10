@@ -3,7 +3,9 @@ import { useDispatch } from 'react-redux';
 import { useForm } from '../../../../hooks';
 import { useTheme } from '@emotion/react';
 import { Button, capitalize, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, Select, InputLabel, MenuItem, TextField, FormHelperText } from '@mui/material'
-import { userStore, userUpdateById } from '../../../../api/user/userThunks';
+import { userStore, userUpdateById } from '../../../../store/user/userThunks';
+import { messagePush } from '../../../../store/requestapi/requestApiSlice';
+import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 const formValidations = {
     name: [(value) => value.length >= 1, 'El Nombre es obligatorio.'],
@@ -65,17 +67,16 @@ export const UserStoreComponent = ({ user = {}, open = false, handleClose = () =
             if (!formState.id) {
                 // Guardar Nuevo Usuario                
                 dispatch(userStore({ form: { ...formState } })).then((response) => {
-                    console.log('response', response);
                     getUsers();// Refrescamos la tabla
                     handleClose();
-                })
+                }, error => setMessageSnackbar({ dispatch, error }))
             } else {
                 // Actualizar Usuario
                 dispatch(userUpdateById({ form: { ...formState } })).then((response) => {
                     console.log('response', response);
                     getUsers();// Refrescamos la tabla
                     handleClose();
-                })
+                }, error => setMessageSnackbar({ dispatch, error }))
             }
         }
     }

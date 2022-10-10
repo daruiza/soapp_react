@@ -1,4 +1,4 @@
-import { useUser } from "./useUser";
+import { useUser } from "../../api/user/useUser";
 
 export const userIndex = ({ form = {} }) => {
     return async (dispatch) => {

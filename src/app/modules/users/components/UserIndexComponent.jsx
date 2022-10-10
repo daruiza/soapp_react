@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from '../../../../hooks';
 import { useTheme } from '@emotion/react';
-import { userDelete, userIndex } from '../../../../api/user/userThunks';
-import { commerceUpdate, getAllRols, getCommerceByUser } from '../../../../store';
+import { commerceUpdate, getAllRols, getCommerceByUser, userDelete, userIndex } from '../../../../store';
 import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Tooltip, IconButton, Switch, TableFooter, TablePagination, Pagination } from '@mui/material';
 import { DialogAlertComponent } from '../../../components';
 import { UserStoreComponent } from './UserStoreComponent';
@@ -15,9 +14,11 @@ import { CommerceComponent } from '../../commerce';
 
 const forminit = { name: '', lastname: '', phone: '', email: '', rol_id: '' };
 export const UserIndexComponent = ({ navBarWidth = 58 }) => {
+  const dispatch = useDispatch();
   const { palette } = useTheme();
   const { commerce: commerceState } = useSelector(state => state.commerce);
-  const dispatch = useDispatch();
+  const commerce = useMemo(() => commerceState, [commerceState]);
+
   const {
     formState,
     name,
@@ -416,7 +417,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
           open={openCommerce}
           handleClose={handleCommeceClose}
           user={user}
-          commerce={commerceState}>
+          commerce={commerce}>
         </CommerceComponent>
       }
     </Grid>

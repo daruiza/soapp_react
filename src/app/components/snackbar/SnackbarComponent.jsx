@@ -1,46 +1,73 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import CloseIcon from '@mui/icons-material/Close';
-import { Alert, IconButton, Snackbar } from '@mui/material';
+import { Alert, Grid, IconButton } from '@mui/material';
 
 export const SnackbarComponent = () => {
-    const [open, setOpen] = useState(false);
+    const [messageArray, setMessageArray] = useState([]);
     const { open: stateOpen, message, alert } = useSelector(state => state.requestApi);
 
     useEffect(() => {
         if (message) {
-            setOpen(true);
-            setTimeout(() => handleClose, 6000);
+            setMessageArray((array) => ([
+                ...array ?? [],
+                !array.find(m => message === m.message) ? { message, alert } : undefined
+            ].filter(m => m)));
         }
-    }, [stateOpen, message])
+    }, [message]);
 
-    const handleClose = (event) => {
-        setOpen(false);
+    // useEffect(() => {
+    //     setTimeout(() => {
+    //         // if (messageArray.length) {
+    //         //     const [fist, rest] = messageArray;
+    //         //     if (rest) {
+    //         //         setMessageArray(restf);
+    //         //     } else {
+    //         //         setMessageArray([]);
+    //         //     }
+    //         // }
+    //         setMessageArray([]);
+    //     }, 9000);
+    // }, [messageArray]);
+
+    const handleClose = (object) => {
+        setMessageArray((array) => (array.filter(m => m.message !== object.message)));
     };
 
-    const action = (
-        <React.Fragment>
-            <IconButton
-                size="small"
-                aria-label="close"
-                color="inherit"
-                onClick={handleClose}
-            >
-                <CloseIcon fontSize="small" />
-            </IconButton>
-        </React.Fragment>
-    );
+    console.log('messageArray', messageArray);
 
     return (alert && message) ?
-        <Snackbar
-            open={open}
-            autoHideDuration={6000}
-            onClose={handleClose}
-            action={action}
-        >
-            <Alert action={action} severity={alert ? alert : 'info'} sx={{ width: '100%', border: '1px solid' }}>
-                {message}
-            </Alert>
-        </Snackbar> : <></>
+        <Grid
+            sx={{
+                position: 'absolute',
+                bottom: '24px',
+                left: '24px',
+                right: 'auto',
+                zIndex: '1400'
+            }}>
+            {
+                messageArray.map((m, key) => (
+                    <Alert
+                        key={key}
+                        action={
+                            <React.Fragment>
+                                <IconButton
+                                    size="small"
+                                    aria-label="close"
+                                    color="inherit"
+                                    onClick={() => handleClose(m)}
+                                >
+                                    <CloseIcon fontSize="small" />
+                                </IconButton>
+                            </React.Fragment>
+                        }
+                        severity={m.alert ? m.alert : 'info'}
+                        sx={{ width: '100%', border: '1px solid', marginBottom: '5px' }}>
+                        {m.message}
+                    </Alert>
+                ))
+            }
+        </Grid >
+        : <></>
 
 }

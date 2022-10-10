@@ -19,8 +19,12 @@ export const requestApiSlice = createSlice({
             state.open = state.backdrop.length ? true : false;
             state.message = payload.message
             state.alert = payload.alert
+        },
+        messagePush: (state, { payload }) => {            
+            state.message = payload.message
+            state.alert = payload.alert
         }
     }
 })
 
-export const { backdropPush, backdropPop } = requestApiSlice.actions;
+export const { backdropPush, backdropPop, messagePush } = requestApiSlice.actions;

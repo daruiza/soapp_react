@@ -93,7 +93,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
         if (isFormValid) {
             dispatch(commerceSave({ form: { ...commerce, ...formState, user_id: user.id } })).then(({ data: { data } }) => {
                 // Actualizamos el comercio
-                dispatch(commerceUpdate({ commerce: { ...commerce, ...data.commerce } }))                
+                dispatch(commerceUpdate({ commerce: { ...commerce, ...data.commerce } }))
                 onResetForm({
                     initialForm: setInputsForm({ ...commerce, ...data.commerce }),
                     formState: { ...formState, id: data?.commerce?.id ?? '' }
@@ -115,9 +115,9 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
     }, [department])
 
     useEffect(() => {
-        // Update de Formulario
+        // Update de Formulario        
         onResetForm({
-            initialForm: commerce ?? formData,
+            initialForm: commerce ? setInputsForm(commerce) : formData,
             formState: { ...formState }
         })
     }, [commerce])

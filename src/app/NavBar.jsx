@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { Container, Navbar, Nav } from "react-bootstrap"
 import { TooltipAvatarComponent } from "./modules/auth/navbar/TooltipAvatarComponent";
 import { Avatar } from "@mui/material";
+import { NavBarEmployee } from "./modules/employee/NavBarEmployee";
 
 export const NavBar = ({ navBarWidth = 58 }) => {
     const { palette } = useTheme();
@@ -46,6 +47,7 @@ export const NavBar = ({ navBarWidth = 58 }) => {
                         <Nav className="me-auto">
                             <NavBarAuthStart />
                             <NavBarUsers />
+                            <NavBarEmployee />
                         </Nav>
                     </Navbar.Collapse>
                     <Navbar.Collapse className="justify-content-end">

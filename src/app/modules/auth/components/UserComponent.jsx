@@ -2,9 +2,8 @@ import { useRef, useState } from 'react'
 import { Avatar, Button, capitalize, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from '@mui/material'
 import { useDispatch } from 'react-redux';
 import { uploadPhoto } from '../../../../api/upload/uploadThuks';
-import { userUpdate } from '../../../../api/user/userThunks';
 import { useForm } from '../../../../hooks';
-import { updateUser } from '../../../../store';
+import { updateUser, userUpdate } from '../../../../store';
 
 const formData = { id: '', name: '', lastname: '', email: '', phone: '', theme: '', photo: '' };
 const formValidations = {
@@ -65,7 +64,7 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
                 // Actualizamos el usuario
                 dispatch(updateUser({ user: { ...user, ...data.user } }))
                 onResetForm({ initialForm: setInputsForm(user), formState });
-            });
+            }, error => setMessageSnackbar({ dispatch, error }));
         }
     }
 
