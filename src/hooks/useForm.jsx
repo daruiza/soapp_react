@@ -33,6 +33,17 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         });
     }
 
+    const onInputChangeValue = ({ name, value, date = false }) => {
+        setFormState({
+            ...formState,
+            [name]: date ? value.format('YYYY-MM-DD') : value
+        });
+        setTouched({
+            ...formTouched,
+            [`${name}Toched`]: true
+        });
+    }
+
     const onInputClick = ({ target }) => {
         const { name } = target;
         if (name && !(`${name}Toched` in formTouched)) {
@@ -79,6 +90,7 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         setFormState,
         setInput,
         onInputChange,
+        onInputChangeValue,
         onInputClick,
         onResetForm,
     }

@@ -1,14 +1,14 @@
 import axios from 'axios';
-import { backdropPop, backdropPush } from '../../store/requestapi/requestApiSlice';
+import { backdropPop, backdropPush, } from '../../store/requestapi/requestApiSlice';
 
-export const useUser = (dispatch) => {
-    const userApi = axios.create({
+export const useEmployee = (dispatch) => {
+    const employeeApi = axios.create({
         // baseURL: 'http://soapp_laravel.temposolutions.co/'
         baseURL: 'http://127.0.0.1:8080/'
 
     });
 
-    userApi.interceptors.request.use(
+    employeeApi.interceptors.request.use(
         (config) => {
             dispatch(backdropPush(config.url));
             const token = localStorage.getItem(`${window.location.hostname}`);
@@ -23,7 +23,7 @@ export const useUser = (dispatch) => {
         }
     );
 
-    userApi.interceptors.response.use((response) => {
+    employeeApi.interceptors.response.use((response) => {
         const { data: { message } } = response;
         dispatch(backdropPop(
             {
@@ -39,5 +39,5 @@ export const useUser = (dispatch) => {
         }));
         return Promise.reject(error)
     })
-    return { userApi }
+    return { employeeApi }
 }

@@ -11,6 +11,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Work } from '@mui/icons-material';
 import { RolTypes } from '../../../types';
 import { CommerceComponent } from '../../commerce';
+import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 const forminit = { name: '', lastname: '', phone: '', email: '', rol_id: '' };
 export const UserIndexComponent = ({ navBarWidth = 58 }) => {
@@ -82,7 +83,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     dispatch(getCommerceByUser({ User: user })).then(({ data: { data: { commerce: commercebyuser } } }) => {
       dispatch(commerceUpdate({ commerce: commercebyuser }))
       setOpenCommerce(true);
-    });
+    }, error => setMessageSnackbar({ dispatch, error }));
   }
 
   const handleCommeceClose = () => {
@@ -138,15 +139,8 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     >
       <Grid item xs={12} md={12} >
         <Grid container >
-
-          <Grid item xs={12} md={12} mb={2}
-            sx={{
-              // border: '1px solid',
-              // borderRadius: '5px 0 5px 0',
-              // padding: '10px'
-            }} >
+          <Grid item xs={12} md={12} mb={2}>
             <Grid container sx={{ justifyContent: 'space-between' }}>
-
               <Grid item xs={12} md={6} sx={{
                 mb: 1,
                 pl: 1,

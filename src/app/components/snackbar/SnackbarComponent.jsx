@@ -13,28 +13,28 @@ export const SnackbarComponent = () => {
                 ...array ?? [],
                 !array.find(m => message === m.message) ? { message, alert } : undefined
             ].filter(m => m)));
+            setTimeout(() => setMessageArray([]), 9000);
         }
     }, [message]);
 
     // useEffect(() => {
-    //     setTimeout(() => {
-    //         // if (messageArray.length) {
-    //         //     const [fist, rest] = messageArray;
-    //         //     if (rest) {
-    //         //         setMessageArray(restf);
-    //         //     } else {
-    //         //         setMessageArray([]);
-    //         //     }
-    //         // }
-    //         setMessageArray([]);
-    //     }, 9000);
-    // }, [messageArray]);
+    //     if (messageArrayMemo.length) {
+    //         setTimeout(() => {
+    //             if (messageArray.length) {
+    //                 const [fist, rest] = messageArray;
+    //                 if (rest) {
+    //                     setMessageArray(rest);
+    //                 } else {
+    //                     setMessageArray([]);
+    //                 }
+    //             }
+    //         }, 9000);
+    //     }
+    // }, [messageArrayMemo]);
 
     const handleClose = (object) => {
         setMessageArray((array) => (array.filter(m => m.message !== object.message)));
     };
-
-    console.log('messageArray', messageArray);
 
     return (alert && message) ?
         <Grid
@@ -69,5 +69,4 @@ export const SnackbarComponent = () => {
             }
         </Grid >
         : <></>
-
 }

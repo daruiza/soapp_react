@@ -21,6 +21,7 @@ import {
 } from '@mui/material'
 import { useEffect } from 'react';
 import { commerceUpdate } from '../../../../store';
+import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 
 const formData = { id: '', logo: '', name: '', nit: '', department: '', city: '', adress: '' };
@@ -98,7 +99,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
                     initialForm: setInputsForm({ ...commerce, ...data.commerce }),
                     formState: { ...formState, id: data?.commerce?.id ?? '' }
                 });
-            });
+            }, error => setMessageSnackbar({ dispatch, error }));
         }
     }
 
