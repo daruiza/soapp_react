@@ -119,7 +119,7 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
                         <ListItemIcon>
                             <CloseIcon sx={{ color: "text.primary" }} fontSize="medium"></CloseIcon>
                         </ListItemIcon>
-                        Logout
+                        Cerrar Sesión
                     </MenuItem>
                 </Menu>
             </Box>

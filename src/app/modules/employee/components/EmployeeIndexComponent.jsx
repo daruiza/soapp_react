@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Grid, Paper, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Button, FormControl, Grid, InputLabel, MenuItem, Pagination, Paper, Select, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { useForm } from '../../../../hooks';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -8,6 +8,8 @@ import dayjs from 'dayjs';
 import es from 'date-fns/locale/es'
 import { employeeIndex } from '../../../../store';
 import { useTheme } from '@emotion/react';
+import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
+import { EmployeeStoreComponent } from './EmployeeStoreComponent';
 
 const forminit = {
   commerce_id: '',
@@ -16,7 +18,7 @@ const forminit = {
   phone: '',
   email: '',
   adress: '',
-  birth_date: dayjs().format('YYYY-MM-DD'),
+  birth_date: dayjs('1969-01-01').format('YYYY-MM-DD'),
   identification: '',
   identification_type: '',
 
@@ -26,19 +28,6 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
   const { palette } = useTheme();
   const { commerce: commerceState } = useSelector(state => state.commerce);
   const commerce = useMemo(() => commerceState, [commerceState]);
-  const [employeeTable, setEmployeeTable] = useState({});
-  const [employeeArray, setEmployeeArray] = useState([]);
-
-  const getEmployees = (attr = {}, form = formState) => {
-    const commerce_id = form.commerce_id ? form.commerce_id : commerce.id
-    if (commerce_id) {
-      dispatch(employeeIndex({ form: { ...form, ...attr, commerce_id: commerce_id } })).then(({ data: { data: { employee } } }) => {
-        console.log('data', employee);
-        setEmployeeTable(employee);
-        setEmployeeArray(employee.data);
-      });
-    }
-  }
 
   const {
     formState,
@@ -60,7 +49,32 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
   } = useForm(forminit);
 
   const [flterToggle, setFilterToggle] = useState(false);
+  const [openEmployeeStore, setOpenStoreEmployee] = useState(false);
 
+  const [employee, setEmployee] = useState({});
+  const [employeeTable, setEmployeeTable] = useState({});
+  const [employeeArray, setEmployeeArray] = useState([]);
+  const [documenttypeArray, setDocumenttypeArray] = useState([]);
+
+  const getEmployees = (attr = {}, form = formState) => {
+    const commerce_id = form.commerce_id ? form.commerce_id : commerce.id
+    if (commerce_id) {
+      dispatch(employeeIndex({ form: { ...form, ...attr, commerce_id: commerce_id } })).then(({ data: { data: { employee } } }) => {
+        setEmployeeTable(employee);
+        setEmployeeArray(employee.data);
+      });
+    }
+  }
+
+  const getDocumentTypes = () => {
+    dispatch(genericListGetByName({ name: 'documenttype' })).then(({ data: { data: { generallist } } }) => {
+      setDocumenttypeArray(generallist ?? []);
+    });
+  }
+
+  const handlePaginationChange = (event, page) => {
+    getUsers({ page: page });
+  }
 
   // COMPORTAMIENTO
   const changeFilterToggle = (event) => {
@@ -69,18 +83,28 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
 
   // EVENTOS
   const onClearForm = () => {
-    // onResetForm({ initialForm: forminit });
-    // getEmployees({ page: 1 }, forminit);
+    onResetForm({ initialForm: forminit });
+    getEmployees({ page: 1 }, forminit);
   }
 
-  const handleUserStoreOpen = () => { }
+  const handleEmployeeStoreOpen = () => {
+    setEmployee({});
+    setOpenStoreEmployee(true);
+  }
 
-  const onSubmit = () => { }
+  const handleEmployeeStoreClose = () => {
+    setEmployee({});
+    setOpenStoreEmployee(false);
+  }
+
+  const onSubmit = () => { getEmployees() }
 
   useEffect(() => {
     if (commerce) {
-      setInput('commerce_id', commerce.id)
       getEmployees();
+      getDocumentTypes();
+      setInput('commerce_id', commerce.id);
+      onResetForm({ initialForm: formState })
     }
   }, [commerce]);
 
@@ -151,7 +175,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                         height: '100%',
                         // color: `${palette.text.primary}`
                       }}
-                      onClick={handleUserStoreOpen}
+                      onClick={handleEmployeeStoreOpen}
                       variant="contained">Nuevo Colaborador</Button>
                   </Grid>
                 </Grid>
@@ -246,17 +270,26 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                   </Grid>
 
                   <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
-                    <TextField
-                      sx={{}}
-                      label="Tipo Identificación"
-                      type="text"
-                      placeholder='Tipo Identificación'
-                      fullWidth
-                      name="identification_type"
-                      value={identification_type}
-                      onClick={onInputClick}
-                      onChange={onInputChange}
-                    />
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">Tipo Identificación</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        name="identification_type"
+                        value={identification_type}
+                        label="Tipo Identificación"
+                        onChange={e => { onInputChange(e) }}
+                      >
+                        <MenuItem value=''><em></em></MenuItem>
+                        {
+                          documenttypeArray &&
+                          documenttypeArray.length &&
+                          documenttypeArray.map((el, index) => (
+                            <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
+                          ))
+                        }
+                      </Select>
+                    </FormControl>
                   </Grid>
 
                   <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
@@ -311,16 +344,42 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{employee.identification}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{employee.employee_state}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{employee.active}</TableCell>
-                      
-
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
+              <Grid container sx={{
+                mb: 2,
+                justifyContent: 'end',
+                display: 'flex',
+                // color: `${palette.text.secondary}`,
+              }} >
+                {
+                  employeeTable?.data &&
+                  <Pagination
+                    showFirstButton showLastButton
+                    size="large"
+                    sx={{ mr: 5, color: `${palette.text.secondary}`, }}
+                    count={Math.ceil(employeeTable.total / employeeTable.per_page)}
+                    // defaultPage={userTable.current_page}
+                    page={employeeTable.current_page}
+                    onChange={handlePaginationChange}
+                    color="secondary"
+                  />
+                }
+              </Grid>
             </TableContainer>
           </Grid>
         </Grid>
       </Grid>
+      {openEmployeeStore && <EmployeeStoreComponent
+        open={openEmployeeStore}
+        handleClose={handleEmployeeStoreClose}
+        employee={employee}
+        getEmployees={getEmployees}
+      // rolArray={rolArray}
+      ></EmployeeStoreComponent>
+      }
     </Grid>
   )
 }
