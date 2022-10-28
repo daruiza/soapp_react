@@ -10,6 +10,16 @@ export const uploadPhoto = (file) => {
     }
 }
 
+export const uploadEmployeePhoto = (file, commerce_id) => {
+    return async (dispatch) => {
+        const { uploadApi } = useUpload(dispatch);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', `images/employee/${commerce_id}`);
+        return uploadApi.post('api/upload/photo', formData);
+    }
+}
+
 export const uploadLogo = (file) => {
     return async (dispatch) => {
         const { uploadApi } = useUpload(dispatch);

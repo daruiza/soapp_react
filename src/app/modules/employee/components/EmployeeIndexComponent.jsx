@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, FormControl, Grid, InputLabel, MenuItem, Pagination, Paper, Select, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { useForm } from '../../../../hooks';
+import { EmployeeStoreComponent } from './EmployeeStoreComponent';
+import { Button, FormControl, Grid, IconButton, InputLabel, MenuItem, Pagination, Paper, Select, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import es from 'date-fns/locale/es'
-import { employeeIndex } from '../../../../store';
 import { useTheme } from '@emotion/react';
+import { employeeDelete, employeeIndex } from '../../../../store';
 import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
-import { EmployeeStoreComponent } from './EmployeeStoreComponent';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { DialogAlertComponent } from '../../../components';
 
 const forminit = {
   commerce_id: '',
@@ -21,6 +24,8 @@ const forminit = {
   birth_date: dayjs('1969-01-01').format('YYYY-MM-DD'),
   identification: '',
   identification_type: '',
+  employee_state: '',
+  is_employee: ''
 
 };
 export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
@@ -39,6 +44,8 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
     birth_date,
     identification,
     identification_type,
+    employee_state,
+    is_employee,
     isFormValid,
     formChange,
     setInput,
@@ -50,16 +57,25 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
 
   const [flterToggle, setFilterToggle] = useState(false);
   const [openEmployeeStore, setOpenStoreEmployee] = useState(false);
+  const [openEmployeeDelete, setOpenDeleteEmployee] = useState(false);
 
   const [employee, setEmployee] = useState({});
   const [employeeTable, setEmployeeTable] = useState({});
   const [employeeArray, setEmployeeArray] = useState([]);
   const [documenttypeArray, setDocumenttypeArray] = useState([]);
+  const [isemployeetypeArray, setIsemployeetypeArray] = useState([]);
 
   const getEmployees = (attr = {}, form = formState) => {
     const commerce_id = form.commerce_id ? form.commerce_id : commerce.id
     if (commerce_id) {
-      dispatch(employeeIndex({ form: { ...form, ...attr, commerce_id: commerce_id } })).then(({ data: { data: { employee } } }) => {
+      dispatch(employeeIndex({
+        form: {
+          ...form,
+          ...attr,
+          is_employee: form.is_employee === '' ? '' : form.is_employee === 'Si' ? 1 : 0,
+          commerce_id: commerce_id
+        }
+      })).then(({ data: { data: { employee } } }) => {
         setEmployeeTable(employee);
         setEmployeeArray(employee.data);
       });
@@ -67,13 +83,21 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
   }
 
   const getDocumentTypes = () => {
-    dispatch(genericListGetByName({ name: 'documenttype' })).then(({ data: { data: { generallist } } }) => {
-      setDocumenttypeArray(generallist ?? []);
-    });
+    dispatch(genericListGetByName({ name: 'documenttype' }))
+      .then(({ data: { data: { generallist } } }) => {
+        setDocumenttypeArray(generallist ?? []);
+      });
+  }
+
+  const getIsEmployeeTypes = () => {
+    dispatch(genericListGetByName({ name: 'boolean' }))
+      .then(({ data: { data: { generallist } } }) => {
+        setIsemployeetypeArray(generallist ?? []);
+      });
   }
 
   const handlePaginationChange = (event, page) => {
-    getUsers({ page: page });
+    getEmployees({ page: page });
   }
 
   // COMPORTAMIENTO
@@ -97,14 +121,37 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
     setOpenStoreEmployee(false);
   }
 
+  const handleEmployeeUpdate = (employee) => {
+    setEmployee(employee);
+    setOpenStoreEmployee(true);
+  }
+
+  const handleEmployeeDeleteOpen = (employee) => {
+    setEmployee(employee);
+    setOpenDeleteEmployee(true);
+  }
+
+  const handleEmployeeDeleteClose = () => {
+    setEmployee({});
+    setOpenDeleteEmployee(false);
+  }
+
+  const handleEmployeeDelete = () => {
+    dispatch(employeeDelete({ form: { ...employee } })).then(() => {
+      handleEmployeeDeleteClose();
+      getEmployees({ page: 1 });
+    });
+  }
+
   const onSubmit = () => { getEmployees() }
 
   useEffect(() => {
     if (commerce) {
       getEmployees();
       getDocumentTypes();
+      getIsEmployeeTypes();
       setInput('commerce_id', commerce.id);
-      onResetForm({ initialForm: formState })
+      onResetForm({ initialForm: formState });
     }
   }, [commerce]);
 
@@ -131,7 +178,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                     fontSize: '1.2rem',
                     // color: `${palette.text.secondary}`,
                   }}>
-                  Filtros Busqueda de Usuario</Typography>
+                  Filtros Busqueda de Colaborador</Typography>
                 <Switch
                   checked={flterToggle}
                   onChange={changeFilterToggle}
@@ -216,20 +263,6 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                   <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
                     <TextField
                       sx={{}}
-                      label="Teléfono"
-                      type="text"
-                      placeholder='Teléfono o Móvil'
-                      fullWidth
-                      name="phone"
-                      value={phone}
-                      onClick={onInputClick}
-                      onChange={onInputChange}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
-                    <TextField
-                      sx={{}}
                       label="Correo"
                       type="text"
                       placeholder='Correo electrónico'
@@ -255,7 +288,21 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                     />
                   </Grid>
 
-                  <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
+                  <Grid item xs={12} md={2} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
+                    <TextField
+                      sx={{}}
+                      label="Teléfono"
+                      type="text"
+                      placeholder='Teléfono o Móvil'
+                      fullWidth
+                      name="phone"
+                      value={phone}
+                      onClick={onInputClick}
+                      onChange={onInputChange}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={2} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
                     <TextField
                       sx={{}}
                       label="Identificación"
@@ -269,7 +316,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                     />
                   </Grid>
 
-                  <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
+                  <Grid item xs={12} md={2} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
                     <FormControl fullWidth>
                       <InputLabel id="demo-simple-select-label">Tipo Identificación</InputLabel>
                       <Select
@@ -292,7 +339,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                     </FormControl>
                   </Grid>
 
-                  <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
+                  <Grid item xs={12} md={2} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
                     <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                       <DatePicker
                         className='birth-date-piker'
@@ -305,6 +352,43 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                         renderInput={(params) => <TextField {...params} />}
                       />
                     </LocalizationProvider>
+                  </Grid>
+
+                  <Grid item xs={12} md={2} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
+                    <TextField
+                      sx={{}}
+                      label="Estado"
+                      type="text"
+                      placeholder='Estado de Colaborador'
+                      fullWidth
+                      name="employee_state"
+                      value={employee_state}
+                      onClick={onInputClick}
+                      onChange={onInputChange}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={2} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">Es Empleado</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        name="is_employee"
+                        value={is_employee}
+                        label="Es Empleado"
+                        onChange={e => { onInputChange(e) }}
+                      >
+                        <MenuItem value=''><em></em></MenuItem>
+                        {
+                          isemployeetypeArray &&
+                          isemployeetypeArray.length &&
+                          isemployeetypeArray.map((el, index) => (
+                            <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
+                          ))
+                        }
+                      </Select>
+                    </FormControl>
                   </Grid>
 
                 </Grid>
@@ -325,7 +409,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                     <TableCell align="right">Dirección</TableCell>
                     <TableCell align="right">Identificación</TableCell>
                     <TableCell align="right">Estado</TableCell>
-                    <TableCell align="right">Activo</TableCell>
+                    <TableCell align="right">Es Empleado</TableCell>
                     <TableCell align="right"></TableCell>
                   </TableRow>
                 </TableHead>
@@ -343,7 +427,38 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{employee.adress}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{employee.identification}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{employee.employee_state}</TableCell>
-                      <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{employee.active}</TableCell>
+                      <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{employee.is_employee ? 'Si' : 'No'}</TableCell>
+                      <TableCell align="center">
+                        <Grid sx={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'center' }}>
+                          <Tooltip title="Editar">
+                            <IconButton
+                              sx={{ ml: 0.5 }}
+                              onClick={() => handleEmployeeUpdate(employee)}
+                            >
+                              <EditIcon sx={{
+                                // color: `${palette.text.secondary}`,
+                                "&:hover": {
+                                  // color: `${palette.text.primary}`,
+                                  cursor: "pointer"
+                                }
+                              }}></EditIcon>
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Eliminar">
+                            <IconButton
+                              sx={{ ml: 0.5, }}
+                              onClick={() => handleEmployeeDeleteOpen(employee)}>
+                              <DeleteIcon sx={{
+                                // color: `${palette.text.secondary}`,
+                                "&:hover": {
+                                  // color: `${palette.text.primary}`,
+                                  cursor: "pointer"
+                                }
+                              }}></DeleteIcon>
+                            </IconButton>
+                          </Tooltip>
+                        </Grid>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -374,12 +489,21 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
       </Grid>
       {openEmployeeStore && <EmployeeStoreComponent
         open={openEmployeeStore}
-        handleClose={handleEmployeeStoreClose}
         employee={employee}
+        commerce={commerce}
         getEmployees={getEmployees}
-      // rolArray={rolArray}
-      ></EmployeeStoreComponent>
-      }
+        identificationtypeArray={documenttypeArray}
+        handleClose={handleEmployeeStoreClose}
+      ></EmployeeStoreComponent>}
+      {openEmployeeDelete && <DialogAlertComponent
+        open={openEmployeeDelete}
+        handleClose={handleEmployeeDeleteClose}
+        handleAgree={handleEmployeeDelete}
+        props={{
+          tittle: 'Eliminar Colaborador',
+          message: `Estas segur@ de eliminar el colaborador ${employee?.name ?? ''}`
+        }}
+      ></DialogAlertComponent>}
     </Grid>
   )
 }

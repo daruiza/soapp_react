@@ -45,7 +45,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const [userArray, setUSerArray] = useState([]);
 
   const getUsers = (attr = {}, form = formState) => {
-    dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { users } }) => {
+    dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => {
       setUserTable(users);
       setUSerArray(users.data);
     });
@@ -397,15 +397,15 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
         getUsers={getUsers}
       ></UserStoreComponent>
       }
-      {openUserDelete && <DialogAlertComponent
-        open={openUserDelete}
-        handleClose={handleUserDeleteClose}
-        handleAgree={handleUserDelete}
-        props={{
-          tittle: 'Eliminar Usuario',
-          message: `Estas segur@ de eliminar el usuario ${user?.name ?? ''}`
-        }}
-      ></DialogAlertComponent>}
+        {openUserDelete && <DialogAlertComponent
+          open={openUserDelete}
+          handleClose={handleUserDeleteClose}
+          handleAgree={handleUserDelete}
+          props={{
+            tittle: 'Eliminar Usuario',
+            message: `Estas segur@ de eliminar el usuario ${user?.name ?? ''}`
+          }}
+        ></DialogAlertComponent>}
       {
         openCommerce && <CommerceComponent
           open={openCommerce}

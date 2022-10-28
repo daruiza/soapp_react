@@ -4,3 +4,5 @@ export * from './PrivateNavBar';
 export * from './PublicNavBar';
 export * from './PrivateResponsibleRoute';
 export * from './PrivateCustomerRoute';
+export * from './PrivateCommerceRoute';
+

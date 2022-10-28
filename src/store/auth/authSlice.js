@@ -19,14 +19,17 @@ export const authSlice = createSlice({
                 capital: `${payload.user?.name?.charAt(0).toUpperCase()}`
             };
         },
+        
         logout: (state) => {
             state.status = authstatusTypes.NOTAUTHENTICATED;
             state.token = null;
             state.user = null;
         },
+
         checkingCredentials: (state) => {
             state.status = authstatusTypes.CHECKING;
         },
+
         updateUser: (state, { payload }) => {
             state.user = {
                 ...payload.user,
