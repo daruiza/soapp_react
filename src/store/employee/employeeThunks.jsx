@@ -1,6 +1,5 @@
 import { useEmployee } from "../../api/employee/useEmployee";
 
-
 export const employeeIndex = ({ form = {} }) => {
     return async (dispatch) => {
         const { employeeApi } = useEmployee(dispatch);

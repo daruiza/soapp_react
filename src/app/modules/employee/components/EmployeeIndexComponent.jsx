@@ -1,18 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from '../../../../hooks';
 import { EmployeeStoreComponent } from './EmployeeStoreComponent';
-import { Button, FormControl, Grid, IconButton, InputLabel, MenuItem, Pagination, Paper, Select, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
+import { DialogAlertComponent } from '../../../components';
+import { Alert, Box, Button, Collapse, FormControl, Grid, IconButton, InputLabel, MenuItem, Pagination, Paper, Select, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { useTheme } from '@emotion/react';
 import dayjs from 'dayjs';
 import es from 'date-fns/locale/es'
-import { useTheme } from '@emotion/react';
-import { employeeDelete, employeeIndex } from '../../../../store';
+import { commerceUpdate, employeeDelete, employeeIndex, getCommerceByCommerce, login } from '../../../../store';
 import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { DialogAlertComponent } from '../../../components';
+import CloseIcon from '@mui/icons-material/Close';
+import { PrivateResponsibleRoute } from '../../../middleware';
 
 const forminit = {
   commerce_id: '',
@@ -26,11 +29,13 @@ const forminit = {
   identification_type: '',
   employee_state: '',
   is_employee: ''
-
 };
+
 export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
+
   const dispatch = useDispatch();
   const { palette } = useTheme();
+  const { commerce_id: param_commerce_id } = useParams();
   const { commerce: commerceState } = useSelector(state => state.commerce);
   const commerce = useMemo(() => commerceState, [commerceState]);
 
@@ -58,6 +63,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
   const [flterToggle, setFilterToggle] = useState(false);
   const [openEmployeeStore, setOpenStoreEmployee] = useState(false);
   const [openEmployeeDelete, setOpenDeleteEmployee] = useState(false);
+  const [openAlert, setOpenAlert] = useState(true);
 
   const [employee, setEmployee] = useState({});
   const [employeeTable, setEmployeeTable] = useState({});
@@ -66,7 +72,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
   const [isemployeetypeArray, setIsemployeetypeArray] = useState([]);
 
   const getEmployees = (attr = {}, form = formState) => {
-    const commerce_id = form.commerce_id ? form.commerce_id : commerce.id
+    const commerce_id = form?.commerce_id ? form.commerce_id : commerce?.id ?? param_commerce_id;
     if (commerce_id) {
       dispatch(employeeIndex({
         form: {
@@ -146,12 +152,19 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
   const onSubmit = () => { getEmployees() }
 
   useEffect(() => {
-    if (commerce) {
+    if (commerce || param_commerce_id) {
+      console.log('commerce', commerce);
       getEmployees();
       getDocumentTypes();
       getIsEmployeeTypes();
-      setInput('commerce_id', commerce.id);
-      onResetForm({ initialForm: formState });
+      setInput('commerce_id', commerce?.id ?? param_commerce_id);      
+      setTimeout(() => onResetForm({ initialForm: formState, formState }), 100)
+    }
+
+    if (param_commerce_id && !commerce) {
+      dispatch(getCommerceByCommerce({ commerce: { id: param_commerce_id } })).then(({ data: { data: { commerce: commercebycommerce } } }) => {
+        dispatch(commerceUpdate({ commerce: commercebycommerce }))
+      }, error => setMessageSnackbar({ dispatch, error }));
     }
   }, [commerce]);
 
@@ -166,6 +179,37 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
       <Grid item xs={12} md={12} >
         <Grid container>
           <Grid item xs={12} md={12} mb={2}>
+            {
+              commerce &&
+              <PrivateResponsibleRoute>
+                <Grid container sx={{}}>
+                  <Grid item xs={12} md={12} sx={{ mb: 1, pl: 1, display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ width: '100%' }}>
+                      <Collapse in={openAlert}>
+                        <Alert
+                          severity="warning"
+                          action={
+                            <IconButton
+                              aria-label="close"
+                              color="inherit"
+                              size="small"
+                              onClick={() => {
+                                setOpenAlert(false);
+                              }}
+                            >
+                              <CloseIcon fontSize="inherit" />
+                            </IconButton>
+                          }
+                          sx={{ mb: 2 }}
+                        >
+                          {`${commerce?.name} NIT: ${commerce?.nit} --- ${commerce?.user?.name} ${commerce?.user?.lastname} [${commerce?.user?.email} : ${commerce?.user?.phone}]`}
+                        </Alert>
+                      </Collapse>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </PrivateResponsibleRoute>
+            }
             <Grid container sx={{ justifyContent: 'space-between' }}>
               <Grid item xs={12} md={6} sx={{
                 mb: 1,
@@ -178,7 +222,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                     fontSize: '1.2rem',
                     // color: `${palette.text.secondary}`,
                   }}>
-                  Filtros Busqueda de Colaborador</Typography>
+                  Filtros Búsqueda de Colaborador</Typography>
                 <Switch
                   checked={flterToggle}
                   onChange={changeFilterToggle}

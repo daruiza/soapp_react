@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { PrivateResponsibleRoute } from '../../middleware'
+import { EmployeeIndexComponent } from '../employee/components/EmployeeIndexComponent'
 import { UserIndexComponent } from './components'
 
 export const UserRoute = () => {
@@ -8,7 +9,7 @@ export const UserRoute = () => {
         <>
             <PrivateResponsibleRoute>
                 <Routes>
-                    <Route path="index" element={<UserIndexComponent />} />
+                    <Route path="index" element={<UserIndexComponent />} />                    
                     <Route path="/*" element={<Navigate to="/" />} />
                 </Routes>
             </PrivateResponsibleRoute>

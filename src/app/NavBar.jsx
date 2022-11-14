@@ -9,6 +9,7 @@ import { Container, Navbar, Nav } from "react-bootstrap"
 import { TooltipAvatarComponent } from "./modules/auth/navbar/TooltipAvatarComponent";
 import { Avatar } from "@mui/material";
 import { NavBarEmployee } from "./modules/employee/NavBarEmployee";
+import { NavBarReport } from "./modules/reports/NavBarReports";
 
 export const NavBar = ({ navBarWidth = 58 }) => {
     const { palette } = useTheme();
@@ -48,6 +49,7 @@ export const NavBar = ({ navBarWidth = 58 }) => {
                             <NavBarAuthStart />
                             <NavBarUsers />
                             <NavBarEmployee />
+                            <NavBarReport />
                         </Nav>
                     </Navbar.Collapse>
                     <Navbar.Collapse className="justify-content-end">

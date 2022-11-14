@@ -6,12 +6,11 @@ import { RolTypes } from "../../../types";
 
 export const HomeComponent = ({ navBarWidth = 58 }) => {
   const { status, user } = useSelector(state => state.auth);
+  const { commerce: commerceState } = useSelector(state => state.commerce);
+  const commerce = useMemo(() => commerceState, [commerceState]);
   const CUSTOMERAUTHENTICATED = useMemo(() =>
     status === authstatusTypes.AUTHENTICATED && user?.rol?.id === RolTypes.customer,
-    [status, user])
-
-  console.log('user', user)
-  console.log('CUSTOMERAUTHENTICATED', CUSTOMERAUTHENTICATED)
+    [status, user]);
 
   return (
     <Grid container spacing={0} justifyContent="center"
@@ -22,7 +21,7 @@ export const HomeComponent = ({ navBarWidth = 58 }) => {
         alignItems: { xs: 'start', md: 'center' }
       }}
     >
-      {CUSTOMERAUTHENTICATED &&
+      {CUSTOMERAUTHENTICATED && !commerce &&
         <Stack sx={{ width: '100%' }} spacing={2}>
           <Alert severity="warning">
             {user.name}, aún no cuantas con un Comercio, en la opción: Negocio podras diligenciar los campos requeridos.

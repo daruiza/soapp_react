@@ -1,5 +1,5 @@
-import { useMemo, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useForm } from '../../../../hooks';
 import { uploadLogo } from '../../../../api/upload/uploadThuks';
 import { commerceSave, geoDivCommecerDepartamentos, geoDivCommecerMunicipios } from '../../../../store/commerce/commerceThuks';
@@ -40,7 +40,6 @@ const setInputsForm = (commerce) => {
 export const CommerceComponent = ({ commerce = {}, user = {}, open = false, handleClose = () => { } }) => {
 
     const dispatch = useDispatch();
-    // const commerce = useMemo(() => commerceState, [commerceState]);
 
     const [departmentArray, setDepartmentArray] = useState([])
     const [cityArray, setCityArray] = useState([]);

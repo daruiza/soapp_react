@@ -1,21 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useForm } from '../../../../hooks';
-import { useTheme } from '@emotion/react';
-import { commerceUpdate, getAllRols, getCommerceByUser, userDelete, userIndex } from '../../../../store';
-import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Tooltip, IconButton, Switch, TableFooter, TablePagination, Pagination } from '@mui/material';
+import { CommerceComponent } from '../../commerce';
 import { DialogAlertComponent } from '../../../components';
 import { UserStoreComponent } from './UserStoreComponent';
+import { commerceInitialState, commerceUpdate, getAllRols, getCommerceByCommerce, getCommerceByUser, userDelete, userIndex } from '../../../../store';
+import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Tooltip, IconButton, Switch, TableFooter, TablePagination, Pagination } from '@mui/material';
+import { useForm } from '../../../../hooks';
+import { useTheme } from '@emotion/react';
+import { useNavigate } from 'react-router-dom';
+import { RolTypes } from '../../../types';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { Work } from '@mui/icons-material';
-import { RolTypes } from '../../../types';
-import { CommerceComponent } from '../../commerce';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 const forminit = { name: '', lastname: '', phone: '', email: '', rol_id: '' };
 export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate()
   const { palette } = useTheme();
   const { commerce: commerceState } = useSelector(state => state.commerce);
   const commerce = useMemo(() => commerceState, [commerceState]);
@@ -86,6 +90,20 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     }, error => setMessageSnackbar({ dispatch, error }));
   }
 
+  const navegateCommece = ({ commerce }) => {
+    dispatch(getCommerceByCommerce({ commerce })).then(({ data: { data: { commerce: commercebycommerce } } }) => {
+      dispatch(commerceUpdate({ commerce: commercebycommerce }))
+      navigate(`/employees/commerce/${commerce.id}`);
+    }, error => setMessageSnackbar({ dispatch, error }));
+  }
+
+  const navegateReports = ({ commerce }) => {
+    dispatch(getCommerceByCommerce({ commerce })).then(({ data: { data: { commerce: commercebycommerce } } }) => {
+      dispatch(commerceUpdate({ commerce: commercebycommerce }))
+      navigate(`/reports/commerce/${commerce.id}`);
+    })
+  }
+
   const handleCommeceClose = () => {
     setUser({});
     setOpenCommerce(false)
@@ -124,6 +142,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   useEffect(() => {
     getUsers();
     getRols();
+    dispatch(commerceInitialState())
   }, []);
 
   return (
@@ -153,7 +172,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                     fontSize: '1.2rem',
                     color: `${palette.text.secondary}`,
                   }}>
-                  Filtros Busqueda de Usuario</Typography>
+                  Filtros Búsqueda de Usuario</Typography>
                 <Switch
                   checked={flterToggle}
                   onChange={changeFilterToggle}
@@ -329,20 +348,52 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                           </Tooltip>
                           {
                             user?.rol?.id === RolTypes.customer &&
-                            <Tooltip title="Negocio">
-                              <IconButton
-                                sx={{ ml: 0.5 }}
-                                onClick={() => handleCommeceOpen(user)}
-                              >
-                                <Work sx={{
-                                  color: `${palette.text.secondary}`,
-                                  "&:hover": {
-                                    // color: `${palette.text.primary}`,
-                                    cursor: "pointer"
-                                  }
-                                }}></Work>
-                              </IconButton>
-                            </Tooltip>
+                            <>
+                              <Tooltip title="Negocio">
+                                <IconButton
+                                  sx={{ ml: 0.5 }}
+                                  onClick={() => handleCommeceOpen(user)}
+                                >
+                                  <Work sx={{
+                                    color: `${palette.text.secondary}`,
+                                    "&:hover": {
+                                      // color: `${palette.text.primary}`,
+                                      cursor: "pointer"
+                                    }
+                                  }}></Work>
+                                </IconButton>
+                              </Tooltip>
+
+                              <Tooltip title="Colaboradores">
+                                <IconButton
+                                  sx={{ ml: 0.5 }}
+                                  onClick={() => navegateCommece(user)}
+                                >
+                                  <AssignmentIndIcon sx={{
+                                    color: `${palette.text.secondary}`,
+                                    "&:hover": {
+                                      // color: `${palette.text.primary}`,
+                                      cursor: "pointer"
+                                    }
+                                  }}></AssignmentIndIcon>
+                                </IconButton>
+                              </Tooltip>
+
+                              <Tooltip title="Reportes">
+                                <IconButton
+                                  sx={{ ml: 0.5 }}
+                                  onClick={() => navegateReports(user)}
+                                >
+                                  <ContentPasteIcon sx={{
+                                    color: `${palette.text.secondary}`,
+                                    "&:hover": {
+                                      // color: `${palette.text.primary}`,
+                                      cursor: "pointer"
+                                    }
+                                  }}></ContentPasteIcon>
+                                </IconButton>
+                              </Tooltip>
+                            </>
                           }
                           <Tooltip title="Eliminar">
                             <IconButton
@@ -397,15 +448,15 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
         getUsers={getUsers}
       ></UserStoreComponent>
       }
-        {openUserDelete && <DialogAlertComponent
-          open={openUserDelete}
-          handleClose={handleUserDeleteClose}
-          handleAgree={handleUserDelete}
-          props={{
-            tittle: 'Eliminar Usuario',
-            message: `Estas segur@ de eliminar el usuario ${user?.name ?? ''}`
-          }}
-        ></DialogAlertComponent>}
+      {openUserDelete && <DialogAlertComponent
+        open={openUserDelete}
+        handleClose={handleUserDeleteClose}
+        handleAgree={handleUserDelete}
+        props={{
+          tittle: 'Eliminar Usuario',
+          message: `Estas segur@ de eliminar el usuario ${user?.name ?? ''}`
+        }}
+      ></DialogAlertComponent>}
       {
         openCommerce && <CommerceComponent
           open={openCommerce}

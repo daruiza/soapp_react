@@ -57,7 +57,7 @@ export const UserStoreComponent = ({ user = {}, open = false, handleClose = () =
 
     useEffect(() => {
         setFormState(setInputsForm(user), user ? formValidations : {})
-        onResetForm({ initialForm: setInputsForm(user), formState: formState });
+        setTimeout(() => onResetForm({ initialForm: setInputsForm(user), formState: formState }), 100)
     }, [user]);
 
     const handleSubmit = (event) => {

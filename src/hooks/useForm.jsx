@@ -77,6 +77,22 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         });
     }
 
+    const setInputs = (inputs = []) => {
+
+        let inputsArray = {};
+        inputs.forEach(el => {
+            inputsArray = {
+                ...inputsArray,
+                ...el
+            }
+        });
+
+        setFormState({
+            ...formState,
+            ...inputsArray
+        });
+    }
+
     return {
         ...formState,
         ...formValidation,
@@ -89,6 +105,7 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         formChange,
         setFormState,
         setInput,
+        setInputs,
         onInputChange,
         onInputChangeValue,
         onInputClick,

@@ -19,7 +19,12 @@ const formData = { id: '', name: '', lastname: '', email: '', adress: '', phone:
 
 const setInputsForm = (object) => {
     for (const formField of Object.keys(formData)) {
-        formData[formField] = object[formField] ?? '';
+        formData[formField] =
+            object ?
+                object[formField] !== null && object[formField] !== undefined ?
+                    object[formField] :
+                    '' :
+                '';
     }
     return formData
 };

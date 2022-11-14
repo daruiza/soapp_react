@@ -1,12 +1,23 @@
 import axios from "axios";
 import { useCommerce } from "../../api";
-import { commerceUpdate } from "./commerceSlice";
 
 export const getCommerceByUser = ({ User: user }) => {
     return async (dispatch) => new Promise((resolve, reject) => {
         if (user && user?.id && user.rol_id === 2) {
             const { commerceApi } = useCommerce(dispatch);
             return commerceApi.get(`api/commerce/showbyuserid/${user?.id}`)
+                .then((response) => {
+                    resolve(response);
+                });
+        }
+    });
+}
+
+export const getCommerceByCommerce = ({ commerce }) => {
+    return async (dispatch) => new Promise((resolve, reject) => {
+        if (commerce && commerce?.id) {
+            const { commerceApi } = useCommerce(dispatch);
+            return commerceApi.get(`api/commerce/showbycommerceid/${commerce?.id}`)
                 .then((response) => {
                     resolve(response);
                 });
