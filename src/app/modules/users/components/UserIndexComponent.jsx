@@ -7,7 +7,7 @@ import { commerceInitialState, commerceUpdate, getAllRols, getCommerceByCommerce
 import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Tooltip, IconButton, Switch, TableFooter, TablePagination, Pagination } from '@mui/material';
 import { useForm } from '../../../../hooks';
 import { useTheme } from '@emotion/react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { RolTypes } from '../../../types';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -324,7 +324,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                       sx={{
                         '&:last-child td, &:last-child th': { border: 0 }
                       }}
-                    >                      
+                    >
                       <TableCell sx={{ color: `${palette.text.secondary}` }} component="th" scope="row">{user.name}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.lastname}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.email}</TableCell>
@@ -380,18 +380,21 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                               </Tooltip>
 
                               <Tooltip title="Reportes">
-                                <IconButton
-                                  sx={{ ml: 0.5 }}
-                                  onClick={() => navegateReports(user)}
-                                >
-                                  <ContentPasteIcon sx={{
-                                    color: `${palette.text.secondary}`,
-                                    "&:hover": {
-                                      // color: `${palette.text.primary}`,
-                                      cursor: "pointer"
-                                    }
-                                  }}></ContentPasteIcon>
-                                </IconButton>
+                                <Link to={`/reports/commerce/${user.commerce.id}`}>
+                                  <IconButton
+                                    sx={{ ml: 0.5 }}
+                                    // onClick={() => navegateReports(user)}
+                                  >
+                                    <ContentPasteIcon sx={{
+                                      color: `${palette.text.secondary}`,
+                                      "&:hover": {
+                                        // color: `${palette.text.primary}`,
+                                        cursor: "pointer"
+                                      }
+                                    }}></ContentPasteIcon>
+                                  </IconButton>
+
+                                </Link>
                               </Tooltip>
                             </>
                           }
