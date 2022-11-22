@@ -10,16 +10,16 @@ export const reportIndex = ({ form = {} }) => {
 
 export const reportStore = ({ form }) => {
     return async (dispatch) => {
-        const { reportApi } = useEmployee(dispatch);
+        const { reportApi } = useReport(dispatch);
         if (form) {
             return reportApi.post(`api/report/store`, form);
         }
     }
 }
 
-export const reportUpdate = ({ form }) => {
+export const reportUpdate = ({ form }) => {    
     return async (dispatch) => {
-        const { reportApi } = useEmployee(dispatch);
+        const { reportApi } = useReport(dispatch);
         if (form && form.id) {
             return reportApi.put(`api/report/update/${form.id}`, form);
         }
@@ -28,7 +28,7 @@ export const reportUpdate = ({ form }) => {
 
 export const reportDelete = ({ form }) => {
     return async (dispatch) => {
-        const { reportApi } = useEmployee(dispatch);
+        const { reportApi } = useReport(dispatch);
         if (form && form.id) {
             return reportApi.delete(`api/report/destroy/${form.id}`);
         }

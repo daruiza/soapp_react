@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { commerceUpdate, getCommerceByCommerce, reportIndex } from '../../../../store';
+import { commerceUpdate, getCommerceByCommerce, reportIndex, userByRolId, userIndex } from '../../../../store';
 import { ReportItemComponent } from './ReportItemComponent';
 import { ReportStoreComponent } from './ReportStoreComponent';
 import { useForm } from '../../../../hooks';
 import { useParams } from 'react-router-dom';
 import { PrivateResponsibleRoute } from '../../../middleware';
-import { Button, Grid, Switch, TextField, Typography, FormControl, FormHelperText, InputLabel, Select, MenuItem, Card, Collapse, Alert, IconButton, Box } from '@mui/material';
+import { Button, Grid, Switch, TextField, Typography, FormControl, FormHelperText, InputLabel, Select, MenuItem, Card, Collapse, Alert, IconButton, Box, Pagination } from '@mui/material';
 import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 import { useTheme } from '@emotion/react';
 import dayjs from 'dayjs';
 import CloseIcon from '@mui/icons-material/Close';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
+import { RolTypes } from '../../../types';
 
 const formValidations = {
   progress: [(value) => (RegExp('^[0-9]+$').test(value) && value < 101) || !value, 'El Progrespo es un número de 0 a 100.'],
@@ -62,6 +63,8 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   const [report, setReport] = useState({});
   const [reportTable, setReportTable] = useState({});
   const [reportArray, setReportArray] = useState([]);
+  const [responsibleArray, setResponsibleArray] = useState([])
+  const [projectArray, setProjectArray] = useState([])
   const [monthArray, setMontArray] = useState([]);
 
   // LLAMADO DE SERVICIOS
@@ -79,6 +82,20 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
         setReportArray(report.data);
       });
     }
+  }
+
+  const getProject = () => {
+    dispatch(genericListGetByName({ name: 'project' }))
+      .then(({ data: { data: { generallist } } }) => {
+        setProjectArray(generallist ?? []);
+      });
+  }
+
+  const getResponsibles = (attr = {}, form = formState) => {
+    dispatch(userByRolId({ form: { ...form, ...attr, rol_id: RolTypes.responsible } }))
+      .then(({ data: { data: { users } } }) => {
+        setResponsibleArray(users);
+      });
   }
 
   const getMonth = () => {
@@ -130,9 +147,8 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
     setOpenStoreReport(true);
   }
 
-  const onSubmit = () => {
-    console.log('formState', formState)
-    getReports();
+  const handlePaginationChange = (event, page) => {
+    getReports({ page: page });
   }
 
   // COMPORTAMIENTO YEAR
@@ -145,6 +161,8 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   useEffect(() => {
     if (commerce || param_commerce_id) {
       getReports();
+      getProject();
+      getResponsibles();
       getMonth();
       setInput('commerce_id', commerce?.id ?? param_commerce_id);
       setTimeout(() => onResetForm({ initialForm: formState, formState }), 100);
@@ -157,6 +175,9 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
     }
   }, [commerce])
 
+  const onSubmit = () => {
+    getReports();
+  }
 
   return (
     <Grid container
@@ -271,31 +292,47 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
                 flterToggle &&
                 <Grid container>
                   <Grid item xs={12} md={2} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
-                    <TextField
-                      sx={{}}
-                      label="Proyecto"
-                      type="text"
-                      placeholder='Proyecto'
-                      fullWidth
-                      name="project"
-                      value={project}
-                      onClick={onInputClick}
-                      onChange={onInputChange}
-                    />
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">Proyecto</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        name="project"
+                        value={project}
+                        label="Proyecto"
+                        onChange={e => { onInputChange(e) }}>
+                        <MenuItem value=''><em></em></MenuItem>
+                        {
+                          projectArray &&
+                          projectArray.length &&
+                          projectArray.map((el, index) => (
+                            <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
+                          ))
+                        }
+                      </Select>
+                    </FormControl>
                   </Grid>
 
                   <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
-                    <TextField
-                      sx={{}}
-                      label="Responsable"
-                      type="text"
-                      placeholder='Responsable'
-                      fullWidth
-                      name="responsible"
-                      value={responsible}
-                      onClick={onInputClick}
-                      onChange={onInputChange}
-                    />
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">Responsable</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        name="responsible"
+                        value={responsible}
+                        label="Responsable"
+                        onChange={e => { onInputChange(e) }}>
+                        <MenuItem value=''><em></em></MenuItem>
+                        {
+                          responsibleArray &&
+                          responsibleArray.length &&
+                          responsibleArray.map((el, index) => (
+                            <MenuItem key={index} value={el.name}>{el.name}</MenuItem>
+                          ))
+                        }
+                      </Select>
+                    </FormControl>
                   </Grid>
 
                   <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
@@ -362,9 +399,29 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
           <Grid item xs={12} md={12}>
             <Grid container>
               {reportArray.map((report) => (
-                <ReportItemComponent key={report.id} report={report} monthArray={monthArray}></ReportItemComponent>
+                <ReportItemComponent key={report.id} report={report} monthArray={monthArray} getReports={getReports} handleReportUpdate={() => handleReportUpdate(report)}></ReportItemComponent>
               ))}
             </Grid>
+          </Grid>
+          <Grid container sx={{
+            mb: 2,
+            justifyContent: 'end',
+            display: 'flex',
+            // color: `${palette.text.secondary}`,
+          }} >
+            {
+              reportTable?.data &&
+              <Pagination
+                showFirstButton showLastButton
+                size="large"
+                sx={{ mr: 5, color: `${palette.text.secondary}`, }}
+                count={Math.ceil(reportTable.total / reportTable.per_page)}
+                // defaultPage={userTable.current_page}
+                page={reportTable.current_page}
+                onChange={handlePaginationChange}
+                color="secondary"
+              />
+            }
           </Grid>
         </Grid>
       </Grid>
@@ -375,6 +432,8 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
         commerce={commerce}
         getReports={getReports}
         monthArray={monthArray}
+        projectArray={projectArray}
+        responsibleArray={responsibleArray}
         handleClose={handleReportStoreClose}
       ></ReportStoreComponent>}
     </Grid>

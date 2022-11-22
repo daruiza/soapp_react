@@ -77,6 +77,18 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         });
     }
 
+    // Asignacion promesa de un Input del Form
+    const setInputPromise = (name, value) =>
+        new Promise((resolve, reject) => {
+            setFormState({
+                ...formState,
+                [name]: value
+            })
+            resolve(formState);
+        })
+
+
+    // Asignacion multiple de un Input del Form
     const setInputs = (inputs = []) => {
 
         let inputsArray = {};
@@ -105,6 +117,7 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
         formChange,
         setFormState,
         setInput,
+        setInputPromise,
         setInputs,
         onInputChange,
         onInputChangeValue,

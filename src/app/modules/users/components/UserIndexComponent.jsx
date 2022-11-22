@@ -324,7 +324,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                       sx={{
                         '&:last-child td, &:last-child th': { border: 0 }
                       }}
-                    >
+                    >                      
                       <TableCell sx={{ color: `${palette.text.secondary}` }} component="th" scope="row">{user.name}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.lastname}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.email}</TableCell>

@@ -55,7 +55,7 @@ export const UserStoreComponent = ({ user = {}, open = false, handleClose = () =
         onResetForm
     } = useForm(setInputsForm(user), formValidations);
 
-    useEffect(() => {
+    useEffect(() => {        
         setFormState(setInputsForm(user), user ? formValidations : {})
         setTimeout(() => onResetForm({ initialForm: setInputsForm(user), formState: formState }), 100)
     }, [user]);
@@ -72,7 +72,6 @@ export const UserStoreComponent = ({ user = {}, open = false, handleClose = () =
             } else {
                 // Actualizar Usuario
                 dispatch(userUpdateById({ form: { ...formState } })).then((response) => {
-                    console.log('response', response);
                     getUsers();// Refrescamos la tabla
                     handleClose();
                 }, error => setMessageSnackbar({ dispatch, error }))

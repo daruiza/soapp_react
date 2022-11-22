@@ -26,19 +26,21 @@ import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
 
 import { yellow } from '@mui/material/colors';
-import { userIndex } from '../../../../store';
+import { reportStore, reportUpdate, userIndex } from '../../../../store';
 import { RolTypes } from '../../../types';
 import dayjs from 'dayjs';
+import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 const formData = {
+  id: '',
   commerce_id: '',
   project: '',
-  focus: '',
+  focus: 0,
   description: '',
   responsible: '',
   email_responsible: '',
   phone_responsible: '',
-  year: '',
+  year: dayjs().format('YYYY') ?? '',
   month: '',
 };
 const formValidations = {
@@ -46,22 +48,24 @@ const formValidations = {
   responsible: [(value) => value, 'El Responsible es obligatorio.'],
   year: [(value) => (RegExp('^[0-9]+$').test(value) && value < 9999) || !value, 'El año es un número de 0 a 9999.'],
   month: [(value) => value, 'El Mes es obligatorio.'],
-  // month: [(value) => value.length >= 1, 'El Mes es obligatorio.'],
 };
 
 const setInputsForm = (report) => {
   for (const formField of Object.keys(formData)) {
-    formData[formField] =
-      report ?
-        report[formField] === !null && report[formField] === !undefined ?
-          report[formField] :
-          '' :
-        '';
+    formData[formField] = report[formField] ?? formData[formField];
   }
   return formData;
 };
 
-export const ReportStoreComponent = ({ report = {}, open = false, commerce = {}, monthArray = [], getReports = () => { }, handleClose = () => { } }) => {
+export const ReportStoreComponent = ({
+  report = {},
+  open = false,
+  commerce = {},
+  monthArray = [],
+  projectArray = [],
+  responsibleArray = [],
+  getReports = () => { },
+  handleClose = () => { } }) => {
 
   const dispatch = useDispatch();
 
@@ -95,46 +99,26 @@ export const ReportStoreComponent = ({ report = {}, open = false, commerce = {},
     onInputChange,
     onInputClick,
     setInput,
+    setInputPromise,
     setInputs,
     onResetForm
-  } = useForm(setInputsForm(report), formValidations);
+  } = useForm(setInputsForm({
+    ...report,
+    responsible: report?.responsible ? responsibleArray.find(el => el.name === report.responsible).id : '',
+    year: report?.date ? dayjs(report.date).format('YYYY') : '',
+    month: report?.date ? monthArray.find(el => el.index === +dayjs(report.date).format('M'))?.index : ''
+  }), formValidations);
 
-  const [projectArray, setProjectArray] = useState([])
-  const [responsibleArray, setResponsibleArray] = useState([])
-
-  const [focusToggle, setFocusToggle] = useState(report?.focus ?? false);
-
-
-  const getUsers = (attr = {}, form = formState) => {
-    dispatch(userIndex({ form: { ...form, ...attr, rol_id: RolTypes.responsible } }))
-      .then(({ data: { data: { users: { data } } } }) => {
-        setResponsibleArray(data);
-      });
-  }
-
-  const getProject = () => {
-    dispatch(genericListGetByName({ name: 'project' }))
-      .then(({ data: { data: { generallist } } }) => {
-        setProjectArray(generallist ?? []);
-      });
-  }
-
-  const getMonth = () => {
-    dispatch(genericListGetByName({ name: 'month' }))
-      .then(({ data: { data: { generallist } } }) => {
-        setMontArray(generallist ?? []);
-      });
-  }
+  const [focusToggle, setFocusToggle] = useState(report?.focus === 1 ? true : false);
 
   // EVENTOS
-  const toggleFocus = (focus) => {
-    setFocusToggle((focus) => !focus)
-    setInput('focus', !focus);
+  const toggleFocus = () => {
+    setFocusToggle((focus) => !focus);
   };
 
-  const responsibleSelect = (responsibleselect) => {
-    if (responsibleselect) {
-      const selectresponsible = responsibleArray.find(el => el.id = responsible);
+  const responsibleSelect = () => {
+    if (responsible) {
+      const selectresponsible = responsibleArray.find(el => el.id === responsible);
       setInputs([
         { 'email_responsible': selectresponsible?.email ?? '' },
         { 'phone_responsible': selectresponsible?.phone ?? '' }
@@ -151,12 +135,15 @@ export const ReportStoreComponent = ({ report = {}, open = false, commerce = {},
   // COMPORTAMIENTO
   const onInputYear = (event) => {
     const { target: { value } } = event;
-    console.log('value', value)
     if (RegExp('^[0-9]+$').test(value) || !value) {
       setInput('year', value);
     }
     event.preventDefault();
   }
+
+  useEffect(() => {
+    setInput('focus', focusToggle === true ? 1 : 0);
+  }, [focusToggle])
 
   useEffect(() => {
     if (!year) {
@@ -167,26 +154,60 @@ export const ReportStoreComponent = ({ report = {}, open = false, commerce = {},
 
   // Observable sobre responsible
   useEffect(() => {
-    responsibleSelect(responsible)
+    responsibleSelect()
   }, [responsible])
 
   useEffect(() => {
+
   }, [report])
 
   useEffect(() => {
+    onResetForm({ initialForm: formState, formState })
+  }, [commerce_id, year])
+
+  useEffect(() => {
     if (commerce) {
-      getProject();
-      getUsers();
+
       setInputs([
         { 'commerce_id': commerce?.id ?? '' },
         { 'year': dayjs().format('YYYY') ?? '' }
       ]);
-      setTimeout(() => onResetForm({ initialForm: formState, formState }), 100)
+      // setInput('commerce_id', commerce?.id ?? '');
+      // setInput('year', dayjs().format('YYYY') ?? '');
     }
-  }, [commerce])
+  }, [])
 
-  const handleSubmit = () => {
-    console.info('formState', formState)
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (isFormValid) {
+      if (!formState.id) {
+        // Nuevo report
+        dispatch(reportStore({
+          form: {
+            ...formState,
+            responsible: responsibleArray.find(el => el.id === formState.responsible).name,
+            date: dayjs(`${year}-${month}`).format('YYYY-MM-DD')
+          }
+        })).then((response) => {
+          getReports();// Refrescamos la tabla
+          handleClose();
+        }, error => setMessageSnackbar({ dispatch, error }))
+      } else {
+        // Actualizar report
+        dispatch(reportUpdate({
+          form: {
+            ...formState,
+            responsible: responsibleArray.find(el => el.id === formState.responsible).name,
+            date: dayjs(`${year}-${month}`).format('YYYY-MM-DD')
+          }
+        })).then((response) => {
+          getReports();// Refrescamos la tabla
+          handleClose();
+        }, error => setMessageSnackbar({ dispatch, error }))
+      }
+    }
+
+
   }
 
   return (
@@ -201,8 +222,8 @@ export const ReportStoreComponent = ({ report = {}, open = false, commerce = {},
       >
         <DialogTitle id="alert-dialog-title">
           <Grid container justifyContent="space-between">
-            <Grid item md={6} sx={{ display: 'flex' }}>
-              <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+            <Grid item md={6} sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box mr={1} sx={{ position: 'relative', display: 'inline-flex' }}>
                 <CircularProgress variant="determinate" value={report?.progress ?? 1} />
                 <Box
                   sx={{
@@ -221,7 +242,7 @@ export const ReportStoreComponent = ({ report = {}, open = false, commerce = {},
                   </Typography>
                 </Box>
               </Box>
-              <Box> Mes
+              <Box> {month && monthArray.find(el => el.index === month).value}
               </Box>
             </Grid>
             <Grid item >

@@ -7,6 +7,13 @@ export const userIndex = ({ form = {} }) => {
     }
 }
 
+export const userByRolId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { userApi } = useUser(dispatch);
+        return userApi.get(`api/user/showbyrolid/${form.rol_id}`, { params: { ...form } });
+    }
+}
+
 export const userStore = ({ form }) => {
     return async (dispatch) => {
         const { userApi } = useUser(dispatch);
