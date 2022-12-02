@@ -24,7 +24,7 @@ const forminit = {
   project: '',
   responsible: '',
   progress: '',
-  year: dayjs().format('YYYY'),
+  year: '',
   month: '',
 };
 
@@ -33,6 +33,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   const dispatch = useDispatch();
   const { palette } = useTheme();
   const { commerce_id: param_commerce_id } = useParams();
+  
   const { commerce: commerceState } = useSelector(state => state.commerce);
   const commerce = useMemo(() => commerceState, [commerceState]);
 
@@ -54,7 +55,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
     onInputClick,
     onInputChange,
     onInputChangeValue
-  } = useForm(forminit, formValidations);
+  } = useForm({ ...forminit, year: dayjs().format('YYYY') }, formValidations);
 
   const [flterToggle, setFilterToggle] = useState(false);
   const [openReportStore, setOpenStoreReport] = useState(false);
@@ -118,7 +119,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
     event.preventDefault();
   }
 
-  const onInputYear = (event) => {
+  const onInputYear = (event) => {    
     const { target: { value } } = event;
     if (RegExp('^[0-9]+$').test(value) || !value) {
       setInput('year', value);
@@ -399,7 +400,13 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
           <Grid item xs={12} md={12}>
             <Grid container>
               {reportArray.map((report) => (
-                <ReportItemComponent key={report.id} report={report} monthArray={monthArray} getReports={getReports} handleReportUpdate={() => handleReportUpdate(report)}></ReportItemComponent>
+                <ReportItemComponent
+                  key={report.id}
+                  report={report}
+                  monthArray={monthArray}
+                  getReports={getReports}
+                  handleReportUpdate={() => handleReportUpdate(report)
+                  }></ReportItemComponent>
               ))}
             </Grid>
           </Grid>

@@ -36,6 +36,7 @@ const formData = {
   commerce_id: '',
   project: '',
   focus: 0,
+  active: '',
   description: '',
   responsible: '',
   email_responsible: '',

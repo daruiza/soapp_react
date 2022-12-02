@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { DialogAlertComponent } from '../../../components';
 import { Grid, Card, CardContent, CardHeader, capitalize, IconButton, Box, CircularProgress, Typography, CardActions, Tooltip, Collapse } from '@mui/material';
+import { reportDelete, reportUpdate } from '../../../../store';
+import dayjs from 'dayjs';
 import ShareIcon from '@mui/icons-material/Share';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
@@ -7,14 +12,14 @@ import StarIcon from '@mui/icons-material/Star';
 import InfoIcon from '@mui/icons-material/Info';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+import ContentPasteSearchIcon from '@mui/icons-material/ContentPasteSearch';
 import { styled } from '@mui/material/styles';
 
-import { yellow } from '@mui/material/colors';
-import dayjs from 'dayjs';
+import { grey, yellow } from '@mui/material/colors';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useDispatch } from 'react-redux';
-import { reportDelete, reportUpdate } from '../../../../store';
-import { DialogAlertComponent } from '../../../components';
+import { PrivateCustomerRoute, PrivateResponsibleRoute } from '../../../middleware';
 
 const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
@@ -30,6 +35,7 @@ const ExpandMore = styled((props) => {
 export const ReportItemComponent = ({ report, monthArray, getReports, handleReportUpdate }) => {
 
     const dispatch = useDispatch();
+    const navigate = useNavigate()
 
     const [year, setYear] = useState({});
     const [month, setMonth] = useState({});
@@ -38,6 +44,7 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
 
     const [expanded, setExpanded] = useState(false);
     const [focusToggle, setFocusToggle] = useState(false);
+    const [lockToggle, setLockToggle] = useState(false);
 
     // EVENTOS
     const toggleFocus = (report) => {
@@ -48,6 +55,19 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
             form: {
                 ...report,
                 focus: report.focus === 1 ? 0 : 1
+            }
+        })).then((response) => {
+            getReports();// Refrescamos la tabla
+        }, error => setMessageSnackbar({ dispatch, error }))
+    }
+
+    const toggleLock = (report) => {
+        setLockToggle((active) => !active);
+        // Actualizar report
+        dispatch(reportUpdate({
+            form: {
+                ...report,
+                active: report.active === 1 ? 0 : 1
             }
         })).then((response) => {
             getReports();// Refrescamos la tabla
@@ -65,6 +85,16 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
         }, error => setMessageSnackbar({ dispatch, error }))
     }
 
+    const navegateReport = () => {
+        navigate(`report/${report.id}?option=${report.active ? 'write' : 'read'}`);
+    }
+
+    const navegateCustomerReport = () => {
+        navigate(`/reports/report/${report.id}?option=${report.active ? 'write' : 'read'}`);
+    }
+
+
+
     const handleReportDeleteOpen = () => {
         setOpenDeleteReport(true);
     }
@@ -81,13 +111,14 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
         setYear(+dayjs(report.date).format('YYYY'));
         setMonth(monthArray.find((el) => el.index === +dayjs(report.date).format('M')));
         setFocusToggle(report.focus ? true : false);
+        setLockToggle(report.active ? true : false);
     }, [report]);
 
     return (
         <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
             {
                 month?.value &&
-                <Card sx={{}}>
+                <Card sx={{ background: !report?.active ? `${grey[300]}` : `` }}>
                     <CardHeader
                         avatar={
                             <Box sx={{ position: 'relative', display: 'inline-flex' }}>
@@ -111,9 +142,27 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                             </Box>
                         }
                         action={
-                            <IconButton aria-label="settings">
-                                <ContentPasteIcon />
-                            </IconButton>
+                            <>
+                                <PrivateCustomerRoute>
+                                    <IconButton onClick={() => navegateCustomerReport()} aria-label="settings">
+                                        {
+                                            report.active === 1 ?
+                                                <ContentPasteIcon /> :
+                                                <ContentPasteSearchIcon />
+                                        }
+                                    </IconButton>
+                                </PrivateCustomerRoute>
+
+                                <PrivateResponsibleRoute>
+                                    <IconButton onClick={() => navegateReport()} aria-label="settings">
+                                        {
+                                            report.active === 1 ?
+                                                <ContentPasteIcon /> :
+                                                <ContentPasteSearchIcon />
+                                        }
+                                    </IconButton>
+                                </PrivateResponsibleRoute>
+                            </>
                         }
                         title={`${month.value}, ${year}`}
                         subheader={`Responsable ${capitalize(report.responsible)}`}
@@ -121,7 +170,7 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                     />
                     {/* <CardContent></CardContent> */}
                     <CardActions disableSpacing sx={{ justifyContent: 'space-between' }}>
-                        <Box>
+                        < Box >
                             <IconButton onClick={handleSharedClick} aria-label="share">
                                 <ShareIcon />
                             </IconButton>
@@ -130,32 +179,72 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                                     <InfoIcon />
                                 </IconButton>
                             </Tooltip>
-                            <IconButton onClick={handleReportUpdate} aria-label="share">
-                                <EditIcon />
-                            </IconButton>
-                            <IconButton onClick={handleReportDeleteOpen} aria-label="share">
-                                <DeleteIcon />
-                            </IconButton>
-                        </Box>
+                            {
+                                report.active === 1 &&
+                                <>
+                                    <IconButton onClick={handleReportUpdate} aria-label="share">
+                                        <EditIcon />
+                                    </IconButton>
 
-                        <Box>
+                                    <PrivateResponsibleRoute>
+                                        <IconButton onClick={handleReportDeleteOpen} aria-label="share">
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </PrivateResponsibleRoute>
+
+                                </>
+                            }
+
                             {
                                 report.description &&
                                 <ExpandMore
                                     expand={expanded}
                                     onClick={handleExpandClick}
                                     aria-expanded={expanded}
-                                    aria-label="show more"
+                                    aria-label="descripción"
                                 >
                                     <ExpandMoreIcon />
                                 </ExpandMore>
                             }
+                        </Box>
+                        <Box>
 
+                            <PrivateCustomerRoute>
+                                <IconButton aria-label="share">
+                                    {lockToggle && <LockOpenIcon />}
+                                    {!lockToggle && <LockIcon />}
+                                </IconButton>
 
-                            <IconButton aria-label="share" onClick={(e) => toggleFocus(report)} >
-                                {focusToggle && <StarIcon sx={{ color: `${yellow[700]}` }} />}
-                                {!focusToggle && <StarBorderIcon />}
-                            </IconButton>
+                                <IconButton aria-label="share"  >
+                                    {focusToggle && <StarIcon sx={{ color: `${yellow[700]}` }} />}
+                                    {!focusToggle && <StarBorderIcon />}
+                                </IconButton>
+                            </PrivateCustomerRoute>
+
+                            <PrivateResponsibleRoute>
+                                <IconButton onClick={(e) => toggleLock(report)} aria-label="share">
+                                    {lockToggle && <LockOpenIcon />}
+                                    {!lockToggle && <LockIcon />}
+                                </IconButton>
+
+                                {
+                                    report.active === 1 &&
+                                    <IconButton aria-label="share" onClick={(e) => toggleFocus(report)} >
+                                        {focusToggle && <StarIcon sx={{ color: `${yellow[700]}` }} />}
+                                        {!focusToggle && <StarBorderIcon />}
+                                    </IconButton>
+                                }
+
+                                {
+                                    report.active === 0 &&
+                                    <>
+                                        {focusToggle && <StarIcon sx={{ color: `${yellow[700]}` }} />}
+                                        {!focusToggle && <StarBorderIcon />}
+                                    </>
+
+                                }
+                            </PrivateResponsibleRoute>
+
                         </Box>
 
                     </CardActions>
@@ -173,15 +262,17 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
 
                 </Card>
             }
-            {openReportDelete && <DialogAlertComponent
-                open={openReportDelete}
-                handleClose={handleReportDeleteClose}
-                handleAgree={handleReportDelete}
-                props={{
-                    tittle: 'Eliminar Reporte',
-                    message: `Estas segur@ de eliminar el reporte de ${month?.value ?? ''} de ${year ?? ''}`
-                }}
-            ></DialogAlertComponent>}
-        </Grid>
+            {
+                openReportDelete && <DialogAlertComponent
+                    open={openReportDelete}
+                    handleClose={handleReportDeleteClose}
+                    handleAgree={handleReportDelete}
+                    props={{
+                        tittle: 'Eliminar Reporte',
+                        message: `Estas segur@ de eliminar el reporte de ${month?.value ?? ''} de ${year ?? ''}`
+                    }}
+                ></DialogAlertComponent>
+            }
+        </Grid >
     )
 }

@@ -153,7 +153,6 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
 
   useEffect(() => {
     if (commerce || param_commerce_id) {
-      console.log('commerce', commerce);
       getEmployees();
       getDocumentTypes();
       getIsEmployeeTypes();

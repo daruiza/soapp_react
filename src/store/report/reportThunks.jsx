@@ -17,6 +17,15 @@ export const reportStore = ({ form }) => {
     }
 }
 
+export const reportByreportId = ({ form }) => {
+    return async (dispatch) => {
+        const { reportApi } = useReport(dispatch);
+        if (form) {
+            return reportApi.get(`api/report/showbyreportid/${form.id}`, form);
+        }
+    }
+}
+
 export const reportUpdate = ({ form }) => {    
     return async (dispatch) => {
         const { reportApi } = useReport(dispatch);
