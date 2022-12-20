@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { PrivateCustomerRoute, PrivateResponsibleRoute } from '../../middleware'
+import { PrivateCustomerRoute, PrivateAgentRoute } from '../../middleware'
 import { EmployeeIndexComponent } from './components/EmployeeIndexComponent'
 
 export const EmployeeRoute = () => {
@@ -12,11 +12,11 @@ export const EmployeeRoute = () => {
                 </Routes>
             </PrivateCustomerRoute>
 
-            <PrivateResponsibleRoute>
+            <PrivateAgentRoute>
                 <Routes>
                     <Route path="commerce/:commerce_id" element={<EmployeeIndexComponent />} />
                 </Routes>
-            </PrivateResponsibleRoute>
+            </PrivateAgentRoute>
         </>
     )
 }

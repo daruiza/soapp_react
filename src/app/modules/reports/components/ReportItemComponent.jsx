@@ -19,7 +19,7 @@ import { styled } from '@mui/material/styles';
 
 import { grey, yellow } from '@mui/material/colors';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { PrivateCustomerRoute, PrivateResponsibleRoute } from '../../../middleware';
+import { PrivateCustomerRoute, PrivateAgentRoute } from '../../../middleware';
 
 const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
@@ -153,7 +153,7 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                                     </IconButton>
                                 </PrivateCustomerRoute>
 
-                                <PrivateResponsibleRoute>
+                                <PrivateAgentRoute>
                                     <IconButton onClick={() => navegateReport()} aria-label="settings">
                                         {
                                             report.active === 1 ?
@@ -161,7 +161,7 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                                                 <ContentPasteSearchIcon />
                                         }
                                     </IconButton>
-                                </PrivateResponsibleRoute>
+                                </PrivateAgentRoute>
                             </>
                         }
                         title={`${month.value}, ${year}`}
@@ -182,15 +182,19 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                             {
                                 report.active === 1 &&
                                 <>
-                                    <IconButton onClick={handleReportUpdate} aria-label="share">
-                                        <EditIcon />
-                                    </IconButton>
-
-                                    <PrivateResponsibleRoute>
-                                        <IconButton onClick={handleReportDeleteOpen} aria-label="share">
-                                            <DeleteIcon />
+                                    <Tooltip title="Editar" placement="top">
+                                        <IconButton onClick={handleReportUpdate} aria-label="share">
+                                            <EditIcon />
                                         </IconButton>
-                                    </PrivateResponsibleRoute>
+                                    </Tooltip>
+
+                                    <PrivateAgentRoute>
+                                        <Tooltip title="Eliminar" placement="top">
+                                            <IconButton onClick={handleReportDeleteOpen} aria-label="share">
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </PrivateAgentRoute>
 
                                 </>
                             }
@@ -221,7 +225,7 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                                 </IconButton>
                             </PrivateCustomerRoute>
 
-                            <PrivateResponsibleRoute>
+                            <PrivateAgentRoute>
                                 <IconButton onClick={(e) => toggleLock(report)} aria-label="share">
                                     {lockToggle && <LockOpenIcon />}
                                     {!lockToggle && <LockIcon />}
@@ -243,7 +247,7 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                                     </>
 
                                 }
-                            </PrivateResponsibleRoute>
+                            </PrivateAgentRoute>
 
                         </Box>
 

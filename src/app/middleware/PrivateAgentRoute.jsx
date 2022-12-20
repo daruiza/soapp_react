@@ -3,16 +3,16 @@ import { useSelector } from 'react-redux';
 import { authstatusTypes } from '../../store';
 import { RolTypes } from '../types';
 
-export const PrivateResponsibleRoute = ({ children }) => {
+export const PrivateAgentRoute = ({ children }) => {
   const { status, user } = useSelector(state => state.auth);
-  const RESPONSIBLEAUTHENTICATED = useMemo(() =>
+  const AGENTAUTHENTICATED = useMemo(() =>
     status === authstatusTypes.AUTHENTICATED &&
     (
-      user?.rol?.id === RolTypes.responsible ||
+      user?.rol?.id === RolTypes.agente ||
       user?.rol?.id === RolTypes.superadmin
     ),
     [status, user])
-  return (RESPONSIBLEAUTHENTICATED)
+  return (AGENTAUTHENTICATED)
     ? children
     : <></>
 }

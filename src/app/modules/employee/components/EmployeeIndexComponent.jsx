@@ -9,13 +9,13 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useTheme } from '@emotion/react';
 import dayjs from 'dayjs';
-import es from 'date-fns/locale/es'
+import esES from 'dayjs/locale/es';
 import { commerceUpdate, employeeDelete, employeeIndex, getCommerceByCommerce, login } from '../../../../store';
 import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
-import { PrivateResponsibleRoute } from '../../../middleware';
+import { PrivateAgentRoute } from '../../../middleware';
 
 const forminit = {
   commerce_id: '',
@@ -27,7 +27,7 @@ const forminit = {
   birth_date: dayjs('1969-01-01').format('YYYY-MM-DD'),
   identification: '',
   identification_type: '',
-  employee_state: '',
+  employee_state: [],
   is_employee: ''
 };
 
@@ -64,12 +64,15 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
   const [openEmployeeStore, setOpenStoreEmployee] = useState(false);
   const [openEmployeeDelete, setOpenDeleteEmployee] = useState(false);
   const [openAlert, setOpenAlert] = useState(true);
+  const [openEmployeeSteteSelect, setOpenEmployeeSteteSelect] = useState(false);
+
 
   const [employee, setEmployee] = useState({});
   const [employeeTable, setEmployeeTable] = useState({});
   const [employeeArray, setEmployeeArray] = useState([]);
   const [documenttypeArray, setDocumenttypeArray] = useState([]);
-  const [isemployeetypeArray, setIsemployeetypeArray] = useState([]);
+  const [employeestateArray, setEmployeestateArray] = useState([]);
+  const [isemployeetypeArray, setIsemployeetypeArray] = useState([]);  
 
   const getEmployees = (attr = {}, form = formState) => {
     const commerce_id = form?.commerce_id ? form.commerce_id : commerce?.id ?? param_commerce_id;
@@ -79,6 +82,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
           ...form,
           ...attr,
           is_employee: form.is_employee === '' ? '' : form.is_employee === 'Si' ? 1 : 0,
+          employee_state: form.employee_state.toString(),
           commerce_id: commerce_id
         }
       })).then(({ data: { data: { employee } } }) => {
@@ -92,6 +96,13 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
     dispatch(genericListGetByName({ name: 'documenttype' }))
       .then(({ data: { data: { generallist } } }) => {
         setDocumenttypeArray(generallist ?? []);
+      });
+  }
+
+  const getEmployeeState = () => {
+    dispatch(genericListGetByName({ name: 'employee_state' }))
+      .then(({ data: { data: { generallist } } }) => {
+        setEmployeestateArray(generallist ?? []);
       });
   }
 
@@ -149,14 +160,18 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
     });
   }
 
+  const handleEmployeeSteteSelectClose = () => { setOpenEmployeeSteteSelect(false) }
+  const handleEmployeeSteteSelectOpen = () => {  setOpenEmployeeSteteSelect(true) }
+
   const onSubmit = () => { getEmployees() }
 
   useEffect(() => {
     if (commerce || param_commerce_id) {
       getEmployees();
       getDocumentTypes();
+      getEmployeeState();
       getIsEmployeeTypes();
-      setInput('commerce_id', commerce?.id ?? param_commerce_id);      
+      setInput('commerce_id', commerce?.id ?? param_commerce_id);
       setTimeout(() => onResetForm({ initialForm: formState, formState }), 100)
     }
 
@@ -180,7 +195,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
           <Grid item xs={12} md={12} mb={2}>
             {
               commerce &&
-              <PrivateResponsibleRoute>
+              <PrivateAgentRoute>
                 <Grid container sx={{}}>
                   <Grid item xs={12} md={12} sx={{ mb: 1, pl: 1, display: 'flex', alignItems: 'center' }}>
                     <Box sx={{ width: '100%' }}>
@@ -207,7 +222,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                     </Box>
                   </Grid>
                 </Grid>
-              </PrivateResponsibleRoute>
+              </PrivateAgentRoute>
             }
             <Grid container sx={{ justifyContent: 'space-between' }}>
               <Grid item xs={12} md={6} sx={{
@@ -383,7 +398,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                   </Grid>
 
                   <Grid item xs={12} md={2} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
-                    <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
+                    <LocalizationProvider adapterLocale={esES} dateAdapter={AdapterDayjs}>
                       <DatePicker
                         className='birth-date-piker'
                         sx={{ width: '100%' }}
@@ -397,18 +412,32 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                     </LocalizationProvider>
                   </Grid>
 
+
                   <Grid item xs={12} md={2} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
-                    <TextField
-                      sx={{}}
-                      label="Estado"
-                      type="text"
-                      placeholder='Estado de Colaborador'
-                      fullWidth
-                      name="employee_state"
-                      value={employee_state}
-                      onClick={onInputClick}
-                      onChange={onInputChange}
-                    />
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">Estado</InputLabel>
+                      <Select
+                        open={openEmployeeSteteSelect}
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        name="employee_state"
+                        value={employee_state}
+                        label="Estado de Colaborador"
+                        onChange={e => { onInputChange(e); handleEmployeeSteteSelectClose(e) }}
+                        onClose={handleEmployeeSteteSelectClose}
+                        onOpen={handleEmployeeSteteSelectOpen}
+                        multiple
+                      >
+                        <MenuItem value=''><em></em></MenuItem>
+                        {
+                          employeestateArray &&
+                          employeestateArray.length &&
+                          employeestateArray.map((el, index) => (
+                            <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
+                          ))
+                        }
+                      </Select>
+                    </FormControl>
                   </Grid>
 
                   <Grid item xs={12} md={2} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >

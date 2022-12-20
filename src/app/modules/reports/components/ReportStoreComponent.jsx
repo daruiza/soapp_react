@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useForm } from '../../../../hooks';
-import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 import {
   Box,
   Button,
@@ -25,22 +24,28 @@ import {
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import StarIcon from '@mui/icons-material/Star';
 
-import { yellow } from '@mui/material/colors';
-import { reportStore, reportUpdate, userIndex } from '../../../../store';
-import { RolTypes } from '../../../types';
+import { yellow, red } from '@mui/material/colors';
+import { reportStore, reportUpdate } from '../../../../store';
 import dayjs from 'dayjs';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
+import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 
 const formData = {
   id: '',
   commerce_id: '',
   project: '',
   focus: 0,
-  active: '',
+  active: 1,
   description: '',
   responsible: '',
   email_responsible: '',
   phone_responsible: '',
+  elaborated: '',
+  email_elaborated: '',
+  phone_elaborated: '',
+  passed: '',
+  email_passed: '',
+  phone_passed: '',
   year: dayjs().format('YYYY') ?? '',
   month: '',
 };
@@ -53,7 +58,7 @@ const formValidations = {
 
 const setInputsForm = (report) => {
   for (const formField of Object.keys(formData)) {
-    formData[formField] = report[formField] ?? formData[formField];
+    formData[formField] = report[formField] ?? '';
   }
   return formData;
 };
@@ -85,6 +90,24 @@ export const ReportStoreComponent = ({
     phone_responsible,
     phone_responsibleValid,
     phone_responsibleToched,
+    elaborated,
+    elaboratedValid,
+    elaboratedToched,
+    email_elaborated,
+    email_elaboratedValid,
+    email_elaboratedToched,
+    phone_elaborated,
+    phone_elaboratedValid,
+    phone_elaboratedToched,
+    passed,
+    passedValid,
+    passedToched,
+    email_passed,
+    email_passedValid,
+    email_passedToched,
+    phone_passed,
+    phone_passedValid,
+    phone_passedToched,
     description,
     descriptionValid,
     descriptionToched,
@@ -104,8 +127,10 @@ export const ReportStoreComponent = ({
     setInputs,
     onResetForm
   } = useForm(setInputsForm({
-    ...report,
-    responsible: report?.responsible ? responsibleArray.find(el => el.name === report.responsible).id : '',
+    ...report,    
+    focus: report?.focus ?? 0,
+    active: report?.active ?? 1,
+    responsible: report?.responsible ? responsibleArray.find(el => el.name === report.responsible)?.id : '',
     year: report?.date ? dayjs(report.date).format('YYYY') : '',
     month: report?.date ? monthArray.find(el => el.index === +dayjs(report.date).format('M'))?.index : ''
   }), formValidations);
@@ -159,7 +184,6 @@ export const ReportStoreComponent = ({
   }, [responsible])
 
   useEffect(() => {
-
   }, [report])
 
   useEffect(() => {
@@ -185,7 +209,7 @@ export const ReportStoreComponent = ({
         // Nuevo report
         dispatch(reportStore({
           form: {
-            ...formState,
+            ...formState,            
             responsible: responsibleArray.find(el => el.id === formState.responsible).name,
             date: dayjs(`${year}-${month}`).format('YYYY-MM-DD')
           }
@@ -261,7 +285,7 @@ export const ReportStoreComponent = ({
             <Grid item>
               <DialogContentText id="alert-dialog-description" sx={{ mb: 2 }}>
                 Información
-                {report.id && `a Editar/Actualizar de `}
+                {report.id && `a Editar/Actualizar `}
                 {!report.id && `de nuevo `}
                 Reporte
               </DialogContentText>
@@ -272,44 +296,87 @@ export const ReportStoreComponent = ({
               <Grid item xs={12} md={6} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">Proyecto</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    name="project"
-                    value={project}
-                    label="Proyecto"
-                    onChange={e => { onInputChange(e) }}>
-                    <MenuItem value=''><em></em></MenuItem>
-                    {
-                      projectArray &&
-                      projectArray.length &&
-                      projectArray.map((el, index) => (
-                        <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
-                      ))
-                    }
-                  </Select>
+                  <PrivateAgentRoute>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      name="project"
+                      value={project}
+                      label="Proyecto"
+                      onChange={e => { onInputChange(e) }}>
+                      <MenuItem value=''><em></em></MenuItem>
+                      {
+                        projectArray &&
+                        projectArray.length &&
+                        projectArray.map((el, index) => (
+                          <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </PrivateAgentRoute>
+                  <PrivateCustomerRoute>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      name="project"
+                      value={project}
+                      label="Proyecto"
+                      onChange={e => { onInputChange(e) }} disabled>
+                      <MenuItem value=''><em></em></MenuItem>
+                      {
+                        projectArray &&
+                        projectArray.length &&
+                        projectArray.map((el, index) => (
+                          <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </PrivateCustomerRoute>
                 </FormControl>
               </Grid>
 
               <Grid item xs={12} md={6} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">Responsable</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    name="responsible"
-                    value={responsible}
-                    label="Responsable"
-                    onChange={e => { onInputChange(e) }}>
-                    <MenuItem value=''><em></em></MenuItem>
-                    {
-                      responsibleArray &&
-                      responsibleArray.length &&
-                      responsibleArray.map((el, index) => (
-                        <MenuItem key={index} value={el.id}>{el.name}</MenuItem>
-                      ))
-                    }
-                  </Select>
+                  <PrivateAgentRoute>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      name="responsible"
+                      value={responsible}
+                      label="Responsable"
+                      onChange={e => { onInputChange(e) }}
+                      error={!!responsibleValid && responsibleToched}>
+                      <MenuItem value=''><em></em></MenuItem>
+                      {
+                        responsibleArray &&
+                        responsibleArray.length &&
+                        responsibleArray.map((el, index) => (
+                          <MenuItem key={index} value={el.id}>{el.name}</MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </PrivateAgentRoute>
+                  <PrivateCustomerRoute>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      name="responsible"
+                      value={responsible}
+                      label="Responsable"
+                      onChange={e => { onInputChange(e) }}
+                      error={!!responsibleValid && responsibleToched} disabled>
+                      <MenuItem value=''><em></em></MenuItem>
+                      {
+                        responsibleArray &&
+                        responsibleArray.length &&
+                        responsibleArray.map((el, index) => (
+                          <MenuItem key={index} value={el.id}>{el.name}</MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </PrivateCustomerRoute>
+                  <FormHelperText sx={{ color: `${red[700]}` }} >{!!responsibleValid && responsibleToched && responsibleValid}</FormHelperText>
                 </FormControl>
               </Grid>
 
@@ -325,6 +392,7 @@ export const ReportStoreComponent = ({
                   onClick={onInputClick}
                   helperText={email_responsibleValid}
                   error={!!email_responsibleValid && email_responsibleToched}
+                  disabled
                 />
               </Grid>
 
@@ -340,45 +408,83 @@ export const ReportStoreComponent = ({
                   onClick={onInputClick}
                   helperText={phone_responsibleValid}
                   error={!!phone_responsibleValid && phone_responsibleToched}
+                  disabled
                 />
               </Grid>
 
               <Grid item xs={12} md={6} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
-                <TextField
-                  label="Año"
-                  type="text"
-                  placeholder='Año'
-                  fullWidth
-                  name="year"
-                  value={year}
-                  onChange={e => { onInputYear(e) }}
-                  onClick={e => { onInputClick(e) }}
-                  helperText={yearValid}
-                  error={!!yearValid && yearToched}
-                />
+                <PrivateAgentRoute>
+                  <TextField
+                    label="Año"
+                    type="text"
+                    placeholder='Año'
+                    fullWidth
+                    name="year"
+                    value={year}
+                    onChange={e => { onInputYear(e) }}
+                    onClick={e => { onInputClick(e) }}
+                    helperText={yearValid}
+                    error={!!yearValid && yearToched}
+                  />
+                </PrivateAgentRoute>
+                <PrivateCustomerRoute>
+                  <TextField
+                    label="Año"
+                    type="text"
+                    placeholder='Año'
+                    fullWidth
+                    name="year"
+                    value={year}
+                    onChange={e => { onInputYear(e) }}
+                    onClick={e => { onInputClick(e) }}
+                    helperText={yearValid}
+                    error={!!yearValid && yearToched}
+                    disabled
+                  />
+                </PrivateCustomerRoute>
               </Grid>
 
               <Grid item xs={12} md={6} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">Mes</InputLabel>
-                  <Select
-                    disabled={year ? false : true}
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    name="month"
-                    value={month}
-                    label="Mes"
-                    onChange={e => { onInputChange(e) }}
-                  >
-                    <MenuItem value=''><em></em></MenuItem>
-                    {
-                      monthArray &&
-                      monthArray.length &&
-                      monthArray.map((el, index) => (
-                        <MenuItem key={index} value={el.index}>{el.value}</MenuItem>
-                      ))
-                    }
-                  </Select>
+                  <PrivateAgentRoute>
+                    <Select
+                      disabled={year ? false : true}
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      name="month"
+                      value={month}
+                      label="Mes"
+                      onChange={e => { onInputChange(e) }}
+                    >
+                      <MenuItem value=''><em></em></MenuItem>
+                      {
+                        monthArray &&
+                        monthArray.length &&
+                        monthArray.map((el, index) => (
+                          <MenuItem key={index} value={el.index}>{el.value}</MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </PrivateAgentRoute>
+                  <PrivateCustomerRoute>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      name="month"
+                      value={month}
+                      label="Mes"
+                      onChange={e => { onInputChange(e) }} disabled>
+                      <MenuItem value=''><em></em></MenuItem>
+                      {
+                        monthArray &&
+                        monthArray.length &&
+                        monthArray.map((el, index) => (
+                          <MenuItem key={index} value={el.index}>{el.value}</MenuItem>
+                        ))
+                      }
+                    </Select>
+                  </PrivateCustomerRoute>
                   <FormHelperText>{year ? '' : 'Mes deshabilitado'}</FormHelperText>
                 </FormControl>
               </Grid>
@@ -395,6 +501,103 @@ export const ReportStoreComponent = ({
                   onClick={onInputClick}
                   helperText={descriptionValid}
                   error={!!descriptionValid && descriptionToched}
+                />
+              </Grid>
+            </Grid>
+            <hr className='hr-elaborated'></hr>
+            <Grid container spacing={0} justifyContent="center" sx={{ mb: 2 }}>
+
+              <Grid item xs={12} md={4} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
+                <TextField
+                  label="Elaboró"
+                  type="text"
+                  placeholder=''
+                  fullWidth
+                  name="elaborated"
+                  value={elaborated}
+                  onChange={onInputChange}
+                  onClick={onInputClick}
+                  helperText={elaboratedValid}
+                  error={!!elaboratedValid && elaboratedToched}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={4} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
+                <TextField
+                  label="Correo de Elaboró"
+                  type="text"
+                  placeholder='Correo de Elaboró'
+                  fullWidth
+                  name="email_elaborated"
+                  value={email_elaborated}
+                  onChange={onInputChange}
+                  onClick={onInputClick}
+                  helperText={email_elaboratedValid}
+                  error={!!email_elaboratedValid && email_elaboratedToched}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={4} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
+                <TextField
+                  label="Teléfono de Elaboró"
+                  type="text"
+                  placeholder='Teléfono de Elaboró'
+                  fullWidth
+                  name="phone_elaborated"
+                  value={phone_elaborated}
+                  onChange={onInputChange}
+                  onClick={onInputClick}
+                  helperText={phone_elaboratedValid}
+                  error={!!phone_elaboratedValid && phone_elaboratedToched}
+                />
+              </Grid>
+
+            </Grid>
+
+            <hr className='hr-passed'></hr>
+            <Grid container spacing={0} justifyContent="center" sx={{ mb: 2 }}>
+              <Grid item xs={12} md={4} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
+                <TextField
+                  label="Aprobó"
+                  type="text"
+                  placeholder=''
+                  fullWidth
+                  name="passed"
+                  value={passed}
+                  onChange={onInputChange}
+                  onClick={onInputClick}
+                  helperText={passedValid}
+                  error={!!passedValid && passedToched}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={4} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
+                <TextField
+                  label="Correo de Aprobó"
+                  type="text"
+                  placeholder='Correo de Aprobó'
+                  fullWidth
+                  name="email_passed"
+                  value={email_passed}
+                  onChange={onInputChange}
+                  onClick={onInputClick}
+                  helperText={email_passedValid}
+                  error={!!email_passedValid && email_passedToched}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={4} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
+                <TextField
+                  label="Teléfono de Aprobó"
+                  type="text"
+                  placeholder='Teléfono de Aprobó'
+                  fullWidth
+                  name="phone_passed"
+                  value={phone_passed}
+                  onChange={onInputChange}
+                  onClick={onInputClick}
+                  helperText={phone_passedValid}
+                  error={!!phone_passedValid && phone_passedToched}
                 />
               </Grid>
             </Grid>

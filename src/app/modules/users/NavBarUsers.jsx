@@ -1,14 +1,14 @@
 import { useTheme } from "@emotion/react";
 import { NavLink } from "react-router-dom";
-import { PrivateResponsibleRoute } from '../../middleware'
+import { PrivateAgentRoute } from '../../middleware'
 
 export const NavBarUsers = () => {
     const { palette } = useTheme();
     return (
         <>
-            <PrivateResponsibleRoute>
+            <PrivateAgentRoute>
                 <NavLink style={{ color: `${palette.text.primary}` }} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="users/index"> Usuarios </NavLink>
-            </PrivateResponsibleRoute>
+            </PrivateAgentRoute>
         </>
     )
 }

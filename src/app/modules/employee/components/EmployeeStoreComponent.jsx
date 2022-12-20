@@ -5,7 +5,7 @@ import { Avatar, Button, capitalize, Dialog, DialogActions, DialogContent, Dialo
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import es from 'date-fns/locale/es'
+import es from 'dayjs/locale/es';
 import { uploadEmployeePhoto } from '../../../../api/upload/uploadThuks';
 import { employeeStore, employeeUpdate } from '../../../../store';
 

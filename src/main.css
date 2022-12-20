@@ -11,11 +11,20 @@
 } */
 
 
-.box-shadow{
+.box-shadow {
     box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.2);
 }
 
-.birth-date-piker{
+.birth-date-piker {
     width: 100%;
 }
 
+.hr-elaborated::after {
+    content: 'Elaborado Por:';
+    position: relative;
+}
+
+.hr-passed::after {
+    content: 'Aprobado Por:';
+    position: relative;
+}

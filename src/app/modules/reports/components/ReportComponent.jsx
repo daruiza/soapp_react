@@ -59,9 +59,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
             }}>
             <Grid item xs={12} md={12}>
                 <Grid container>
-                    <Grid item xs={12} md={12} mb={2} display={'flex'}>
-
-                        <Grid item xs={6} md={2} mb={2}>
+                    <Grid item xs={12} md={12} mb={2} sx={{ marginBottom: '0px' }} display={'flex'}>
+                        <Grid item xs={6} md={2} mb={2} sx={{ display: 'flex', alignItems: 'center' }}>
                             <ImageListItem>
                                 <img
                                     src={asistirEnSaludBran}
@@ -70,7 +69,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                             </ImageListItem>
                         </Grid>
 
-                        <Grid item xs={6} md={8} mb={2} >
+                        <Grid item xs={6} md={8} mb={2} sx={{ display: 'flex', alignItems: 'center' }}>
                             <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <Grid item xs={12} md={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <Typography>
@@ -87,6 +86,20 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                         <Grid item xs={6} md={2} mb={2} sx={{ display: 'flex', alignItems: 'center' }}>
                             <Grid container>
+
+                                <Grid item xs={12} md={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Grid item xs={12} md={6} >
+                                        <Typography sx={{ textAlign: 'center', borderTop: '1px solid', borderRight: '1px solid', borderLeft: '1px solid' }}>
+                                            Proyecto
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={12} md={6} >
+                                        <Typography sx={{ textAlign: 'center', borderTop: '1px solid', borderRight: '1px solid' }}>
+                                            {report?.project}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+
                                 <Grid item xs={12} md={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <Grid item xs={12} md={6} >
                                         <Typography sx={{ textAlign: 'center', borderTop: '1px solid', borderRight: '1px solid', borderLeft: '1px solid' }}>
@@ -95,7 +108,20 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     </Grid>
                                     <Grid item xs={12} md={6} >
                                         <Typography sx={{ textAlign: 'center', borderTop: '1px solid', borderRight: '1px solid' }}>
-                                            {report?.project}
+                                            {report?.elaborated}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+
+                                <Grid item xs={12} md={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Grid item xs={12} md={6} >
+                                        <Typography sx={{ textAlign: 'center', borderTop: '1px solid', borderRight: '1px solid', borderLeft: '1px solid' }}>
+                                            Aprobó
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={12} md={6} >
+                                        <Typography sx={{ textAlign: 'center', borderTop: '1px solid', borderRight: '1px solid' }}>
+                                            {report?.passed}
                                         </Typography>
                                     </Grid>
                                 </Grid>

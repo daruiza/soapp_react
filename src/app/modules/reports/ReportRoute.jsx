@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { PrivateCustomerRoute, PrivateResponsibleRoute } from '../../middleware'
+import { PrivateCustomerRoute, PrivateAgentRoute } from '../../middleware'
 import { ReportComponent } from './components/ReportComponent'
 import { ReportIndexComponent } from './components/ReportIndexComponent'
 
@@ -14,12 +14,12 @@ export const ReportRoute = () => {
                 </Routes>
             </PrivateCustomerRoute>
 
-            <PrivateResponsibleRoute>
+            <PrivateAgentRoute>
                 <Routes>
                     <Route path="commerce/:commerce_id" element={<ReportIndexComponent />} />
                     <Route path="commerce/:commerce_id/report/:report_id" element={<ReportComponent />} />
                 </Routes>
-            </PrivateResponsibleRoute>
+            </PrivateAgentRoute>
         </>
     )
 }

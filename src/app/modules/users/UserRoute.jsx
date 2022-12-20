@@ -1,18 +1,18 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { PrivateResponsibleRoute } from '../../middleware'
+import { PrivateAgentRoute } from '../../middleware'
 import { EmployeeIndexComponent } from '../employee/components/EmployeeIndexComponent'
 import { UserIndexComponent } from './components'
 
 export const UserRoute = () => {
     return (
         <>
-            <PrivateResponsibleRoute>
+            <PrivateAgentRoute>
                 <Routes>
                     <Route path="index" element={<UserIndexComponent />} />                    
                     <Route path="/*" element={<Navigate to="/" />} />
                 </Routes>
-            </PrivateResponsibleRoute>
+            </PrivateAgentRoute>
         </>
     )
 }

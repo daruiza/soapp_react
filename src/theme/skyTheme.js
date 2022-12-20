@@ -1,5 +1,6 @@
 import { createTheme } from "@mui/material";
 import { red } from "@mui/material/colors";
+import { esES } from '@mui/material/locale';
 
 export const skyTheme = createTheme({
     palette: {
@@ -18,5 +19,5 @@ export const skyTheme = createTheme({
         error: {
             main: red.A400
         },
-    }
+    }, esES
 })

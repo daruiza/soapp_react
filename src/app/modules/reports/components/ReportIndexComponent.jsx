@@ -5,7 +5,7 @@ import { ReportItemComponent } from './ReportItemComponent';
 import { ReportStoreComponent } from './ReportStoreComponent';
 import { useForm } from '../../../../hooks';
 import { useParams } from 'react-router-dom';
-import { PrivateResponsibleRoute } from '../../../middleware';
+import { PrivateAgentRoute } from '../../../middleware';
 import { Button, Grid, Switch, TextField, Typography, FormControl, FormHelperText, InputLabel, Select, MenuItem, Card, Collapse, Alert, IconButton, Box, Pagination } from '@mui/material';
 import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 import { useTheme } from '@emotion/react';
@@ -93,7 +93,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   }
 
   const getResponsibles = (attr = {}, form = formState) => {
-    dispatch(userByRolId({ form: { ...form, ...attr, rol_id: RolTypes.responsible } }))
+    dispatch(userByRolId({ form: { ...form, ...attr, rol_id: RolTypes.agente } }))
       .then(({ data: { data: { users } } }) => {
         setResponsibleArray(users);
       });
@@ -194,7 +194,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
           <Grid item xs={12} md={12} mb={2}>
             {
               commerce &&
-              <PrivateResponsibleRoute>
+              <PrivateAgentRoute>
                 <Grid container sx={{}}>
                   <Grid item xs={12} md={12} sx={{ mb: 1, pl: 1, display: 'flex', alignItems: 'center' }}>
                     <Box sx={{ width: '100%' }}>
@@ -221,7 +221,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
                     </Box>
                   </Grid>
                 </Grid>
-              </PrivateResponsibleRoute>
+              </PrivateAgentRoute>
             }
             <Grid container sx={{ justifyContent: 'space-between' }}>
               <Grid item xs={12} md={6} sx={{
@@ -272,7 +272,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
                       disabled={!isFormValid || !formChange}
                       variant="outlined">Consultar</Button>
                   </Grid>
-                  <PrivateResponsibleRoute>
+                  <PrivateAgentRoute>
                     <Grid item xs={12} md={4} sx={{ ml: 1 }}>
                       <Button
                         fullWidth
@@ -284,7 +284,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
                         onClick={handleReportStoreOpen}
                         variant="contained">Nuevo Reporte</Button>
                     </Grid>
-                  </PrivateResponsibleRoute>
+                  </PrivateAgentRoute>
                 </Grid>
               </Grid>
             </Grid>
