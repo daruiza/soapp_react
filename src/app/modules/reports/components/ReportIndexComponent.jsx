@@ -71,6 +71,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   // LLAMADO DE SERVICIOS
   const getReports = (attr = {}, form = formState) => {
     const commerce_id = form?.commerce_id ? form.commerce_id : commerce?.id ?? param_commerce_id;
+    console.log('commerce_id', commerce_id);
     if (commerce_id) {
       dispatch(reportIndex({
         form: {
@@ -79,6 +80,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
           commerce_id: commerce_id
         }
       })).then(({ data: { data: { report } } }) => {
+        console.log('report', report);
         setReportTable(report);
         setReportArray(report.data);
       });

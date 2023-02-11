@@ -14,7 +14,8 @@ export const skyTheme = createTheme({
         text: { 
             primary: '#0000008C',
             secondary: '#69a1f3',
-            support: '#c1d6f5'
+            support: '#c1d6f5',
+            disabled: 'rgba(0, 0, 0, 0.38)'
         },
         error: {
             main: red.A400

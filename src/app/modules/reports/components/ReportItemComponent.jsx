@@ -165,7 +165,7 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                             </>
                         }
                         title={`${month.value}, ${year}`}
-                        subheader={`Responsable ${capitalize(report.responsible)}`}
+                        subheader={`Agente ${capitalize(report.responsible)}`}
 
                     />
                     {/* <CardContent></CardContent> */}

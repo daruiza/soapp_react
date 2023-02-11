@@ -127,7 +127,7 @@ export const ReportStoreComponent = ({
     setInputs,
     onResetForm
   } = useForm(setInputsForm({
-    ...report,    
+    ...report,
     focus: report?.focus ?? 0,
     active: report?.active ?? 1,
     responsible: report?.responsible ? responsibleArray.find(el => el.name === report.responsible)?.id : '',
@@ -209,7 +209,7 @@ export const ReportStoreComponent = ({
         // Nuevo report
         dispatch(reportStore({
           form: {
-            ...formState,            
+            ...formState,
             responsible: responsibleArray.find(el => el.id === formState.responsible).name,
             date: dayjs(`${year}-${month}`).format('YYYY-MM-DD')
           }
@@ -272,10 +272,18 @@ export const ReportStoreComponent = ({
             </Grid>
             <Grid item >
               <Box>
-                <IconButton className="sizeLarge" aria-label="share" size="large" onClick={toggleFocus} >
-                  {focusToggle && <StarIcon className="sizeLarge" size="large" sx={{ color: `${yellow[700]}`, size: 'large' }} />}
-                  {!focusToggle && <StarBorderIcon />}
-                </IconButton>
+                <PrivateAgentRoute>
+                  <IconButton className="sizeLarge" aria-label="share" size="large" onClick={toggleFocus} >
+                    {focusToggle && <StarIcon className="sizeLarge" size="large" sx={{ color: `${yellow[700]}`, size: 'large' }} />}
+                    {!focusToggle && <StarBorderIcon />}
+                  </IconButton>
+                </PrivateAgentRoute>
+                <PrivateCustomerRoute>
+                  <IconButton className="sizeLarge" aria-label="share" size="large" >
+                    {focusToggle && <StarIcon className="sizeLarge" size="large" sx={{ color: `${yellow[700]}`, size: 'large' }} />}
+                    {!focusToggle && <StarBorderIcon />}
+                  </IconButton>
+                </PrivateCustomerRoute>
               </Box>
             </Grid>
           </Grid>

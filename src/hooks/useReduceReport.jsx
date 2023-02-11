@@ -1,8 +1,19 @@
-import { useReducer } from "react";
+import { useCallback, useReducer } from "react";
 import { ReportReducer } from "../app/modules/reports";
 
-const form = {};
-export const useReduceReport = (formInit) => {
-    const [state, dispatch] = useReducer(ReportReducer, formInit ?? form);
-    return { state }
+const defaultInit = { collaborators: [] };
+export const useReduceReport = (init) => {
+
+    const [state, dispatch] = useReducer(ReportReducer, init ?? defaultInit);
+
+    const initCollaborators = useCallback((collaborators) => {
+        dispatch({ type: 'init', payload: { collaborators } });
+    }, [])
+
+    const collaboratorsChangeInput = useCallback(({ value, name, index }) => {
+        dispatch({ type: 'changeInput', payload: { value, name, index } });
+    }, []
+    )
+
+    return { state, initCollaborators, collaboratorsChangeInput }
 }

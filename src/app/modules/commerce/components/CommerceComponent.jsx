@@ -24,7 +24,7 @@ import { commerceUpdate } from '../../../../store';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 
-const formData = { id: '', logo: '', name: '', nit: '', department: '', city: '', adress: '' };
+const formData = { id: '', logo: '', name: '', nit: '', phone: '', department: '', city: '', adress: '' };
 const formValidations = {
     name: [(value) => value.length >= 1, 'El Nombre es obligatorio.'],
     nit: [(value) => value.length >= 1, 'El NIT es obligatorio.'],
@@ -48,6 +48,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
         formState,
         name,
         nit,
+        phone,
         department,
         city,
         adress,
@@ -179,6 +180,19 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
                                 onClick={onInputClick}
                                 helperText={nitValid}
                                 error={!!nitValid && nitToched}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={6} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
+                            <TextField
+                                label="Teléfono"
+                                type="text"
+                                placeholder='Teléfono'
+                                fullWidth
+                                name="phone"
+                                value={phone}
+                                onChange={onInputChange}
+                                onClick={onInputClick}                                
                             />
                         </Grid>
 
