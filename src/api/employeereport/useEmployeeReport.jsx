@@ -1,19 +1,18 @@
 import axios from 'axios';
-import { backdropPop, backdropPush } from '../../store';
+import { backdropPop, backdropPush, } from '../../store/requestapi/requestApiSlice';
 
-export const useAuth = (dispatch) => {
-
-    const authApi = axios.create({
-        // baseURL: 'http://soapp_laravel.temposolutions.co/'       
+export const useEmployeeReport = (dispatch) => {
+    const employeereportApi = axios.create({
+        // baseURL: 'http://soapp_laravel.temposolutions.co/'
         baseURL: 'http://127.0.0.1:8080/'
-        // 3015909420
-        // 3147387024 
+
     });
 
-    authApi.interceptors.request.use(
+    employeereportApi.interceptors.request.use(
         (config) => {
             dispatch(backdropPush(config.url));
             const token = localStorage.getItem(`${window.location.hostname}`);
+            config.headers['content-type'] = 'application/json;charset=utf-8;multipart/form-data;';
             if (token) {
                 config.headers['Authorization'] = `Bearer ${token}`;
             }
@@ -24,7 +23,7 @@ export const useAuth = (dispatch) => {
         }
     );
 
-    authApi.interceptors.response.use((response) => {
+    employeereportApi.interceptors.response.use((response) => {
         const { data: { message } } = response;
         dispatch(backdropPop(
             {
@@ -40,8 +39,5 @@ export const useAuth = (dispatch) => {
         }));
         return Promise.reject(error)
     })
-
-    return {
-        authApi
-    }
+    return { employeereportApi }
 }

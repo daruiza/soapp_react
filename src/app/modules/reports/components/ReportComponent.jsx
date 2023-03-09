@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useReduceReport } from '../../../../hooks/useReduceReport';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { commerceUpdate, employeeIndex, getCommerceByCommerce, reportByreportId } from '../../../../store';
+import { commerceUpdate, employeeIndex, employeeReportDelete, employeeReportStore, reportByreportId } from '../../../../store';
+
 import { Grid, ImageListItem, Typography, Button, TextField, Tooltip, IconButton, Switch } from '@mui/material';
 import { ReportCardComponent } from './ReportCardComponent';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -39,7 +40,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const commerce = useMemo(() => commerceState, [commerceState]);
 
     const [openEvidences, setOpenEvidences] = useState(false);
-    const [selectCollaborator, setSelectCollaborator] = useState({});    
+    const [selectCollaborator, setSelectCollaborator] = useState({});
 
     const asistirEnSaludBran = `${window.location.origin}/src/assets/asistirEnSaludBran.png`;
 
@@ -71,6 +72,28 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         }
     }
 
+    const setEmployeeReportStore = (collaborator, employee_state) => {
+        // se debe llamar al back para que guarde el cambio
+        dispatch(employeeReportStore({
+            form: {
+                employee_state,
+                ...collaborator.pivot
+            }
+        })).then((data) => {
+            // Refrescamos el Report Component
+            getReportById(param_report_id);
+        });
+    }
+
+    const deleteEmployeeReportStore = (collaborator) => {
+        dispatch(employeeReportDelete({
+            form: { id: collaborator.state.find(el => el.employee_state === 'Nuevo Ingreso').id ?? null }
+        })).then((data) => {
+            // Refrescamos el Report Component
+            getReportById(param_report_id);
+        });
+    }
+
     // Coportamiento
     const getAge = (birth_date) => {
         if (birth_date) {
@@ -92,18 +115,21 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
 
     const handleIncomeMonth = (collaborator, index) => {
-        collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Nuevo Ingreso' }], name: 'state', index })
+        setEmployeeReportStore(collaborator, 'Nuevo Ingreso');
+        // collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Nuevo Ingreso' }], name: 'state', index })
     }
     const handleDeleteIncomeMonth = (collaborator, index) => {
-        collaboratorsChangeInput({ value: [collaborator.state.filter(el => el.employee_state !== 'Nuevo Ingreso')], name: 'state', index })
+        // se debe llamar al back para que guarde el cambio
+        deleteEmployeeReportStore(collaborator);
+        // collaboratorsChangeInput({ value: [collaborator.state.filter(el => el.employee_state !== 'Nuevo Ingreso')], name: 'state', index })
     }
-
 
     const handleRemove = (collaborator, index) => {
         collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Retirado' }], name: 'state', index })
     }
 
     const handleMedicalExams = (collaborator, index) => {
+        // setEmployeeReportStore(collaborator, 'Exámenes Médicos');
         collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Exámenes Médicos' }], name: 'state', index })
     }
 
@@ -120,7 +146,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         setOpenEvidences(false);
         setSelectCollaborator(null);
     }
-   
+
 
 
     // Muy peligroso y enrreda en demasia
@@ -851,7 +877,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     collaboratorsChangeInput={collaboratorsChangeInput}
                     handleClose={handleEvidenceClose}
                 ></EvidencesComponent>
-            }            
+            }
         </Grid >
     )
 }

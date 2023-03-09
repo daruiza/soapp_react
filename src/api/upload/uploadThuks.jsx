@@ -29,3 +29,13 @@ export const uploadLogo = (file) => {
         return uploadApi.post('api/upload/photo', formData);
     }
 }
+
+export const uploadEvidence = (file, commerce_id, report_id) => {
+    return async (dispatch) => {
+        const { uploadApi } = useUpload(dispatch);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', `images/employee/${commerce_id}/${report_id}`);
+        return uploadApi.post('api/upload/photo', formData);
+    }
+}
