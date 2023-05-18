@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { authstatusTypes } from "./authstatusTypes";
+import { authstatusTypes } from "./authStatusTypes";
 import { capitalize } from "@mui/material";
 
 export const authSlice = createSlice({

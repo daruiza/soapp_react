@@ -23,7 +23,7 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
 
     // observable de selectFile
     useEffect(() => {
-        if (selectFile?.file) {
+        if (selectFile?.evidence?.file || selectFile?.evidence?.name) {
             // Se debe actualizar el collaborator
             setSelectCollaborator({
                 ...collaborator,
