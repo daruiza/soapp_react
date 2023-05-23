@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+
 import { evidenceStore } from '../../../store';
+
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
 
 import { Grid, IconButton, TextField, Tooltip } from '@mui/material'
@@ -11,60 +13,70 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
+import { uploadEvidence } from '../../../api/upload/uploadThuks';
 
-export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator = () => { }, handleRemove = () => { }, handleEvidenceViewerOpen = () => { }, file = {} }) => {
-    
+export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {}, setSelectCollaborator = () => { }, handleRemove = () => { }, handleEvidenceViewerOpen = () => { }, file = {} }) => {
+
     const dispatch = useDispatch();
-    
+
     const { palette } = useTheme();
     const [openFileDelete, setOpenDeleteFile] = useState(false);
 
     // Es el objeto {evidence: {}, file:{}}    
-    const [selectFile, setSelectFile] = useState({ 
-        evidence: { 
-            name: file.name.split('.')[0], 
-            valid: false,
-            save: false, 
-            file } 
-        });
+    const [selectFile, setSelectFile] = useState({
+        evidence: {
+            name: file.name.split('.')[0],
+            approved: false,
+            save: false,
+            file
+        }
+    });
 
     const collaboratorsChangeInputAux = ({ target }) => {
         const { name, value } = target;
         setSelectFile({ ...selectFile, evidence: { ...selectFile.evidence, name: value } })
     }
 
-    const handleValidToggle = () => {
-        setSelectFile({ ...selectFile, evidence: { ...selectFile.evidence, valid: !selectFile.evidence.valid } })
+    const handleApprovedToggle = () => {
+        setSelectFile({ ...selectFile, evidence: { ...selectFile.evidence, approved: !selectFile.evidence.approved } })
     }
 
     const handleSave = (event) => {
         event.preventDefault();
+
+        console.log('employee_report', employee_report);
+        console.log('collaborator', collaborator);
         console.log('selectFile', selectFile);
-        
-        dispatch(evidenceStore({
-            form: {
-                //...selectFile?.evidence ?? {}
-                name: "user",
-                save: false,
-                valid: false
-            }
-        })).then((response) => {
 
-            console.log('evidenceStore', response);
+        //Validación existencia de Imagen
+        dispatch(uploadEvidence(file, collaborator.commerce_id, collaborator.pivot.report_id))
+            .then(({ data }) => {
+                dispatch(evidenceStore({
+                    form: {
+                        ...selectFile?.evidence ?? {},
+                        employee_report_id: employee_report.id,
+                        file: data.storage_image_path,
+                        save: false,
+                    }
+                })).then((response) => {
 
-            //getEmployees();// Refrescamos la tabla
-            //handleClose();            
-        }, error => setMessageSnackbar({ dispatch, error }))
+                    console.log('evidenceStore', response);
+                    setSelectFile({ ...selectFile, evidence: { ...selectFile.evidence, save: true } })
+                    //getEmployees();// Refrescamos la tabla
+                    //handleClose();            
+                }, error => setMessageSnackbar({ dispatch, error }))
+            }, error => setMessageSnackbar({ dispatch, error }));
+
     }
 
     const handleFileDeleteClose = () => {
         setOpenDeleteFile(false);
     }
 
-    const handleFileDeleteOpen = (file) => {        
+    const handleFileDeleteOpen = (file) => {
         setOpenDeleteFile(true);
     }
-    
+
 
     // observable de selectFile
     useEffect(() => {
@@ -130,18 +142,18 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                         <Grid item xs={12} md={11} sx={{}} >
                             <Grid container sx={{ display: 'flex', alignItems: 'end', justifyContent: 'end' }}>
                                 <Grid item xs={12} md={3} >
-                                    <Tooltip title={`${selectFile?.evidence?.valid ? 'Invalidar' : 'Validar'}`} placement="top">
-                                        <IconButton onClick={() => handleValidToggle()}>
-                                            {selectFile?.evidence?.valid &&
+                                    <Tooltip title={`${selectFile?.evidence?.approved ? 'Invalidar' : 'Validar'}`} placement="top">
+                                        <IconButton onClick={() => handleApprovedToggle()}>
+                                            {selectFile?.evidence?.approved &&
                                                 <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
                                             }
-                                            {!selectFile?.evidence?.valid &&
+                                            {!selectFile?.evidence?.approved &&
                                                 <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
                                             }
                                         </IconButton>
                                     </Tooltip>
                                 </Grid>
-                                
+
                                 <Grid item xs={12} md={3} sx={{}} >
                                     <Tooltip title="Guardar Archivo" placement="top">
                                         <IconButton onClick={(event) => handleSave(event)}>
@@ -180,13 +192,13 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                 </Grid>
                 {
                     openFileDelete && <DialogAlertComponent
-                    open={openFileDelete}
-                    handleClose={handleFileDeleteClose}
-                    handleAgree={()=>handleRemove(file)}
-                    props={{
-                        tittle: 'Eliminar Archivo',
-                        message: `Estas segur@ de eliminar el archivo ${file?.name?.split('.')[0] ?? ''}`
-                    }}
+                        open={openFileDelete}
+                        handleClose={handleFileDeleteClose}
+                        handleAgree={() => handleRemove(file)}
+                        props={{
+                            tittle: 'Eliminar Archivo',
+                            message: `Estas segur@ de eliminar el archivo ${file?.name?.split('.')[0] ?? ''}`
+                        }}
                     ></DialogAlertComponent>
                 }
             </Grid >

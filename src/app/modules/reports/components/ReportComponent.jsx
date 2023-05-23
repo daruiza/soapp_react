@@ -21,6 +21,7 @@ import SupportIcon from '@mui/icons-material/Support';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { EvidencesComponent } from '../../../components/evidences/EvidencesComponent';
 import { EvidenceViewerComponent } from '../../../components/evidences/EvidenceViewerComponent';
+import { EmployeeState } from '../../../types/EmployeeState';
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -39,7 +40,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const { commerce: commerceState } = useSelector(state => state.commerce);
     const commerce = useMemo(() => commerceState, [commerceState]);
 
-    const [openEvidences, setOpenEvidences] = useState(false);
+    const [openNewInEvidences, setOpenNewInEvidences] = useState(false);
     const [selectCollaborator, setSelectCollaborator] = useState({});
 
     const asistirEnSaludBran = `${window.location.origin}/src/assets/asistirEnSaludBran.png`;
@@ -87,7 +88,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
     const deleteEmployeeReportStore = (collaborator) => {
         dispatch(employeeReportDelete({
-            form: { id: collaborator.state.find(el => el.employee_state === 'Nuevo Ingreso').id ?? null }
+            form: { id: collaborator.state.find(el => el.employee_state === EmployeeState.NUEVOINGRESO).id ?? null }
         })).then((data) => {
             // Refrescamos el Report Component
             getReportById(param_report_id);
@@ -115,13 +116,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
 
     const handleIncomeMonth = (collaborator, index) => {
-        setEmployeeReportStore(collaborator, 'Nuevo Ingreso');
-        // collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Nuevo Ingreso' }], name: 'state', index })
+        setEmployeeReportStore(collaborator, EmployeeState.NUEVOINGRESO);
+        // collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: EmployeeState.NUEVOINGRESO }], name: 'state', index })
     }
     const handleDeleteIncomeMonth = (collaborator, index) => {
         // se debe llamar al back para que guarde el cambio
         deleteEmployeeReportStore(collaborator);
-        // collaboratorsChangeInput({ value: [collaborator.state.filter(el => el.employee_state !== 'Nuevo Ingreso')], name: 'state', index })
+        // collaboratorsChangeInput({ value: [collaborator.state.filter(el => el.employee_state !== EmployeeState.NUEVOINGRESO)], name: 'state', index })
     }
 
     const handleRemove = (collaborator, index) => {
@@ -138,15 +139,15 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
 
     const handleEvidenceOpen = (collaborator) => {
-        setOpenEvidences(true);
+        setOpenNewInEvidences(true);
         setSelectCollaborator(collaborator);
     }
 
     const handleEvidenceClose = () => {
-        setOpenEvidences(false);
+        setOpenNewInEvidences(false);
         setSelectCollaborator(null);
     }
-    
+
     // Muy peligroso y enrreda en demasia
     useEffect(() => {
         console.log('ReportcollaboratorsEffect', collaborators);
@@ -535,7 +536,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     <Grid container>
                                         {
                                             collaborators?.collaborators?.length &&
-                                            collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === 'Nuevo Ingreso')).map((cl) => {
+                                            collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.NUEVOINGRESO)).map((cl) => {
                                                 return (
                                                     <Grid container key={cl.index}>
                                                         <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
@@ -859,12 +860,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 </Grid>
             </Grid>
             {
-                openEvidences &&
+                openNewInEvidences &&
                 <EvidencesComponent
-                    open={openEvidences}
+                    open={openNewInEvidences}
                     dialogtitle="EVIDENCIAS INDUCCIÓN Y PREPARACIÓN EMPLEADOS"
                     dialogcontenttext={`${selectCollaborator.name} ${selectCollaborator.lastname} [${selectCollaborator.identification}]`}
                     collaborator={selectCollaborator}
+                    employee_report={selectCollaborator.state.find(el => el.employee_state === EmployeeState.NUEVOINGRESO)}
                     setSelectCollaborator={setSelectCollaborator}
                     collaboratorsChangeInput={collaboratorsChangeInput}
                     handleClose={handleEvidenceClose}

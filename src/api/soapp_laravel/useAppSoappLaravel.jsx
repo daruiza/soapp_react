@@ -2,9 +2,10 @@ import axios from 'axios';
 import { backdropPop, backdropPush, } from '../../store/requestapi/requestApiSlice';
 
 export const useAppSoappLaravel = (dispatch) => {
+    
     const soappLaravelApi = axios.create({
-        // baseURL: 'http://soapp_laravel.temposolutions.co/'
-        baseURL: 'http://127.0.0.1:8080/'
+        baseURL: 'http://soapp_laravel.thinkwg.com/'
+        // baseURL: 'http://127.0.0.1:8080/'
 
     });
 
@@ -39,5 +40,5 @@ export const useAppSoappLaravel = (dispatch) => {
         }));
         return Promise.reject(error)
     })
-    return { reportApi }
+    return { soappLaravelApi }
 }

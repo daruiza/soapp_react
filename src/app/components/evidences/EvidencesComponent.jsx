@@ -6,7 +6,7 @@ import { EvidenceItemComponent } from './EvidenceItemComponent';
 import { EvidenceViewerComponent } from './EvidenceViewerComponent';
 import { evidenceStore } from '../../../store';
 
-export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', collaborator = {}, setSelectCollaborator = () => { }, collaboratorsChangeInput = () => { }, open = false, handleClose = () => { } }) => {
+export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', collaborator = {}, setSelectCollaborator = () => { }, collaboratorsChangeInput = () => { }, open = false, handleClose = () => { }, employee_report = {} }) => {
     const { palette } = useTheme();
     const dispatch = useDispatch();
     const inputFileRef = useRef();
@@ -105,14 +105,14 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
             files: [...files.map((fl, index) => ({ 
                 evidence: 
                     collaborator?.files?.find(el => el.index === index)?.evidence ?? 
-                    { name: '', valid: false, save: false, file: fl } }))
+                    { name: '', approved: false, save: false, file: fl } }))
             ]
         });
 
         collaboratorsChangeInput({
             value: [...files.map((fl, index) => ({ evidence: 
                 collaborator?.files?.find(el => el.index === index)?.evidence ?? 
-                { name: '', valid: false, save: false, file: fl } }))
+                { name: '', approved: false, save: false, file: fl } }))
             ],
             name: 'files',
             index: collaborator?.index
@@ -156,6 +156,7 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                         files.map((file, index) => (
                             <EvidenceItemComponent
                                 key={index}
+                                employee_report={employee_report}
                                 collaborator={collaborator}
                                 setSelectCollaborator={setSelectCollaborator}
                                 handleRemove={handleRemove}

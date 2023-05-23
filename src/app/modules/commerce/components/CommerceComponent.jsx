@@ -18,8 +18,7 @@ import {
     MenuItem,
     FormControl,
     InputLabel
-} from '@mui/material'
-import { useEffect } from 'react';
+} from '@mui/material';
 import { commerceUpdate } from '../../../../store';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
@@ -192,7 +191,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
                                 name="phone"
                                 value={phone}
                                 onChange={onInputChange}
-                                onClick={onInputClick}                                
+                                onClick={onInputClick}
                             />
                         </Grid>
 

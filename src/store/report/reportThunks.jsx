@@ -26,7 +26,7 @@ export const reportByreportId = ({ form }) => {
     }
 }
 
-export const reportUpdate = ({ form }) => {    
+export const reportUpdate = ({ form }) => {
     return async (dispatch) => {
         const { reportApi } = useReport(dispatch);
         if (form && form.id) {
