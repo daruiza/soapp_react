@@ -146,9 +146,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         setOpenEvidences(false);
         setSelectCollaborator(null);
     }
-
-
-
+    
     // Muy peligroso y enrreda en demasia
     useEffect(() => {
         console.log('ReportcollaboratorsEffect', collaborators);
@@ -676,8 +674,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 </Tooltip>
                                                             </Grid>
                                                         </Grid>
-
-
                                                     </Grid>
                                                 )
                                             })
@@ -727,10 +723,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 disabled
                                                             />
                                                         </Grid>
-
-
-
-
                                                     </Grid>
                                                 )
                                             })

@@ -3,6 +3,7 @@ export * from './auth';
 export * from './commerce';
 export * from './user/userThunks';
 export * from './employee/employeeThunks';
+export * from './evidence/evidenceThunks';
 export * from './report/reportThunks';
 export * from './employeereport/employeereportThunks';
 export * from './requestapi/requestApiSlice';

@@ -4,6 +4,7 @@ import { useTheme } from '@emotion/react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid } from '@mui/material'
 import { EvidenceItemComponent } from './EvidenceItemComponent';
 import { EvidenceViewerComponent } from './EvidenceViewerComponent';
+import { evidenceStore } from '../../../store';
 
 export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', collaborator = {}, setSelectCollaborator = () => { }, collaboratorsChangeInput = () => { }, open = false, handleClose = () => { } }) => {
     const { palette } = useTheme();
@@ -71,16 +72,48 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
         setOpenEvidencesViewer(false)
     }
 
+    const handleSubmit = (event) => {
+
+        //Colaborator es el selecColaborator
+        console.log(collaborator);
+
+        event.preventDefault();
+        // validamos que todos los file tengan nombre 
+        //if () {}
+        
+
+        // 1. montamos los archivos, los que esten marcados para subir
+        // 2. enviamos las evidencias (relación file con employee_report)
+        /*
+        dispatch(evidenceStore({
+            form: {
+                ...formState                
+            }
+        })).then((response) => {
+            //getEmployees();// Refrescamos la tabla
+            //handleClose();
+        }, error => setMessageSnackbar({ dispatch, error }))
+        */
+
+    }
+
     // Event Listeners al agregar un nuevo archivo
     useEffect(() => {
 
         setSelectCollaborator({
             ...collaborator,
-            files: [...files.map((fl, index) => ({ evidence: collaborator?.files?.find(el => el.index === index)?.evidence ?? { name: '', valid: false, file: fl } }))]
+            files: [...files.map((fl, index) => ({ 
+                evidence: 
+                    collaborator?.files?.find(el => el.index === index)?.evidence ?? 
+                    { name: '', valid: false, save: false, file: fl } }))
+            ]
         });
 
         collaboratorsChangeInput({
-            value: [...files.map((fl, index) => ({ evidence: collaborator?.files?.find(el => el.index === index)?.evidence ?? { name: '', valid: false, file: fl } }))],
+            value: [...files.map((fl, index) => ({ evidence: 
+                collaborator?.files?.find(el => el.index === index)?.evidence ?? 
+                { name: '', valid: false, save: false, file: fl } }))
+            ],
             name: 'files',
             index: collaborator?.index
         })
@@ -149,6 +182,15 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                         // color: `${palette.text.primary}`, 
                         border: '1px solid'
                     }} >Cerrar</Button>
+                <Button 
+                    onClick={handleSubmit} 
+                    variant="contained"
+                    disabled = {!files.length}
+                    sx={{
+                        height: '100%',
+                        // color: `${palette.text.primary}`, 
+                        border: '1px solid'
+                    }} >Guardar</Button>
             </DialogActions>
             {
                 openEvidencesViewer &&

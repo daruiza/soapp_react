@@ -93,8 +93,6 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
         navigate(`/reports/report/${report.id}?option=${report.active ? 'write' : 'read'}`);
     }
 
-
-
     const handleReportDeleteOpen = () => {
         setOpenDeleteReport(true);
     }
