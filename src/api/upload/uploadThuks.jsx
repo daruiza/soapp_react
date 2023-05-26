@@ -39,3 +39,14 @@ export const uploadEvidence = (file, commerce_id, report_id) => {
         return uploadApi.post('api/upload/photo', formData);
     }
 }
+
+export const getSoappFile = (form) => {
+    console.log('form', form);
+    return async (dispatch) => {
+        const { uploadApi } = useUpload(dispatch);
+        if (form && form.path) {
+            return uploadApi.post('api/upload/getfile',  { ...form } );
+        }
+        
+    }
+}

@@ -4,7 +4,8 @@ import { useTheme } from '@emotion/react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid } from '@mui/material'
 import { EvidenceItemComponent } from './EvidenceItemComponent';
 import { EvidenceViewerComponent } from './EvidenceViewerComponent';
-import { evidenceStore } from '../../../store';
+import { showByEmpoyeeReportId } from '../../../store';
+import { getSoappFile } from '../../../api/upload/uploadThuks';
 
 export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', collaborator = {}, setSelectCollaborator = () => { }, collaboratorsChangeInput = () => { }, open = false, handleClose = () => { }, employee_report = {} }) => {
     const { palette } = useTheme();
@@ -12,8 +13,65 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
     const inputFileRef = useRef();
 
     const [files, setFiles] = useState([]);
+    const [url, setUrl] = useState(`http://soapp_laravel.thinkwg.com/storage/images/employee/2/3/gSlgEma2WZHpOgBWeeZfmcqHnDLZKtqMWuPTi90k.jpg`);
 
     const [openEvidencesViewer, setOpenEvidencesViewer] = useState(false);
+
+    //Init
+    const EmpoyeeReporBytId = (id) => {
+        dispatch(showByEmpoyeeReportId({
+            form: {
+                id: id ?? ''
+            }
+        })).then(({ data: { data: { evidence } } }) => {
+            // console.log('data', evidence[0].file);
+            // const url = URL.createObjectURL(`http://soapp_laravel.thinkwg.com/${evidence[0].file}`)
+            // `${window.location.origin}${employee.photo}`
+            // const url = new URL(`http://soapp_laravel.thinkwg.com/${evidence[0].file}`);
+            // console.log('url: ', url);
+            // const file = new File(url.getFile());
+
+            // console.log('file: ',  file);
+
+
+        });
+
+        dispatch(getSoappFile({ path: '/storage/images/employee/2/3/gSlgEma2WZHpOgBWeeZfmcqHnDLZKtqMWuPTi90k.jpg' }))
+            // .then(({ data }) => {
+            //     const blob = new File([data], 'prueba.txt', { type: blob.type });
+            //     console.log('file: ', blob);
+            //     setFiles((files) => [...files, blob])
+            // })
+            .then((data) => {
+
+                console.log(data);
+                const newfile = new File([data.data], 'name.jpeg', { type: 'image/jpeg' });
+                const url = URL.createObjectURL(newfile);
+                // setUrl(url);
+                console.log('file: ', newfile);
+                // console.log('url: ', url);
+                setFiles((files) => [...files, newfile])
+            })
+
+        fetch(`http://soapp_laravel.thinkwg.com/storage/images/employee/2/3/gSlgEma2WZHpOgBWeeZfmcqHnDLZKtqMWuPTi90k.jpg`)
+            .then(res => res.blob())
+            .then(blob => {
+                console.log('blob: ', blob);
+                const file = new File([blob], 'image', { type: blob.type })
+                console.log('file:', file);
+            });
+
+
+
+        //LARAVEL
+        // return response()
+        // ->download($file_path, "file_name",
+        //     [
+        //         'Content-Type' => 'application/octet-stream'
+        //     ]);
+
+
+    }
 
     // Events 
     const handleInputFileChange = (event) => {
@@ -43,8 +101,6 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
     };
 
     const handleRemove = (file) => {
-        console.log('file', file);
-        console.log('collaborator', collaborator);
         setSelectCollaborator({
             ...collaborator,
             files: [...collaborator.files.filter(fl => fl.evidence.file !== file)]
@@ -72,52 +128,33 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
         setOpenEvidencesViewer(false)
     }
 
-    const handleSubmit = (event) => {
-
-        //Colaborator es el selecColaborator
-        console.log(collaborator);
-
-        event.preventDefault();
-        // validamos que todos los file tengan nombre 
-        //if () {}
-        
-
-        // 1. montamos los archivos, los que esten marcados para subir
-        // 2. enviamos las evidencias (relación file con employee_report)
-        /*
-        dispatch(evidenceStore({
-            form: {
-                ...formState                
-            }
-        })).then((response) => {
-            //getEmployees();// Refrescamos la tabla
-            //handleClose();
-        }, error => setMessageSnackbar({ dispatch, error }))
-        */
-
-    }
-
     // Event Listeners al agregar un nuevo archivo
-    useEffect(() => {
-
+    useEffect(() => {        
         setSelectCollaborator({
             ...collaborator,
-            files: [...files.map((fl, index) => ({ 
-                evidence: 
-                    collaborator?.files?.find(el => el.index === index)?.evidence ?? 
-                    { name: '', approved: false, save: false, file: fl } }))
+            files: [...files.map((fl, index) => ({
+                evidence:
+                    collaborator?.files?.find(el => el.index === index)?.evidence ??
+                    { name: '', approved: false, save: false, file: fl }
+            }))
             ]
         });
 
         collaboratorsChangeInput({
-            value: [...files.map((fl, index) => ({ evidence: 
-                collaborator?.files?.find(el => el.index === index)?.evidence ?? 
-                { name: '', approved: false, save: false, file: fl } }))
+            value: [...files.map((fl, index) => ({
+                evidence:
+                    collaborator?.files?.find(el => el.index === index)?.evidence ??
+                    { name: '', approved: false, save: false, file: fl }
+            }))
             ],
             name: 'files',
             index: collaborator?.index
         })
     }, [files])
+
+    useEffect(() => {
+        EmpoyeeReporBytId(employee_report.id ?? null)
+    }, [])
 
     return (
         <Dialog
@@ -135,6 +172,7 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                 </Grid>
             </DialogTitle>
             <DialogContent>
+                <a href={url}>hola</a>
                 {dialogcontenttext &&
                     <DialogContentText id="alert-dialog-description" sx={{ mb: 2 }}>
                         {dialogcontenttext}
@@ -183,15 +221,6 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                         // color: `${palette.text.primary}`, 
                         border: '1px solid'
                     }} >Cerrar</Button>
-                <Button 
-                    onClick={handleSubmit} 
-                    variant="contained"
-                    disabled = {!files.length}
-                    sx={{
-                        height: '100%',
-                        // color: `${palette.text.primary}`, 
-                        border: '1px solid'
-                    }} >Guardar</Button>
             </DialogActions>
             {
                 openEvidencesViewer &&
