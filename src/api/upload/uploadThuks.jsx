@@ -41,12 +41,19 @@ export const uploadEvidence = (file, commerce_id, report_id) => {
 }
 
 export const getSoappFile = (form) => {
-    console.log('form', form);
     return async (dispatch) => {
         const { uploadApi } = useUpload(dispatch);
         if (form && form.path) {
             return uploadApi.post('api/upload/getfile',  { ...form } );
-        }
-        
+        }        
+    }
+}
+
+export const getSoappDownloadFile = (form) => {
+    return async (dispatch) => {
+        const { uploadApi } = useUpload(dispatch);
+        if (form && form.path) {
+            return uploadApi.post('api/upload/downloadfile',  { ...form }, {responseType: 'blob'} );
+        }        
     }
 }

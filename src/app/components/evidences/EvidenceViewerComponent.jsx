@@ -11,11 +11,7 @@ export const EvidenceViewerComponent = ({ collaborator = {}, files = [], open = 
 
     useEffect(() => {
         setDocs(([...files.map(el => ({ uri: URL.createObjectURL(el), fileName: el.name }))]))
-    }, [])
-
-    useEffect(() => {
-        console.log('docs', docs);
-    }, [docs])
+    }, [])  
 
     return (
         <Dialog open={open}

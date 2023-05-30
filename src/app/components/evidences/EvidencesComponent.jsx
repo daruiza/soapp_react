@@ -4,8 +4,9 @@ import { useTheme } from '@emotion/react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid } from '@mui/material'
 import { EvidenceItemComponent } from './EvidenceItemComponent';
 import { EvidenceViewerComponent } from './EvidenceViewerComponent';
-import { showByEmpoyeeReportId } from '../../../store';
-import { getSoappFile } from '../../../api/upload/uploadThuks';
+import { evidenceStore, showByEmpoyeeReportId } from '../../../store';
+import { getSoappDownloadFile, getSoappFile, uploadEvidence } from '../../../api/upload/uploadThuks';
+import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
 
 export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', collaborator = {}, setSelectCollaborator = () => { }, collaboratorsChangeInput = () => { }, open = false, handleClose = () => { }, employee_report = {} }) => {
     const { palette } = useTheme();
@@ -13,87 +14,72 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
     const inputFileRef = useRef();
 
     const [files, setFiles] = useState([]);
-    const [url, setUrl] = useState(`http://soapp_laravel.thinkwg.com/storage/images/employee/2/3/gSlgEma2WZHpOgBWeeZfmcqHnDLZKtqMWuPTi90k.jpg`);
 
     const [openEvidencesViewer, setOpenEvidencesViewer] = useState(false);
 
     //Init
-    const EmpoyeeReporBytId = (id) => {
+    const EmpoyeeReporBytId = (employee_report_id) => {
         dispatch(showByEmpoyeeReportId({
             form: {
-                id: id ?? ''
+                id: employee_report_id ?? ''
             }
-        })).then(({ data: { data: { evidence } } }) => {
-            // console.log('data', evidence[0].file);
-            // const url = URL.createObjectURL(`http://soapp_laravel.thinkwg.com/${evidence[0].file}`)
-            // `${window.location.origin}${employee.photo}`
-            // const url = new URL(`http://soapp_laravel.thinkwg.com/${evidence[0].file}`);
-            // console.log('url: ', url);
-            // const file = new File(url.getFile());
+        })).then(({ data: { data: { evidence: evidences } } }) => {
+            console.log('evidences', evidences);
+            // setFiles(() => [])
+            evidences.forEach(evidence => {
+                dispatch(getSoappDownloadFile({ path: evidence.file }))
+                    .then((response) => {
+                        // console.log(response);
+                        const newfile = new Blob([response.data], { type: 'application/pdf' });
+                        newfile.name = evidence.name;
+                        setFiles((files) => [
+                            // filtra que ya no este el mismo archivo, 
+                            ...files.filter(file => file.name !== newfile.name),
+                            newfile
+                        ])
+                    })
 
-            // console.log('file: ',  file);
-
-
-        });
-
-        dispatch(getSoappFile({ path: '/storage/images/employee/2/3/gSlgEma2WZHpOgBWeeZfmcqHnDLZKtqMWuPTi90k.jpg' }))
-            // .then(({ data }) => {
-            //     const blob = new File([data], 'prueba.txt', { type: blob.type });
-            //     console.log('file: ', blob);
-            //     setFiles((files) => [...files, blob])
-            // })
-            .then((data) => {
-
-                console.log(data);
-                const newfile = new File([data.data], 'name.jpeg', { type: 'image/jpeg' });
-                const url = URL.createObjectURL(newfile);
-                // setUrl(url);
-                console.log('file: ', newfile);
-                // console.log('url: ', url);
-                setFiles((files) => [...files, newfile])
-            })
-
-        fetch(`http://soapp_laravel.thinkwg.com/storage/images/employee/2/3/gSlgEma2WZHpOgBWeeZfmcqHnDLZKtqMWuPTi90k.jpg`)
-            .then(res => res.blob())
-            .then(blob => {
-                console.log('blob: ', blob);
-                const file = new File([blob], 'image', { type: blob.type })
-                console.log('file:', file);
             });
-
-
-
-        //LARAVEL
-        // return response()
-        // ->download($file_path, "file_name",
-        //     [
-        //         'Content-Type' => 'application/octet-stream'
-        //     ]);
-
-
+        });
     }
 
     // Events 
+
+    const callSaveFile = (file) => {
+        console.log('file', file);
+        console.log('collaborator', collaborator);
+
+        // Falta filtrar el archivo
+        if (
+            file.type == '' || //capetas
+            file.type == 'application/x-zip-compressed' || //RAR
+            file.type == 'application/x-msdownload'
+        ) return;
+
+
+        dispatch(uploadEvidence(file, collaborator.commerce_id, collaborator.pivot.report_id))
+            .then(({ data }) => {
+                // Guardamos la evidencia
+                dispatch(evidenceStore({
+                    form: {
+                        name: file.name.split('.')[0],
+                        type: file.type,
+                        employee_report_id: employee_report.id,
+                        file: data.storage_image_path
+                    }
+                })).then((response) => {
+                    setFiles((files) => [...files, file]);
+                }, error => setMessageSnackbar({ dispatch, error }))
+            }, error => setMessageSnackbar({ dispatch, error }));
+    }
+
     const handleInputFileChange = (event) => {
-        setFiles((files) => [...files, ...[...event.target.files]
-            .filter(file =>
-                file.type !== '' && //capetas
-                file.type !== 'application/x-zip-compressed' && //RAR
-                file.type !== 'application/x-msdownload'
-            )]);
+        callSaveFile(...event.target.files);
     }
 
     const handleDrag = (event) => {
         event.preventDefault();
-        setFiles((files) => [
-            ...files,
-            ...[...event.dataTransfer.files]
-                .filter(file =>
-                    file.type !== '' && //capetas
-                    file.type !== 'application/x-zip-compressed' && //RAR
-                    file.type !== 'application/x-msdownload'
-                )]
-        );
+        callSaveFile(...event.dataTransfer.files);
     }
 
     const onDragOver = (event) => {
@@ -129,13 +115,13 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
     }
 
     // Event Listeners al agregar un nuevo archivo
-    useEffect(() => {        
+    useEffect(() => {
         setSelectCollaborator({
             ...collaborator,
             files: [...files.map((fl, index) => ({
                 evidence:
                     collaborator?.files?.find(el => el.index === index)?.evidence ??
-                    { name: '', approved: false, save: false, file: fl }
+                    { name: fl?.name ?? '', approved: false, save: false, file: fl }
             }))
             ]
         });
@@ -172,7 +158,6 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                 </Grid>
             </DialogTitle>
             <DialogContent>
-                <a href={url}>hola</a>
                 {dialogcontenttext &&
                     <DialogContentText id="alert-dialog-description" sx={{ mb: 2 }}>
                         {dialogcontenttext}

@@ -26,8 +26,7 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
     const [selectFile, setSelectFile] = useState({
         evidence: {
             name: file.name.split('.')[0],
-            approved: false,
-            save: false,
+            approved: false,            
             file
         }
     });
@@ -42,12 +41,7 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
     }
 
     const handleSave = (event) => {
-        event.preventDefault();
-
-        console.log('employee_report', employee_report);
-        console.log('collaborator', collaborator);
-        console.log('selectFile', selectFile);
-
+        event.preventDefault();        
         //Validación existencia de Imagen
         dispatch(uploadEvidence(file, collaborator.commerce_id, collaborator.pivot.report_id))
             .then(({ data }) => {
@@ -55,13 +49,10 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
                     form: {
                         ...selectFile?.evidence ?? {},
                         employee_report_id: employee_report.id,
-                        file: data.storage_image_path,
-                        save: false,
+                        file: data.storage_image_path                        
                     }
-                })).then((response) => {
-
-                    console.log('evidenceStore', response);
-                    setSelectFile({ ...selectFile, evidence: { ...selectFile.evidence, save: true } })
+                })).then((response) => {                    
+                    setSelectFile({ ...selectFile, evidence: { ...selectFile.evidence } })
                     //getEmployees();// Refrescamos la tabla
                     //handleClose();            
                 }, error => setMessageSnackbar({ dispatch, error }))
@@ -156,7 +147,7 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
 
                                 <Grid item xs={12} md={3} sx={{}} >
                                     <Tooltip title="Guardar Archivo" placement="top">
-                                        <IconButton onClick={(event) => handleSave(event)}>
+                                        <IconButton  onClick={(event) => handleSave(event)}>
                                             <SaveIcon></SaveIcon>
                                         </IconButton>
                                     </Tooltip>

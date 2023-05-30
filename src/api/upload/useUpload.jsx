@@ -4,8 +4,7 @@ import { backdropPop, backdropPush } from '../../store';
 export const useUpload = (dispatch) => {
     const uploadApi = axios.create({
         baseURL: 'http://soapp_laravel.thinkwg.com/'
-        // baseURL: 'http://127.0.0.1:8080/'
-        
+        // baseURL: 'http://127.0.0.1:8080/'        
     });
 
     uploadApi.interceptors.request.use(
