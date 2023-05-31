@@ -35,7 +35,7 @@ export const uploadEvidence = (file, commerce_id, report_id) => {
         const { uploadApi } = useUpload(dispatch);
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('folder', `images/employee/${commerce_id}/${report_id}`);
+        formData.append('folder', `images/employee/commerce/${commerce_id}/report/${report_id}`);
         return uploadApi.post('api/upload/photo', formData);
     }
 }
@@ -44,7 +44,7 @@ export const getSoappFile = (form) => {
     return async (dispatch) => {
         const { uploadApi } = useUpload(dispatch);
         if (form && form.path) {
-            return uploadApi.post('api/upload/getfile',  { ...form } );
+            return uploadApi.get('api/upload/getfile',  { ...form }, {responseType: 'blob'} );
         }        
     }
 }
@@ -53,7 +53,7 @@ export const getSoappDownloadFile = (form) => {
     return async (dispatch) => {
         const { uploadApi } = useUpload(dispatch);
         if (form && form.path) {
-            return uploadApi.post('api/upload/downloadfile',  { ...form }, {responseType: 'blob'} );
+            return uploadApi.get('api/upload/downloadfile', { params: { ...form }, responseType: 'blob' }, {responseType: 'blob'} );
         }        
     }
 }

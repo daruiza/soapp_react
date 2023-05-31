@@ -834,30 +834,33 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 </Grid>
             </Grid>
             <Grid container sx={{ justifyContent: 'end' }}>
-                <Grid item xs={12} md={2} sx={{ ml: 1, mr: 1 }}>
-                    <Button
-                        fullWidth
-                        sx={{
-                            height: '100%',
-                            // color: `${palette.text.primary}`,
-                            border: '1px solid'
-                        }}
-                        // onClick={onSubmit}
-                        // disabled={!isFormValid || !formChange}
-                        variant="outlined">Regresar</Button>
-                </Grid>
-                <Grid item xs={12} md={2} >
-                    <Button
-                        fullWidth
-                        sx={{
-                            height: '100%',
-                            // color: `${palette.text.primary}`,
-                            // border: '1px solid'
-                        }}
-                        // onClick={onClearForm}
-                        variant="contained">Guardar
-                    </Button>
-                </Grid>
+                {
+                    commerce &&
+                    <>
+                        <Grid item xs={12} md={2} sx={{ ml: 1, mr: 1 }}>
+                            <Button
+                                fullWidth
+                                sx={{
+                                    // color: `${palette.text.primary}`,
+                                    border: '1px solid'
+                                }}
+                                // onClick={onSubmit}
+                                // disabled={!isFormValid || !formChange}
+                                variant="outlined">Regresar</Button>
+                        </Grid>
+                        <Grid item xs={12} md={2} >
+                            <Button
+                                fullWidth
+                                sx={{
+                                    // color: `${palette.text.primary}`,
+                                    // border: '1px solid'
+                                }}
+                                // onClick={onClearForm}
+                                variant="contained">Guardar
+                            </Button>
+                        </Grid>
+                    </>
+                }
             </Grid>
             {
                 openNewInEvidences &&

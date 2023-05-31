@@ -24,32 +24,28 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                 id: employee_report_id ?? ''
             }
         })).then(({ data: { data: { evidence: evidences } } }) => {
-            console.log('evidences', evidences);
-            // setFiles(() => [])
             evidences.forEach(evidence => {
                 dispatch(getSoappDownloadFile({ path: evidence.file }))
                     .then((response) => {
-                        // console.log(response);
-                        const newfile = new Blob([response.data], { type: 'application/pdf' });
+                        const newfile = new Blob([response.data], { type: response.data.type });
                         newfile.name = evidence.name;
+                        newfile.approved = evidence.approved;
+                        newfile.evidence_id = evidence.id;
                         setFiles((files) => [
                             // filtra que ya no este el mismo archivo, 
                             ...files.filter(file => file.name !== newfile.name),
                             newfile
                         ])
                     })
-
             });
         });
     }
 
-    // Events 
+    // Events
+
+    const AddFile = () => { inputFileRef.current.click(); }
 
     const callSaveFile = (file) => {
-        console.log('file', file);
-        console.log('collaborator', collaborator);
-
-        // Falta filtrar el archivo
         if (
             file.type == '' || //capetas
             file.type == 'application/x-zip-compressed' || //RAR
@@ -100,11 +96,6 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
 
         setFiles((files) => [...files.filter(fl => fl !== file)]);
     }
-
-    const openFile = (file) => {
-        // setImage(URL.createObjectURL(event.target.files[0]));
-    }
-
 
     const handleEvidenceViewerOpen = () => {
         setOpenEvidencesViewer(true)
@@ -193,13 +184,19 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                 <Grid container>
                     <Grid item>
                         <form className="uploader" encType="multipart/form-data">
-                            <input style={{ display: 'block' }} ref={inputFileRef} type="file" multiple={true} onChange={handleInputFileChange} />
+                            <input style={{ display: 'none' }} ref={inputFileRef} type="file" multiple={true} onChange={handleInputFileChange} />
                         </form>
                     </Grid>
                 </Grid>
 
             </DialogContent>
             <DialogActions>
+                <Button onClick={AddFile} variant="contained"
+                    sx={{
+                        height: '100%',
+                        color: `${palette.text.primary}`,
+                        border: '1px solid'
+                    }} >Cargar Archivos</Button>
                 <Button onClick={handleClose} variant="outlined"
                     sx={{
                         height: '100%',

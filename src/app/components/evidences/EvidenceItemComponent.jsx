@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { evidenceStore } from '../../../store';
+import { evidenceUpdate } from '../../../store';
 
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
 
@@ -13,7 +13,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
-import { uploadEvidence } from '../../../api/upload/uploadThuks';
+import { PrivateAgentRoute, PrivateCustomerRoute } from '../../middleware';
 
 export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {}, setSelectCollaborator = () => { }, handleRemove = () => { }, handleEvidenceViewerOpen = () => { }, file = {} }) => {
 
@@ -21,43 +21,46 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
 
     const { palette } = useTheme();
     const [openFileDelete, setOpenDeleteFile] = useState(false);
+    const [disabledSave, setDisabledSave] = useState(true);
+    const [formInit] = useState(JSON.stringify({
+        name: file.name.split('.')[0],
+        approved: file.approved ? true : false,
+    }));
 
     // Es el objeto {evidence: {}, file:{}}    
     const [selectFile, setSelectFile] = useState({
         evidence: {
             name: file.name.split('.')[0],
-            approved: false,            
+            type: file.type,
+            evidence_id: file.evidence_id,
+            approved: file.approved ? true : false,
             file
         }
     });
 
     const collaboratorsChangeInputAux = ({ target }) => {
-        const { name, value } = target;
+        const { value } = target;
         setSelectFile({ ...selectFile, evidence: { ...selectFile.evidence, name: value } })
     }
 
-    const handleApprovedToggle = () => {
+    const handleApprovedToggle = () => {        
         setSelectFile({ ...selectFile, evidence: { ...selectFile.evidence, approved: !selectFile.evidence.approved } })
     }
 
-    const handleSave = (event) => {
-        event.preventDefault();        
-        //Validación existencia de Imagen
-        dispatch(uploadEvidence(file, collaborator.commerce_id, collaborator.pivot.report_id))
-            .then(({ data }) => {
-                dispatch(evidenceStore({
-                    form: {
-                        ...selectFile?.evidence ?? {},
-                        employee_report_id: employee_report.id,
-                        file: data.storage_image_path                        
-                    }
-                })).then((response) => {                    
-                    setSelectFile({ ...selectFile, evidence: { ...selectFile.evidence } })
-                    //getEmployees();// Refrescamos la tabla
-                    //handleClose();            
-                }, error => setMessageSnackbar({ dispatch, error }))
-            }, error => setMessageSnackbar({ dispatch, error }));
-
+    const handleUpdate = (event) => {
+        dispatch(evidenceUpdate({
+            form: {
+                ...selectFile?.evidence ?? {},
+                id: selectFile?.evidence?.evidence_id ?? null,
+                approved: selectFile?.evidence?.approved ? 1 : 0,
+                
+            }
+        })).then((response) => {
+            setSelectFile({
+                ...selectFile,
+                evidence: { ...selectFile.evidence }
+            });
+        }, error => setMessageSnackbar({ dispatch, error }))
     }
 
     const handleFileDeleteClose = () => {
@@ -68,9 +71,14 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
         setOpenDeleteFile(true);
     }
 
-
     // observable de selectFile
     useEffect(() => {
+
+        setDisabledSave(formInit === JSON.stringify({
+            name: selectFile.evidence.name,
+            approved: selectFile.evidence.approved
+        }));
+
         if (selectFile?.evidence?.file || selectFile?.evidence?.name) {
             // Se debe actualizar el collaborator
             setSelectCollaborator({
@@ -85,13 +93,10 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
     }, [selectFile]);
 
     useEffect(() => {
-        // console.log('ActualizacionCollaborator', collaborator);
     }, [collaborator])
 
 
     useEffect(() => {
-        // console.log('selectFile', selectFile);
-        // console.log('EvidenceItemcollaborator', collaborator);
     }, [])
 
     return (
@@ -134,22 +139,42 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
                             <Grid container sx={{ display: 'flex', alignItems: 'end', justifyContent: 'end' }}>
                                 <Grid item xs={12} md={3} >
                                     <Tooltip title={`${selectFile?.evidence?.approved ? 'Invalidar' : 'Validar'}`} placement="top">
-                                        <IconButton onClick={() => handleApprovedToggle()}>
-                                            {selectFile?.evidence?.approved &&
-                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
-                                            }
-                                            {!selectFile?.evidence?.approved &&
-                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
-                                            }
-                                        </IconButton>
+                                        <span>
+                                            <PrivateAgentRoute>
+                                                <IconButton onClick={() => handleApprovedToggle()}>
+                                                    {selectFile?.evidence?.approved &&
+                                                        <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                    }
+                                                    {!selectFile?.evidence?.approved &&
+                                                        <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                    }
+                                                </IconButton>
+                                            </PrivateAgentRoute>
+
+                                            <PrivateCustomerRoute>
+                                                <IconButton disabled onClick={() => handleApprovedToggle()}>
+                                                    {selectFile?.evidence?.approved &&
+                                                        <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                    }
+                                                    {!selectFile?.evidence?.approved &&
+                                                        <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                    }
+                                                </IconButton>
+                                            </PrivateCustomerRoute>
+
+                                        </span>
                                     </Tooltip>
                                 </Grid>
 
                                 <Grid item xs={12} md={3} sx={{}} >
                                     <Tooltip title="Guardar Archivo" placement="top">
-                                        <IconButton  onClick={(event) => handleSave(event)}>
-                                            <SaveIcon></SaveIcon>
-                                        </IconButton>
+                                        <span>
+                                            <IconButton
+                                                disabled={disabledSave}
+                                                onClick={(event) => handleUpdate(event)}>
+                                                <SaveIcon></SaveIcon>
+                                            </IconButton>
+                                        </span>
                                     </Tooltip>
                                 </Grid>
 

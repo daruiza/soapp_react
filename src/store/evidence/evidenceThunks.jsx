@@ -9,6 +9,15 @@ export const evidenceStore = ({ form }) => {
     }
 }
 
+export const evidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/evidence/update/${form.id}`, form);
+        }
+    }
+}
+
 export const showByEmpoyeeReportId = ({ form = {} }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
