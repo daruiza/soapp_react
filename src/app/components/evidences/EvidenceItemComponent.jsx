@@ -22,7 +22,7 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
     const { palette } = useTheme();
     const [openFileDelete, setOpenDeleteFile] = useState(false);
     const [disabledSave, setDisabledSave] = useState(true);
-    const [formInit] = useState(JSON.stringify({
+    const [formInit, setFormInit] = useState(JSON.stringify({
         name: file.name.split('.')[0],
         approved: file.approved ? true : false,
     }));
@@ -48,6 +48,7 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
     }
 
     const handleUpdate = (event) => {
+
         dispatch(evidenceUpdate({
             form: {
                 ...selectFile?.evidence ?? {},
@@ -55,10 +56,21 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
                 approved: selectFile?.evidence?.approved ? 1 : 0,
                 
             }
-        })).then((response) => {
+        })).then(({data:{data:{evidence}}}) => {           
+            
+            setFormInit(JSON.stringify({
+                    name: evidence.name,
+                    approved: evidence.approved ? true : false,
+                })
+            )            
+            
             setSelectFile({
                 ...selectFile,
-                evidence: { ...selectFile.evidence }
+                evidence: { 
+                    ...selectFile.evidence,
+                    name: evidence.name,
+                    approved: evidence.approved ? true : false
+                 }
             });
         }, error => setMessageSnackbar({ dispatch, error }))
     }
@@ -97,6 +109,7 @@ export const EvidenceItemComponent = ({ employee_report = {}, collaborator = {},
 
 
     useEffect(() => {
+        
     }, [])
 
     return (

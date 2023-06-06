@@ -93,8 +93,7 @@ export const EmployeeStoreComponent = ({ employee = {}, open = false, identifica
     }
 
     // COMPORTAMIENTO
-    const changeFilterToggle = (event) => {
-        console.log('event.target.checked', event.target.checked);
+    const changeFilterToggle = (event) => {        
         setIs_employeeSwitch(event.target.checked);
         setInput('is_employee', event.target.checked ? 1 : 0)
     }

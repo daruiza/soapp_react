@@ -45,7 +45,6 @@ export const ReportCardComponent = ({ children, title, subheader, expandedDefaul
                 }
             />
             <Collapse in={expanded} timeout="auto" unmountOnExit>
-
                 <CardContent>
                     {children}
                 </CardContent>

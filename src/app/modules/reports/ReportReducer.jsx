@@ -9,14 +9,22 @@ export const ReportReducer = (state, action) => {
         case 'changeInput':
             return {
                 ...state,
-                collaborators: state.collaborators.map((el, index) => {
+                collaborators: [
+                    ...state.collaborators.filter((el, index) => index !== action.payload.index),
+                        {
+                            ...state.collaborators.find((el, index) => index == action.payload.index),
+                            [action.payload.name]: action.payload.value
+                        }
+                    ]
+                  
+                /*collaborators: state.collaborators.map((el, index) => {
                     return index !== action.payload.index ?
                         el :
                         {
                             ...el,
                             [action.payload.name]: action.payload.value
                         }
-                })
+                })*/
             };
 
         default:

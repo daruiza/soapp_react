@@ -4,7 +4,7 @@ import { useReduceReport } from '../../../../hooks/useReduceReport';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { commerceUpdate, employeeIndex, employeeReportDelete, employeeReportStore, reportByreportId } from '../../../../store';
 
-import { Grid, ImageListItem, Typography, Button, TextField, Tooltip, IconButton, Switch } from '@mui/material';
+import { Grid, ImageListItem, Typography, Button, TextField, Tooltip, IconButton, Switch, FormControl, FormControlLabel, FormGroup, Divider, InputLabel, Select, MenuItem } from '@mui/material';
 import { ReportCardComponent } from './ReportCardComponent';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -20,8 +20,11 @@ import HealingIcon from '@mui/icons-material/Healing';
 import SupportIcon from '@mui/icons-material/Support';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { EvidencesComponent } from '../../../components/evidences/EvidencesComponent';
-import { EvidenceViewerComponent } from '../../../components/evidences/EvidenceViewerComponent';
 import { EmployeeState } from '../../../types/EmployeeState';
+import { ReportSection } from '../../../types/ReportSection';
+
+import { DialogAlertComponent } from '../../../components';
+import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -32,6 +35,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
     const [report, setReport] = useState(null);
     const [employeeArray, setEmployeeArray] = useState([]);
+    const [examTypeArray, setExamTypeArray] = useState([])
 
     const { commerce_id: param_commerce_id } = useParams();
     const { report_id: param_report_id } = useParams();
@@ -40,8 +44,27 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const { commerce: commerceState } = useSelector(state => state.commerce);
     const commerce = useMemo(() => commerceState, [commerceState]);
 
-    const [openNewInEvidences, setOpenNewInEvidences] = useState(false);
+    const [openNewInEvidences, setOpenNewInEvidences] = useState({
+        open: false,
+        dialogtitle: '',
+        dialogcontenttext: '',
+        employee_report: {}
+    });
     const [selectCollaborator, setSelectCollaborator] = useState({});
+
+    const [interval_test, setIntervalTest] = useState({
+        income: false,
+        periodical: false,
+        retirement: false
+    });
+
+    const [handleAlert, setHandleAlert] = useState({
+        openAlert: false,
+        functionAlertClose: () => { },
+        functionAlertAgree: () => { },
+        alertTittle: '',
+        alertMessage: '',
+    });
 
     const asistirEnSaludBran = `${window.location.origin}/src/assets/asistirEnSaludBran.png`;
 
@@ -73,6 +96,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         }
     }
 
+    const getExamType = () => {
+        dispatch(genericListGetByName({ name: 'type_medical_test' }))
+            .then(({ data: { data: { generallist } } }) => {
+                setExamTypeArray(generallist ?? []);
+            });
+    }
+
     const setEmployeeReportStore = (collaborator, employee_state) => {
         // se debe llamar al back para que guarde el cambio
         dispatch(employeeReportStore({
@@ -92,6 +122,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         })).then((data) => {
             // Refrescamos el Report Component
             getReportById(param_report_id);
+            //cerramos el alert
+            setHandleAlert({ openAlert: false });
         });
     }
 
@@ -120,9 +152,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         // collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: EmployeeState.NUEVOINGRESO }], name: 'state', index })
     }
     const handleDeleteIncomeMonth = (collaborator, index) => {
-        // se debe llamar al back para que guarde el cambio
-        deleteEmployeeReportStore(collaborator);
         // collaboratorsChangeInput({ value: [collaborator.state.filter(el => el.employee_state !== EmployeeState.NUEVOINGRESO)], name: 'state', index })
+        setHandleAlert({
+            openAlert: true,
+            functionAlertClose: () => setHandleAlert({ openAlert: false }),
+            functionAlertAgree: () => deleteEmployeeReportStore(collaborator),
+            alertTittle: 'Eliminar Registro Inducción',
+            alertMessage: `Estas seguro de borrar el registro de ${collaborator.name}.`
+        });
     }
 
     const handleRemove = (collaborator, index) => {
@@ -130,21 +167,30 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
 
     const handleMedicalExams = (collaborator, index) => {
-        // setEmployeeReportStore(collaborator, 'Exámenes Médicos');
-        collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Exámenes Médicos' }], name: 'state', index })
+        setEmployeeReportStore(collaborator, EmployeeState.EXAMENESMEDICOS);
+        //collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Exámenes Médicos' }], name: 'state', index })
     }
 
     const handleWorkEvent = (collaborator, index) => {
         collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Evento Laboral' }], name: 'state', index })
     }
 
-    const handleEvidenceOpen = (collaborator) => {
-        setOpenNewInEvidences(true);
+    // Manejador de apertura de PopUp de Evidencias
+    const handleEvidenceOpen = (collaborator, EmployeeState, ReportSection) => {
+
+        setOpenNewInEvidences((openNewInEvidences) => ({
+            ...openNewInEvidences,
+            dialogtitle: ReportSection,
+            dialogcontenttext: `${collaborator.name} ${collaborator.lastname} [${collaborator.identification}]`,
+            employee_report: collaborator.state.find(el => el.employee_state === EmployeeState),
+            open: true
+        }));
+
         setSelectCollaborator(collaborator);
     }
 
     const handleEvidenceClose = () => {
-        setOpenNewInEvidences(false);
+        setOpenNewInEvidences((openNewInEvidences) => ({ ...openNewInEvidences, open: false }));
         setSelectCollaborator(null);
     }
 
@@ -160,8 +206,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }, [collaborators])
 
     useEffect(() => {
-        getReportById(param_report_id)
         getEmployees();
+        getReportById(param_report_id);
+        getExamType();
     }, [])
 
     return (
@@ -532,13 +579,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="3. INDUCCIÓN Y PREPARACIÓN EMPLEADOS"
-                                >
+                                >   <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                     <Grid container>
                                         {
                                             collaborators?.collaborators?.length &&
                                             collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.NUEVOINGRESO)).map((cl) => {
                                                 return (
                                                     <Grid container key={cl.index}>
+
                                                         <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                                                             <Grid container>
                                                                 <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
@@ -582,13 +630,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                                                 <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                                                     <TextField
-                                                                        // variant="standard"
+                                                                        variant="standard"
                                                                         size="small"
                                                                         label="Sede"
                                                                         type="text"
                                                                         fullWidth
                                                                         name="campus"
-                                                                        value={cl?.campus}
+                                                                        value={cl?.campus || ''}
                                                                         onChange={(event) => changeInputCollaborator(event, cl.index)}
                                                                     />
                                                                 </Grid>
@@ -650,13 +698,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             // border: '1px solid',
                                                                             // borderColor: `${palette.text.disabled}`
                                                                         }}
-                                                                        onClick={() => handleEvidenceOpen(cl)}
+                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.NUEVOINGRESO, ReportSection.NUEVOINGRESO)}
                                                                         variant="contained">Evidencias
                                                                     </Button>
                                                                 </Grid>
-
                                                             </Grid>
-
                                                         </Grid>
 
                                                         <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
@@ -675,6 +721,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 </Tooltip>
                                                             </Grid>
                                                         </Grid>
+
+                                                        <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
+
                                                     </Grid>
                                                 )
                                             })
@@ -699,6 +748,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                             collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === 'Exámenes Médicos')).map((cl) => {
                                                 return (
                                                     <Grid container key={cl.index}>
+
                                                         <Grid item xs={12} md={2} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
                                                             <TextField
                                                                 variant="standard"
@@ -723,6 +773,88 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 value={cl?.identification}
                                                                 disabled
                                                             />
+                                                        </Grid>
+
+                                                        <Grid item xs={12} md={2} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
+                                                            <FormControl fullWidth className='FormControlExamType' sx={{ marginTop: '0px' }}>
+                                                                <InputLabel
+                                                                    variant="standard"
+                                                                    id="demo-simple-select-label"
+                                                                    sx={{
+                                                                        color: `${palette.text.primary}`
+                                                                    }}
+                                                                >Tipo Examen</InputLabel>
+                                                                <Select
+                                                                    variant="standard"
+                                                                    labelId="demo-simple-select-label"
+                                                                    id="demo-simple-select"
+                                                                    name="exam_type"
+                                                                    value={cl?.exam_type || ''}
+                                                                    label="Proyecto"
+                                                                    onChange={(event) => changeInputCollaborator(event, cl.index)}>
+                                                                    <MenuItem value=''><em></em></MenuItem>
+                                                                    {
+                                                                        examTypeArray &&
+                                                                        examTypeArray.length &&
+                                                                        examTypeArray.map((el, index) => (
+                                                                            <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
+                                                                        ))
+                                                                    }
+                                                                </Select>
+                                                            </FormControl>
+                                                        </Grid>
+
+                                                        <Grid item xs={12} md={4} sx={{
+                                                            mb: 1, pr: 0.5, pl: 0.5,
+                                                            display: 'flex',
+                                                            justifyContent: 'center',
+                                                            alignSelf: 'center'
+                                                        }}>
+                                                            <FormGroup>
+                                                                <Grid container sx={{
+
+                                                                }}>
+                                                                    <Grid item xs={12} md={4}>
+                                                                        <FormControlLabel
+                                                                            sx={{color: `${interval_test.income ? palette.text.secondary : palette.text.primary}`}}
+                                                                            control={<Switch checked={interval_test.income} onChange={() => setIntervalTest({ income: true, periodical: false, retirement: false })} name="interval_test_income" />}
+                                                                            label={`Ingreso`}
+                                                                        />
+                                                                    </Grid>
+                                                                    <Grid item xs={12} md={4}>
+                                                                        <FormControlLabel
+                                                                            sx={{color: `${interval_test.periodical ? palette.text.secondary : palette.text.primary}`}}
+                                                                            control={<Switch checked={interval_test.periodical} onChange={() => setIntervalTest({ income: false, periodical: true, retirement: false })} name="interval_test_periodical" />}
+                                                                            label={`Periodico`}
+                                                                        />
+                                                                    </Grid>
+                                                                    <Grid item xs={12} md={4}>
+                                                                        <FormControlLabel
+                                                                            sx={{color: `${interval_test.retirement ? palette.text.secondary : palette.text.primary}`}}
+                                                                            control={<Switch checked={interval_test.retirement} onChange={() => setIntervalTest({ income: false, periodical: false, retirement: true })} name="interval_test_retirement" />}
+                                                                            label={`Retiro`}
+                                                                        />
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </FormGroup>
+                                                        </Grid>
+
+                                                        <Grid item xs={12} md={2} sx={{
+                                                            display: 'flex',
+                                                            justifyContent: 'center',
+                                                            alignSelf: 'center'
+                                                        }} >
+                                                            <Button
+                                                                size="medium"
+                                                                fullWidth
+                                                                sx={{
+                                                                    color: `${palette.text.primary}`,
+                                                                    // border: '1px solid',
+                                                                    // borderColor: `${palette.text.disabled}`
+                                                                }}
+                                                                onClick={() => handleEvidenceOpen(cl, EmployeeState.EXAMENESMEDICOS, ReportSection.EXAMENESMEDICOS)}
+                                                                variant="contained">Evidencias
+                                                            </Button>
                                                         </Grid>
                                                     </Grid>
                                                 )
@@ -863,17 +995,28 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 }
             </Grid>
             {
-                openNewInEvidences &&
+                openNewInEvidences.open &&
                 <EvidencesComponent
-                    open={openNewInEvidences}
-                    dialogtitle="EVIDENCIAS INDUCCIÓN Y PREPARACIÓN EMPLEADOS"
-                    dialogcontenttext={`${selectCollaborator.name} ${selectCollaborator.lastname} [${selectCollaborator.identification}]`}
+                    open={openNewInEvidences.open}
+                    dialogtitle={openNewInEvidences.dialogtitle}
+                    dialogcontenttext={openNewInEvidences.dialogcontenttext}
                     collaborator={selectCollaborator}
-                    employee_report={selectCollaborator.state.find(el => el.employee_state === EmployeeState.NUEVOINGRESO)}
+                    employee_report={openNewInEvidences.employee_report}
                     setSelectCollaborator={setSelectCollaborator}
                     collaboratorsChangeInput={collaboratorsChangeInput}
                     handleClose={handleEvidenceClose}
                 ></EvidencesComponent>
+            }
+            {
+                handleAlert.openAlert && <DialogAlertComponent
+                    open={handleAlert.openAlert}
+                    handleClose={() => handleAlert.functionAlertClose()}
+                    handleAgree={() => handleAlert.functionAlertAgree()}
+                    props={{
+                        tittle: handleAlert.alertTittle,
+                        message: handleAlert.alertMessage
+                    }}
+                ></DialogAlertComponent>
             }
         </Grid >
     )

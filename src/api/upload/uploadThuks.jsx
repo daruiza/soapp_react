@@ -30,12 +30,12 @@ export const uploadLogo = (file) => {
     }
 }
 
-export const uploadEvidence = (file, commerce_id, report_id) => {
+export const uploadEvidence = (file, commerce_id, report_id, employee_report) => {
     return async (dispatch) => {
         const { uploadApi } = useUpload(dispatch);
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('folder', `images/employee/commerce/${commerce_id}/report/${report_id}`);
+        formData.append('folder', `images/commerce/${commerce_id}/report/${report_id}/employee_report/${employee_report}`);
         return uploadApi.post('api/upload/photo', formData);
     }
 }

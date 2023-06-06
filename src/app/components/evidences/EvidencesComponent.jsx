@@ -4,7 +4,7 @@ import { useTheme } from '@emotion/react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid } from '@mui/material'
 import { EvidenceItemComponent } from './EvidenceItemComponent';
 import { EvidenceViewerComponent } from './EvidenceViewerComponent';
-import { evidenceStore, showByEmpoyeeReportId } from '../../../store';
+import { deleteEvidenceId, evidenceStore, showByEmpoyeeReportId } from '../../../store';
 import { getSoappDownloadFile, getSoappFile, uploadEvidence } from '../../../api/upload/uploadThuks';
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
 
@@ -25,6 +25,7 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
             }
         })).then(({ data: { data: { evidence: evidences } } }) => {
             evidences.forEach(evidence => {
+                
                 dispatch(getSoappDownloadFile({ path: evidence.file }))
                     .then((response) => {
                         const newfile = new Blob([response.data], { type: response.data.type });
@@ -53,7 +54,7 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
         ) return;
 
 
-        dispatch(uploadEvidence(file, collaborator.commerce_id, collaborator.pivot.report_id))
+        dispatch(uploadEvidence(file, collaborator.commerce_id, collaborator.pivot.report_id, employee_report.id))
             .then(({ data }) => {
                 // Guardamos la evidencia
                 dispatch(evidenceStore({
@@ -61,9 +62,14 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                         name: file.name.split('.')[0],
                         type: file.type,
                         employee_report_id: employee_report.id,
-                        file: data.storage_image_path
+                        file: data.storage_image_path,
+                        approved: false
                     }
-                })).then((response) => {
+                })).then(({data:{data:{evidence}}}) => {
+                    //file.name = evidence.name;
+                    file.approved = evidence?.approved ? true : false;
+                    file.evidence_id = evidence.id;
+
                     setFiles((files) => [...files, file]);
                 }, error => setMessageSnackbar({ dispatch, error }))
             }, error => setMessageSnackbar({ dispatch, error }));
@@ -83,18 +89,27 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
     };
 
     const handleRemove = (file) => {
-        setSelectCollaborator({
-            ...collaborator,
-            files: [...collaborator.files.filter(fl => fl.evidence.file !== file)]
-        });
+        dispatch(deleteEvidenceId({
+            form: { id: file.evidence_id}
+        })).then((data) => {            
+            
+            setSelectCollaborator({
+                ...collaborator,
+                files: [...collaborator.files.filter(fl => fl.evidence.file !== file)]
+            });
+    
+            collaboratorsChangeInput({
+                value: [...collaborator.files.filter(fl => fl.evidence.file !== file)],
+                name: 'files',
+                index: collaborator?.index
+            });
+    
+            setFiles((files) => [...files.filter(fl => fl !== file)]);
 
-        collaboratorsChangeInput({
-            value: [...collaborator.files.filter(fl => fl.evidence.file !== file)],
-            name: 'files',
-            index: collaborator?.index
+            // Refrescamos el Report Component
+            EmpoyeeReporBytId(employee_report.id ?? null)
         });
-
-        setFiles((files) => [...files.filter(fl => fl !== file)]);
+        
     }
 
     const handleEvidenceViewerOpen = () => {
