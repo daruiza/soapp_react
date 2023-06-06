@@ -13,6 +13,7 @@ import es from 'dayjs/locale/es';
 import { useTheme } from '@emotion/react';
 import EditIcon from '@mui/icons-material/Edit';
 import InfoIcon from '@mui/icons-material/Info';
+import SaveIcon from '@mui/icons-material/Save';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
@@ -147,10 +148,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         changeInputCollaborator({ target: { name: name, value: date ? value.format('YYYY-MM-DD') : value } }, index);
     }
 
-    const handleIncomeMonth = (collaborator, index) => {
-        setEmployeeReportStore(collaborator, EmployeeState.NUEVOINGRESO);
-        // collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: EmployeeState.NUEVOINGRESO }], name: 'state', index })
-    }
     const handleDeleteIncomeMonth = (collaborator, index) => {
         // collaboratorsChangeInput({ value: [collaborator.state.filter(el => el.employee_state !== EmployeeState.NUEVOINGRESO)], name: 'state', index })
         setHandleAlert({
@@ -162,17 +159,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         });
     }
 
+    const handleAddStatus = (collaborator, status) => {
+        setEmployeeReportStore(collaborator, status);
+        // collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: EmployeeState.NUEVOINGRESO }], name: 'state', index })
+    }
+
     const handleRemove = (collaborator, index) => {
         collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Retirado' }], name: 'state', index })
-    }
-
-    const handleMedicalExams = (collaborator, index) => {
-        setEmployeeReportStore(collaborator, EmployeeState.EXAMENESMEDICOS);
-        //collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Exámenes Médicos' }], name: 'state', index })
-    }
-
-    const handleWorkEvent = (collaborator, index) => {
-        collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Evento Laboral' }], name: 'state', index })
     }
 
     // Manejador de apertura de PopUp de Evidencias
@@ -514,10 +507,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             </Tooltip>
 
                                                             <Tooltip title="Ingreso este Mes" placement="top">
-                                                                <IconButton onClick={() => handleIncomeMonth(cl, cl.index)}>
+                                                                <IconButton onClick={() => handleAddStatus(cl, EmployeeState.NUEVOINGRESO)}>
                                                                     <AddCircleIcon
                                                                         sx={{
-                                                                            color: `${cl.state.find((el) => el.employee_state === 'Nuevo Ingreso') ? palette.primary.main : palette.text.disabled}`,
+                                                                            color: `${cl.state.find((el) => el.employee_state === EmployeeState.NUEVOINGRESO) ? palette.primary.main : palette.text.disabled}`,
                                                                             "&:hover": {
                                                                                 // color: `${palette.text.primary}`,
                                                                                 cursor: "pointer"
@@ -539,11 +532,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 </IconButton>
                                                             </Tooltip>
 
-                                                            <Tooltip title="Exámenes Médicos" placement="top">
-                                                                <IconButton onClick={() => handleMedicalExams(cl, cl.index)}>
+                                                            <Tooltip title={EmployeeState.EXAMENESMEDICOS} placement="top">
+                                                                <IconButton onClick={() => handleAddStatus(cl, EmployeeState.EXAMENESMEDICOS)}>
                                                                     <HealingIcon
                                                                         sx={{
-                                                                            color: `${cl.state.find((el) => el.employee_state === 'Exámenes Médicos') ? palette.primary.main : palette.text.disabled}`,
+                                                                            color: `${cl.state.find((el) => el.employee_state === EmployeeState.EXAMENESMEDICOS) ? palette.primary.main : palette.text.disabled}`,
                                                                             "&:hover": {
                                                                                 // color: `${palette.text.primary}`,
                                                                                 cursor: "pointer"
@@ -552,11 +545,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 </IconButton>
                                                             </Tooltip>
 
-                                                            <Tooltip title="Evento laboral" placement="top">
-                                                                <IconButton onClick={() => handleWorkEvent(cl, cl.index)}>
+                                                            <Tooltip title={EmployeeState.WORKEVENT} placement="top">
+                                                                <IconButton onClick={() => handleAddStatus(cl, EmployeeState.WORKEVENT)}>
                                                                     <SupportIcon
                                                                         sx={{
-                                                                            color: `${cl.state.find((el) => el.employee_state === 'Evento Laboral') ? palette.primary.main : palette.text.disabled}`,
+                                                                            color: `${cl.state.find((el) => el.employee_state === EmployeeState.WORKEVENT) ? palette.primary.main : palette.text.disabled}`,
                                                                             "&:hover": {
                                                                                 // color: `${palette.text.primary}`,
                                                                                 cursor: "pointer"
@@ -719,6 +712,18 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             }}></HighlightOffIcon>
                                                                     </IconButton>
                                                                 </Tooltip>
+
+                                                                <Tooltip title="Guardar Archivo" placement="top">
+                                                                    <span>
+                                                                        <IconButton
+                                                                            //disabled={disabledSave}
+                                                                            //onClick={(event) => handleUpdate(event)}
+                                                                            >
+                                                                            <SaveIcon></SaveIcon>
+                                                                        </IconButton>
+                                                                    </span>
+                                                                </Tooltip>
+
                                                             </Grid>
                                                         </Grid>
 
@@ -745,10 +750,144 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     <Grid container>
                                         {
                                             collaborators?.collaborators?.length &&
-                                            collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === 'Exámenes Médicos')).map((cl) => {
+                                            collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.EXAMENESMEDICOS)).map((cl) => {
                                                 return (
                                                     <Grid container key={cl.index}>
+                                                        <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                                                            <Grid container>
+                                                                <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
+                                                                    <TextField
+                                                                        variant="standard"
+                                                                        size="small"
+                                                                        label={cl?.lastname}
+                                                                        type="text"
+                                                                        fullWidth
+                                                                        name="name"
+                                                                        value={`${cl?.name} ${getAge(cl?.birth_date)}`}
+                                                                        disabled
+                                                                    />
+                                                                </Grid>
 
+                                                                <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
+                                                                    <TextField
+                                                                        variant="standard"
+                                                                        size="small"
+                                                                        label={cl?.identification_type}
+                                                                        type="text"
+                                                                        fullWidth
+                                                                        name="identification"
+                                                                        value={cl?.identification}
+                                                                        disabled
+                                                                    />
+                                                                </Grid>
+
+                                                                <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
+                                                                    <FormControl fullWidth className='FormControlExamType' sx={{ marginTop: '0px' }}>
+                                                                        <InputLabel
+                                                                            variant="standard"
+                                                                            id="demo-simple-select-label"
+                                                                            sx={{
+                                                                                color: `${palette.text.primary}`
+                                                                            }}
+                                                                        >Tipo Examen</InputLabel>
+                                                                        <Select
+                                                                            variant="standard"
+                                                                            labelId="demo-simple-select-label"
+                                                                            id="demo-simple-select"
+                                                                            name="exam_type"
+                                                                            value={cl?.exam_type || ''}
+                                                                            label="Proyecto"
+                                                                            onChange={(event) => changeInputCollaborator(event, cl.index)}>
+                                                                            <MenuItem value=''><em></em></MenuItem>
+                                                                            {
+                                                                                examTypeArray &&
+                                                                                examTypeArray.length &&
+                                                                                examTypeArray.map((el, index) => (
+                                                                                    <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
+                                                                                ))
+                                                                            }
+                                                                        </Select>
+                                                                    </FormControl>
+                                                                </Grid>
+
+                                                                <Grid item xs={12} md={3} sx={{
+                                                                    display: 'flex',
+                                                                    justifyContent: 'center',
+                                                                    alignSelf: 'center'
+                                                                }} >
+                                                                    <Button
+                                                                        size="medium"
+                                                                        fullWidth
+                                                                        sx={{
+                                                                            color: `${palette.text.primary}`,
+                                                                            // border: '1px solid',
+                                                                            // borderColor: `${palette.text.disabled}`
+                                                                        }}
+                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.EXAMENESMEDICOS, ReportSection.EXAMENESMEDICOS)}
+                                                                        variant="contained">Evidencias
+                                                                    </Button>
+                                                                </Grid>
+
+                                                                <Grid item xs={12} md={6} sx={{
+                                                                    mb: 1, pr: 0.5, pl: 0.5,
+                                                                    display: 'flex',
+                                                                    justifyContent: 'center',
+                                                                    alignSelf: 'center'
+                                                                }}>
+                                                                    <FormGroup>
+                                                                        <Grid container sx={{
+
+                                                                        }}>
+                                                                            <Grid item xs={12} md={4}>
+                                                                                <FormControlLabel
+                                                                                    sx={{ color: `${interval_test.income ? palette.text.secondary : palette.text.primary}` }}
+                                                                                    control={<Switch checked={interval_test.income} onChange={() => setIntervalTest({ income: true, periodical: false, retirement: false })} name="interval_test_income" />}
+                                                                                    label={`Ingreso`}
+                                                                                />
+                                                                            </Grid>
+                                                                            <Grid item xs={12} md={4}>
+                                                                                <FormControlLabel
+                                                                                    sx={{ color: `${interval_test.periodical ? palette.text.secondary : palette.text.primary}` }}
+                                                                                    control={<Switch checked={interval_test.periodical} onChange={() => setIntervalTest({ income: false, periodical: true, retirement: false })} name="interval_test_periodical" />}
+                                                                                    label={`Periodico`}
+                                                                                />
+                                                                            </Grid>
+                                                                            <Grid item xs={12} md={4}>
+                                                                                <FormControlLabel
+                                                                                    sx={{ color: `${interval_test.retirement ? palette.text.secondary : palette.text.primary}` }}
+                                                                                    control={<Switch checked={interval_test.retirement} onChange={() => setIntervalTest({ income: false, periodical: false, retirement: true })} name="interval_test_retirement" />}
+                                                                                    label={`Retiro`}
+                                                                                />
+                                                                            </Grid>
+                                                                        </Grid>
+                                                                    </FormGroup>
+                                                                </Grid>
+
+
+                                                            </Grid>
+                                                        </Grid>
+
+                                                        <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
+
+                                                        </Grid>
+
+                                                    </Grid>
+                                                )
+                                            })
+                                        }
+                                    </Grid>
+                                </ReportCardComponent>
+
+                                <ReportCardComponent
+                                    sx={{ borderRadius: '0px' }}
+                                    title="5. VIGILANCIA EN SALUD DE LOS TRABAJADORES"
+                                >
+                                    <Grid container>
+                                        {
+                                            collaborators?.collaborators?.length &&
+                                            collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.WORKEVENT)).map((cl) => {
+                                                return (
+                                                    <Grid container key={cl.index}>
                                                         <Grid item xs={12} md={2} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
                                                             <TextField
                                                                 variant="standard"
@@ -774,99 +913,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 disabled
                                                             />
                                                         </Grid>
-
-                                                        <Grid item xs={12} md={2} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
-                                                            <FormControl fullWidth className='FormControlExamType' sx={{ marginTop: '0px' }}>
-                                                                <InputLabel
-                                                                    variant="standard"
-                                                                    id="demo-simple-select-label"
-                                                                    sx={{
-                                                                        color: `${palette.text.primary}`
-                                                                    }}
-                                                                >Tipo Examen</InputLabel>
-                                                                <Select
-                                                                    variant="standard"
-                                                                    labelId="demo-simple-select-label"
-                                                                    id="demo-simple-select"
-                                                                    name="exam_type"
-                                                                    value={cl?.exam_type || ''}
-                                                                    label="Proyecto"
-                                                                    onChange={(event) => changeInputCollaborator(event, cl.index)}>
-                                                                    <MenuItem value=''><em></em></MenuItem>
-                                                                    {
-                                                                        examTypeArray &&
-                                                                        examTypeArray.length &&
-                                                                        examTypeArray.map((el, index) => (
-                                                                            <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
-                                                                        ))
-                                                                    }
-                                                                </Select>
-                                                            </FormControl>
-                                                        </Grid>
-
-                                                        <Grid item xs={12} md={4} sx={{
-                                                            mb: 1, pr: 0.5, pl: 0.5,
-                                                            display: 'flex',
-                                                            justifyContent: 'center',
-                                                            alignSelf: 'center'
-                                                        }}>
-                                                            <FormGroup>
-                                                                <Grid container sx={{
-
-                                                                }}>
-                                                                    <Grid item xs={12} md={4}>
-                                                                        <FormControlLabel
-                                                                            sx={{color: `${interval_test.income ? palette.text.secondary : palette.text.primary}`}}
-                                                                            control={<Switch checked={interval_test.income} onChange={() => setIntervalTest({ income: true, periodical: false, retirement: false })} name="interval_test_income" />}
-                                                                            label={`Ingreso`}
-                                                                        />
-                                                                    </Grid>
-                                                                    <Grid item xs={12} md={4}>
-                                                                        <FormControlLabel
-                                                                            sx={{color: `${interval_test.periodical ? palette.text.secondary : palette.text.primary}`}}
-                                                                            control={<Switch checked={interval_test.periodical} onChange={() => setIntervalTest({ income: false, periodical: true, retirement: false })} name="interval_test_periodical" />}
-                                                                            label={`Periodico`}
-                                                                        />
-                                                                    </Grid>
-                                                                    <Grid item xs={12} md={4}>
-                                                                        <FormControlLabel
-                                                                            sx={{color: `${interval_test.retirement ? palette.text.secondary : palette.text.primary}`}}
-                                                                            control={<Switch checked={interval_test.retirement} onChange={() => setIntervalTest({ income: false, periodical: false, retirement: true })} name="interval_test_retirement" />}
-                                                                            label={`Retiro`}
-                                                                        />
-                                                                    </Grid>
-                                                                </Grid>
-                                                            </FormGroup>
-                                                        </Grid>
-
-                                                        <Grid item xs={12} md={2} sx={{
-                                                            display: 'flex',
-                                                            justifyContent: 'center',
-                                                            alignSelf: 'center'
-                                                        }} >
-                                                            <Button
-                                                                size="medium"
-                                                                fullWidth
-                                                                sx={{
-                                                                    color: `${palette.text.primary}`,
-                                                                    // border: '1px solid',
-                                                                    // borderColor: `${palette.text.disabled}`
-                                                                }}
-                                                                onClick={() => handleEvidenceOpen(cl, EmployeeState.EXAMENESMEDICOS, ReportSection.EXAMENESMEDICOS)}
-                                                                variant="contained">Evidencias
-                                                            </Button>
-                                                        </Grid>
                                                     </Grid>
                                                 )
                                             })
                                         }
                                     </Grid>
-                                </ReportCardComponent>
-
-                                <ReportCardComponent
-                                    sx={{ borderRadius: '0px' }}
-                                    title="5. VIGILANCIA EN SALUD DE LOS TRABAJADORES"
-                                >
 
                                 </ReportCardComponent>
 

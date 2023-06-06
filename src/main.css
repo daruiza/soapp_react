@@ -28,3 +28,7 @@
     content: 'Aprobado Por:';
     position: relative;
 }
+
+.FormControlExamType .MuiInputBase-root{
+    margin-top: 13px;
+}

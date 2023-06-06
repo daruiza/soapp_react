@@ -3,8 +3,8 @@ import { backdropPop, backdropPush, } from '../../store/requestapi/requestApiSli
 
 export const useEmployee = (dispatch) => {
     const employeeApi = axios.create({
-        //baseURL: 'http://soapp_laravel.thinkwg.com/'
-        baseURL: 'http://127.0.0.1:8080/'
+        baseURL: 'http://soapp_laravel.thinkwg.com/'
+        //baseURL: 'http://127.0.0.1:8080/'
     });
 
     employeeApi.interceptors.request.use(
