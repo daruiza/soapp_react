@@ -3,8 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useReduceReport } from '../../../../hooks/useReduceReport';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { commerceUpdate, employeeIndex, employeeReportDelete, employeeReportStore, reportByreportId } from '../../../../store';
-
-import { Grid, ImageListItem, Typography, Button, TextField, Tooltip, IconButton, Switch, FormControl, FormControlLabel, FormGroup, Divider, InputLabel, Select, MenuItem } from '@mui/material';
+import { Grid, ImageListItem, Typography, Button, TextField, IconButton, Switch, FormControl, FormControlLabel, FormGroup, Divider, InputLabel, Select, FormLabel } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
+import Paper from '@mui/material/Paper';
+import MenuItem from '@mui/material/MenuItem';
 import { ReportCardComponent } from './ReportCardComponent';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -12,6 +14,7 @@ import dayjs from 'dayjs';
 import es from 'dayjs/locale/es';
 import { useTheme } from '@emotion/react';
 import EditIcon from '@mui/icons-material/Edit';
+import AddBoxIcon from '@mui/icons-material/AddBox';
 import InfoIcon from '@mui/icons-material/Info';
 import SaveIcon from '@mui/icons-material/Save';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -32,7 +35,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const dispatch = useDispatch();
     const { palette } = useTheme();
 
-    const { state: collaborators, initCollaborators, collaboratorsChangeInput } = useReduceReport()
+    const { state: collaborators, setCollaborators, collaboratorsChangeInput } = useReduceReport()
+
+    // Almacena la información los colaboradores en base de datos
+    const [initCollaborators, setInitCollaborators] = useState([]);
 
     const [report, setReport] = useState(null);
     const [employeeArray, setEmployeeArray] = useState([]);
@@ -77,7 +83,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
             }
         })).then(({ data: { data: { report } } }) => {
             setReport(report);
-            initCollaborators(report.employee.map((em, index) => ({ ...em, index })));
+            setCollaborators(report.employee.map((em, index) => ({ ...em, index })));
+            setInitCollaborators(report.employee.map((em, index) => ({ ...em, index })));
             dispatch(commerceUpdate({ commerce: report.commerce }))
         });
     }
@@ -139,6 +146,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
 
     // Eventos
+
     const changeInputCollaborator = ({ target }, index) => {
         const { name, value } = target;
         collaboratorsChangeInput({ value, name, index })
@@ -187,9 +195,22 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         setSelectCollaborator(null);
     }
 
+    //Validaciones
+
+    const validatorSaveEmployeeInsetDisabled = (cl) => {
+        return JSON.stringify({
+            campus: `${initCollaborators.find(el => el.id === cl.id)?.campus ?? ''}`,
+            company: `${initCollaborators.find(el => el.id === cl.id)?.company ?? report?.commerce?.name}`
+        }).trim() === JSON.stringify({
+            campus: cl?.campus ?? '',
+            company: `${cl?.company ?? report?.commerce?.name}`
+        }).trim()
+    }
+
     // Muy peligroso y enrreda en demasia
     useEffect(() => {
         console.log('ReportcollaboratorsEffect', collaborators);
+
         // console.log('selectCollaborator', selectCollaborator);
         // refrescamos el selectCollaborator
         // if (selectCollaborator && (selectCollaborator?.index || selectCollaborator?.index === 0 || selectCollaborator?.index === '0')) {
@@ -576,154 +597,160 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     <Grid container>
                                         {
                                             collaborators?.collaborators?.length &&
-                                            collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.NUEVOINGRESO)).map((cl) => {
+                                            collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.NUEVOINGRESO)).map((cl, index) => {
                                                 return (
                                                     <Grid container key={cl.index}>
-
-                                                        <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
-                                                            <Grid container>
-                                                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                                                    <TextField
-                                                                        variant="standard"
-                                                                        size="small"
-                                                                        label={cl?.lastname}
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        name="name"
-                                                                        value={`${cl?.name} ${getAge(cl?.birth_date)}`}
-                                                                        disabled
-                                                                    />
-                                                                </Grid>
-
-                                                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                                                    <TextField
-                                                                        variant="standard"
-                                                                        size="small"
-                                                                        label={cl?.identification_type}
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        name="identification"
-                                                                        value={cl?.identification}
-                                                                        disabled
-                                                                    />
-                                                                </Grid>
-
-                                                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                                                    <TextField
-                                                                        variant="standard"
-                                                                        size="small"
-                                                                        label="Empresa"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        name="company"
-                                                                        value={`${cl?.is_employee ? report?.commerce?.name : ''} `}
-                                                                        disabled={cl?.is_employee ? true : false}
-                                                                    />
-                                                                </Grid>
-
-                                                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                                                    <TextField
-                                                                        variant="standard"
-                                                                        size="small"
-                                                                        label="Sede"
-                                                                        type="text"
-                                                                        fullWidth
-                                                                        name="campus"
-                                                                        value={cl?.campus || ''}
-                                                                        onChange={(event) => changeInputCollaborator(event, cl.index)}
-                                                                    />
-                                                                </Grid>
-
-                                                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
-                                                                    <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
-                                                                        <DatePicker
+                                                        <Grid container
+                                                        //sx={{ backgroundColor: ((index + 1) % 2) ? palette.secondary.support : '' }}
+                                                        >
+                                                            <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                                                                <Grid container>
+                                                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                                                        <TextField
+                                                                            variant="standard"
                                                                             size="small"
-                                                                            className='birth-date-piker'
-                                                                            sx={{ width: '100%' }}
-                                                                            inputFormat="DD/MM/YYYY"
-                                                                            label="Fecha Inducción SST"
-                                                                            name="sst_date"
-                                                                            value={cl?.sst_date}
-                                                                            onChange={(value) => changeInputCollaboratorValue({ name: 'sst_date', value, date: true }, cl.index)}
-                                                                            renderInput={(params) => <TextField size="small" {...params} />}
+                                                                            label={cl?.lastname}
+                                                                            type="text"
+                                                                            fullWidth
+                                                                            name="name"
+                                                                            value={`${cl?.name} ${getAge(cl?.birth_date)}`}
+                                                                            disabled
                                                                         />
-                                                                    </LocalizationProvider>
-                                                                </Grid>
+                                                                    </Grid>
 
-                                                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
-                                                                    <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
-                                                                        <DatePicker
+                                                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                                                        <TextField
+                                                                            variant="standard"
                                                                             size="small"
-                                                                            className='birth-date-piker'
-                                                                            sx={{ width: '100%' }}
-                                                                            inputFormat="DD/MM/YYYY"
-                                                                            label="Fecha Inducción al Cargo"
-                                                                            name="induction_date"
-                                                                            value={cl?.induction_date}
-                                                                            onChange={(value) => changeInputCollaboratorValue({ name: 'induction_date', value, date: true }, cl.index)}
-                                                                            renderInput={(params) => <TextField size="small" {...params} />}
+                                                                            label={cl?.identification_type}
+                                                                            type="text"
+                                                                            fullWidth
+                                                                            name="identification"
+                                                                            value={cl?.identification}
+                                                                            disabled
                                                                         />
-                                                                    </LocalizationProvider>
-                                                                </Grid>
+                                                                    </Grid>
 
-                                                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
-                                                                    <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
-                                                                        <DatePicker
+                                                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                                                        <TextField
+                                                                            variant="standard"
                                                                             size="small"
-                                                                            className='birth-date-piker'
-                                                                            sx={{ width: '100%' }}
-                                                                            inputFormat="DD/MM/YYYY"
-                                                                            label="Fecha Emtrega Elementos"
-                                                                            name="delivery_date"
-                                                                            value={cl?.delivery_date}
-                                                                            onChange={(value) => changeInputCollaboratorValue({ name: 'delivery_date', value, date: true }, cl.index)}
-                                                                            renderInput={(params) => <TextField size="small" {...params} />}
+                                                                            label="Empresa"
+                                                                            type="text"
+                                                                            fullWidth
+                                                                            name="company"
+                                                                            value={`${cl?.is_employee ? report?.commerce?.name : ''} `}
+                                                                            disabled={cl?.is_employee ? true : false}
                                                                         />
-                                                                    </LocalizationProvider>
-                                                                </Grid>
+                                                                    </Grid>
 
-                                                                <Grid item xs={12} md={3} >
-                                                                    <Button
-                                                                        size="medium"
-                                                                        fullWidth
-                                                                        sx={{
-                                                                            color: `${palette.text.primary}`,
-                                                                            // border: '1px solid',
-                                                                            // borderColor: `${palette.text.disabled}`
-                                                                        }}
-                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.NUEVOINGRESO, ReportSection.NUEVOINGRESO)}
-                                                                        variant="contained">Evidencias
-                                                                    </Button>
+                                                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                                                        <TextField
+                                                                            variant="standard"
+                                                                            size="small"
+                                                                            label="Sede"
+                                                                            type="text"
+                                                                            fullWidth
+                                                                            name="campus"
+                                                                            value={cl?.campus || ''}
+                                                                            onChange={(event) => changeInputCollaborator(event, cl.index)}
+                                                                        />
+                                                                    </Grid>
+
+                                                                    <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
+                                                                        <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
+                                                                            <DatePicker
+                                                                                size="small"
+                                                                                className='birth-date-piker'
+                                                                                sx={{ width: '100%' }}
+                                                                                inputFormat="DD/MM/YYYY"
+                                                                                label="Fecha Inducción SST"
+                                                                                name="sst_date"
+                                                                                value={cl?.sst_date}
+                                                                                onChange={(value) => changeInputCollaboratorValue({ name: 'sst_date', value, date: true }, cl.index)}
+                                                                                renderInput={(params) => <TextField size="small" {...params} />}
+                                                                            />
+                                                                        </LocalizationProvider>
+                                                                    </Grid>
+
+                                                                    <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
+                                                                        <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
+                                                                            <DatePicker
+                                                                                size="small"
+                                                                                className='birth-date-piker'
+                                                                                sx={{ width: '100%' }}
+                                                                                inputFormat="DD/MM/YYYY"
+                                                                                label="Fecha Inducción al Cargo"
+                                                                                name="induction_date"
+                                                                                value={cl?.induction_date}
+                                                                                onChange={(value) => changeInputCollaboratorValue({ name: 'induction_date', value, date: true }, cl.index)}
+                                                                                renderInput={(params) => <TextField size="small" {...params} />}
+                                                                            />
+                                                                        </LocalizationProvider>
+                                                                    </Grid>
+
+                                                                    <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
+                                                                        <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
+                                                                            <DatePicker
+                                                                                size="small"
+                                                                                className='birth-date-piker'
+                                                                                sx={{ width: '100%' }}
+                                                                                inputFormat="DD/MM/YYYY"
+                                                                                label="Fecha Emtrega Elementos"
+                                                                                name="delivery_date"
+                                                                                value={cl?.delivery_date}
+                                                                                onChange={(value) => changeInputCollaboratorValue({ name: 'delivery_date', value, date: true }, cl.index)}
+                                                                                renderInput={(params) => <TextField size="small" {...params} />}
+                                                                            />
+                                                                        </LocalizationProvider>
+                                                                    </Grid>
+
+                                                                    <Grid item xs={12} md={3} >
+                                                                        <Button
+                                                                            size="medium"
+                                                                            fullWidth
+                                                                            sx={{
+                                                                                color: `${palette.text.primary}`,
+                                                                                // border: '1px solid',
+                                                                                // borderColor: `${palette.text.disabled}`
+                                                                            }}
+                                                                            onClick={() => handleEvidenceOpen(cl, EmployeeState.NUEVOINGRESO, ReportSection.NUEVOINGRESO)}
+                                                                            variant="contained">Evidencias
+                                                                        </Button>
+                                                                    </Grid>
                                                                 </Grid>
                                                             </Grid>
-                                                        </Grid>
 
-                                                        <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
-                                                            <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'end', justifyContent: 'center' }}>
-                                                                <Tooltip title="Eliminar Entrada" placement="top">
-                                                                    <IconButton onClick={() => handleDeleteIncomeMonth(cl, cl.index)}>
-                                                                        <HighlightOffIcon
-                                                                            sx={{
-                                                                                color: palette.text.disabled,
-                                                                                "&:hover": {
-                                                                                    // color: `${palette.text.primary}`,
-                                                                                    cursor: "pointer"
-                                                                                }
-                                                                            }}></HighlightOffIcon>
-                                                                    </IconButton>
-                                                                </Tooltip>
+                                                            <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
+                                                                <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'end', justifyContent: 'center' }}>
+                                                                    <Tooltip title="Eliminar Entrada" placement="top">
+                                                                        <IconButton onClick={() => handleDeleteIncomeMonth(cl, cl.index)}>
+                                                                            <HighlightOffIcon
+                                                                                sx={{
+                                                                                    color: palette.text.disabled,
+                                                                                    "&:hover": {
+                                                                                        // color: `${palette.text.primary}`,
+                                                                                        cursor: "pointer"
+                                                                                    }
+                                                                                }}></HighlightOffIcon>
+                                                                        </IconButton>
+                                                                    </Tooltip>
 
-                                                                <Tooltip title="Guardar Archivo" placement="top">
-                                                                    <span>
-                                                                        <IconButton
-                                                                            //disabled={disabledSave}
+
+                                                                    <Tooltip title="Guardar Archivo" placement="top">
+                                                                        <span>
+                                                                            <IconButton
+                                                                                disabled={validatorSaveEmployeeInsetDisabled(cl)}
                                                                             //onClick={(event) => handleUpdate(event)}
                                                                             >
-                                                                            <SaveIcon></SaveIcon>
-                                                                        </IconButton>
-                                                                    </span>
-                                                                </Tooltip>
+                                                                                <SaveIcon
+                                                                                    sx={{ color: !validatorSaveEmployeeInsetDisabled(cl) ? palette.primary.main : '' }}
+                                                                                ></SaveIcon>
+                                                                            </IconButton>
+                                                                        </span>
+                                                                    </Tooltip>
 
+                                                                </Grid>
                                                             </Grid>
                                                         </Grid>
 
@@ -827,48 +854,87 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                         variant="contained">Evidencias
                                                                     </Button>
                                                                 </Grid>
-
-                                                                <Grid item xs={12} md={6} sx={{
-                                                                    mb: 1, pr: 0.5, pl: 0.5,
-                                                                    display: 'flex',
-                                                                    justifyContent: 'center',
-                                                                    alignSelf: 'center'
-                                                                }}>
-                                                                    <FormGroup>
-                                                                        <Grid container sx={{
-
-                                                                        }}>
-                                                                            <Grid item xs={12} md={4}>
-                                                                                <FormControlLabel
-                                                                                    sx={{ color: `${interval_test.income ? palette.text.secondary : palette.text.primary}` }}
-                                                                                    control={<Switch checked={interval_test.income} onChange={() => setIntervalTest({ income: true, periodical: false, retirement: false })} name="interval_test_income" />}
-                                                                                    label={`Ingreso`}
-                                                                                />
-                                                                            </Grid>
-                                                                            <Grid item xs={12} md={4}>
-                                                                                <FormControlLabel
-                                                                                    sx={{ color: `${interval_test.periodical ? palette.text.secondary : palette.text.primary}` }}
-                                                                                    control={<Switch checked={interval_test.periodical} onChange={() => setIntervalTest({ income: false, periodical: true, retirement: false })} name="interval_test_periodical" />}
-                                                                                    label={`Periodico`}
-                                                                                />
-                                                                            </Grid>
-                                                                            <Grid item xs={12} md={4}>
-                                                                                <FormControlLabel
-                                                                                    sx={{ color: `${interval_test.retirement ? palette.text.secondary : palette.text.primary}` }}
-                                                                                    control={<Switch checked={interval_test.retirement} onChange={() => setIntervalTest({ income: false, periodical: false, retirement: true })} name="interval_test_retirement" />}
-                                                                                    label={`Retiro`}
-                                                                                />
-                                                                            </Grid>
-                                                                        </Grid>
-                                                                    </FormGroup>
-                                                                </Grid>
-
-
                                                             </Grid>
                                                         </Grid>
 
                                                         <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
+                                                           
+                                                            <Tooltip
+                                                                // open={true}
+                                                                placement="top"
+                                                                disableFocusListener
+                                                                title={
+                                                                    <Grid className='tooltip-menu-transparent' container sx={{ display: 'flex', flexDirection: 'column' }}>
+                                                                        <Paper>
+                                                                            <MenuItem>Tipo</MenuItem>
+                                                                            <MenuItem
+                                                                                // onClick={handleClose}
+                                                                                sx={{paddingTop:'0px', paddingBottom:'0px'}}
+                                                                            >
+                                                                                <Grid item xs={12} md={4}>
+                                                                                    <FormControlLabel
+                                                                                        sx={{ color: `${cl?.interval_test?.income ? palette.text.secondary : palette.text.primary}` }}
+                                                                                        control={<Switch checked={cl?.interval_test?.income ?? false} onChange={() =>
+                                                                                            changeInputCollaborator({
+                                                                                                target: {
+                                                                                                    name: 'interval_test',
+                                                                                                    value: { income: true, periodical: false, retirement: false }
+                                                                                                }
+                                                                                            }, cl.index)}
+                                                                                            name="interval_test_income" />
+                                                                                        }
+                                                                                        label={`Ingreso`}
+                                                                                    />
+                                                                                </Grid>
+                                                                            </MenuItem>
+                                                                            <MenuItem
+                                                                                // onClick={handleClose}
+                                                                                sx={{paddingTop:'0px', paddingBottom:'0px'}}
+                                                                            >
+                                                                                <Grid item xs={12} md={4}>
+                                                                                    <FormControlLabel
+                                                                                        sx={{ color: `${cl?.interval_test?.periodical ? palette.text.secondary : palette.text.primary}` }}
+                                                                                        control={<Switch checked={cl?.interval_test?.periodical ?? false} onChange={() =>
+                                                                                            changeInputCollaborator({
+                                                                                                target: {
+                                                                                                    name: 'interval_test',
+                                                                                                    value: { income: false, periodical: true, retirement: false }
+                                                                                                }
+                                                                                            }, cl.index)}
+                                                                                            name="interval_test_periodical" />}
+                                                                                        label={`Periodico`}
+                                                                                    />
+                                                                                </Grid>
+                                                                            </MenuItem>
+                                                                            <MenuItem
+                                                                                // onClick={handleClose}
+                                                                                sx={{paddingTop:'0px', paddingBottom:'0px'}}
+                                                                            >
+                                                                                <Grid item xs={12} md={4}>
+                                                                                    <FormControlLabel
+                                                                                        sx={{ color: `${cl?.interval_test?.retirement ? palette.text.secondary : palette.text.primary}` }}
+                                                                                        control={<Switch checked={cl?.interval_test?.retirement ?? false} onChange={() =>
+                                                                                            changeInputCollaborator({
+                                                                                                target: {
+                                                                                                    name: 'interval_test',
+                                                                                                    value: { income: false, periodical: false, retirement: true }
+                                                                                                }
+                                                                                            }, cl.index)}
+                                                                                            name="interval_test_retirement" />}
+                                                                                        label={`Retiro`}
+                                                                                    />
+                                                                                </Grid>
+                                                                            </MenuItem>
 
+                                                                        </Paper>
+
+                                                                    </Grid>
+                                                                }
+                                                            >
+                                                                <AddBoxIcon >
+                                                                    <InfoIcon sx={{ color: palette.text.disabled }} />
+                                                                </AddBoxIcon>
+                                                            </Tooltip>
                                                         </Grid>
 
                                                     </Grid>

@@ -9,7 +9,9 @@ export const skyTheme = createTheme({
             support: '#c1d6f5'
         },
         secondary: {
-            main: '#dce8f9'
+            main: '#dce8f9',
+            support: '#e7f0fd',
+            background: '#FFFFFF'
         },
         text: { 
             primary: '#0000008C',

@@ -6,7 +6,7 @@ export const useReduceReport = (init) => {
 
     const [state, dispatch] = useReducer(ReportReducer, init ?? defaultInit);
 
-    const initCollaborators = useCallback((collaborators) => {
+    const setCollaborators = useCallback((collaborators) => {
         dispatch({ type: 'init', payload: { collaborators } });
     }, [])
 
@@ -15,5 +15,5 @@ export const useReduceReport = (init) => {
     }, []
     )
 
-    return { state, initCollaborators, collaboratorsChangeInput }
+    return { state, setCollaborators, collaboratorsChangeInput }
 }
