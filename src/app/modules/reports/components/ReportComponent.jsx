@@ -14,7 +14,7 @@ import dayjs from 'dayjs';
 import es from 'dayjs/locale/es';
 import { useTheme } from '@emotion/react';
 import EditIcon from '@mui/icons-material/Edit';
-import AddBoxIcon from '@mui/icons-material/AddBox';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import InfoIcon from '@mui/icons-material/Info';
 import SaveIcon from '@mui/icons-material/Save';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -931,9 +931,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                     </Grid>
                                                                 }
                                                             >
-                                                                <AddBoxIcon >
+                                                                <AddCircleOutlineIcon >
                                                                     <InfoIcon sx={{ color: palette.text.disabled }} />
-                                                                </AddBoxIcon>
+                                                                </AddCircleOutlineIcon>
                                                             </Tooltip>
                                                         </Grid>
 
