@@ -7,3 +7,4 @@ export * from './report/reportThunks';
 export * from './evidence/evidenceThunks';
 export * from './employeereport/employeereportThunks';
 export * from './requestapi/requestApiSlice';
+export * from './genericlist/genericlistThunks';

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useReduceReport } from '../../../../hooks/useReduceReport';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { commerceUpdate, employeeIndex, employeeReportDelete, employeeReportStore, reportByreportId } from '../../../../store';
+import { commerceUpdate, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, reportByreportId } from '../../../../store';
 import { Grid, ImageListItem, Typography, Button, TextField, IconButton, Switch, FormControl, FormControlLabel, FormGroup, Divider, InputLabel, Select, FormLabel } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import Paper from '@mui/material/Paper';
@@ -28,7 +28,7 @@ import { EmployeeState } from '../../../types/EmployeeState';
 import { ReportSection } from '../../../types/ReportSection';
 
 import { DialogAlertComponent } from '../../../components';
-import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
+import { ReportEmployeeComponent } from './ReportEmployeeComponent';
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -83,8 +83,15 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
             }
         })).then(({ data: { data: { report } } }) => {
             setReport(report);
-            setCollaborators(report.employee.map((em, index) => ({ ...em, index })));
-            setInitCollaborators(report.employee.map((em, index) => ({ ...em, index })));
+            const employees = report.employee.map((em, index) => ({
+                ...em,
+                state: em.state.map(st => ({ ...st, attributes: JSON.parse(st.attributes) })),
+                //objetualizamos los campos de el estado
+                ...em.state.reduce((a, b) => ({ ...a, ...JSON.parse(b.attributes) }), {}),
+                index
+            }));
+            setCollaborators([...employees]);
+            setInitCollaborators([...employees]);
             dispatch(commerceUpdate({ commerce: report.commerce }))
         });
     }
@@ -117,6 +124,18 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
             form: {
                 employee_state,
                 ...collaborator.pivot
+            }
+        })).then((data) => {
+            // Refrescamos el Report Component
+            getReportById(param_report_id);
+        });
+    }
+
+    const putEmployeeReportStore = (state, object) => {
+        dispatch(employeeReportUpdate({
+            form: {
+                id: state.id,
+                attributes: JSON.stringify(object)
             }
         })).then((data) => {
             // Refrescamos el Report Component
@@ -172,10 +191,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         // collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: EmployeeState.NUEVOINGRESO }], name: 'state', index })
     }
 
-    const handleRemove = (collaborator, index) => {
-        collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: 'Retirado' }], name: 'state', index })
-    }
-
     // Manejador de apertura de PopUp de Evidencias
     const handleEvidenceOpen = (collaborator, EmployeeState, ReportSection) => {
 
@@ -196,14 +211,20 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
 
     //Validaciones
-
     const validatorSaveEmployeeInsetDisabled = (cl) => {
+        const collaboratorInit = initCollaborators.find(el => el.id === cl.id);
         return JSON.stringify({
-            campus: `${initCollaborators.find(el => el.id === cl.id)?.campus ?? ''}`,
-            company: `${initCollaborators.find(el => el.id === cl.id)?.company ?? report?.commerce?.name}`
+            campus: `${collaboratorInit?.campus ?? ''}`,
+            company: `${collaboratorInit?.company ?? report?.commerce?.name}`,
+            delivery_date: `${collaboratorInit?.delivery_date ?? ''}`,
+            induction_date: `${collaboratorInit?.induction_date ?? ''}`,
+            st_date: `${collaboratorInit?.st_date ?? ''}`,
         }).trim() === JSON.stringify({
             campus: cl?.campus ?? '',
-            company: `${cl?.company ?? report?.commerce?.name}`
+            company: `${cl?.company ?? report?.commerce?.name}`,
+            delivery_date: cl?.delivery_date ?? '',
+            induction_date: cl?.induction_date ?? '',
+            st_date: cl?.st_date ?? ''
         }).trim()
     }
 
@@ -235,6 +256,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
             }}>
             <Grid item xs={12} md={12}>
                 <Grid container>
+
+                    {/* Head Report */}
+
                     <Grid item xs={12} md={12} mb={2} sx={{ marginBottom: '0px' }} display={'flex'}>
                         <Grid item xs={6} md={2} mb={2} sx={{ display: 'flex', alignItems: 'center' }}>
                             <ImageListItem>
@@ -332,6 +356,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                             Nota: en caso de tener contratados Sub_contratistas debe incluir  información de cada contratista.
                         </Typography>
                     </Grid>
+
+
                     <Grid item xs={12} md={12} mb={2}>
                         {
                             commerce &&
@@ -541,10 +567,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             </Tooltip>
 
                                                             <Tooltip title="Retiro este Mes" placement="top">
-                                                                <IconButton onClick={() => handleRemove(cl, cl.index)}>
+                                                                <IconButton onClick={() => handleAddStatus(cl, EmployeeState.RETIRED)}>
                                                                     <RemoveCircleIcon
                                                                         sx={{
-                                                                            color: `${cl.state.find((el) => el.employee_state === 'Retirado') ? palette.primary.main : palette.text.disabled}`,
+                                                                            color: `${cl.state.find((el) => el.employee_state === EmployeeState.RETIRED) ? palette.primary.main : palette.text.disabled}`,
                                                                             "&:hover": {
                                                                                 // color: `${palette.text.primary}`,
                                                                                 cursor: "pointer"
@@ -589,6 +615,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     </Grid>
 
                                 </ReportCardComponent>
+
 
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
@@ -639,8 +666,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             type="text"
                                                                             fullWidth
                                                                             name="company"
-                                                                            value={`${cl?.is_employee ? report?.commerce?.name : ''} `}
+                                                                            value={`${cl?.is_employee ? report?.commerce?.name : cl?.company ?? ''}`}
                                                                             disabled={cl?.is_employee ? true : false}
+                                                                            onChange={(event) => changeInputCollaborator(event, cl.index)}
                                                                         />
                                                                     </Grid>
 
@@ -652,7 +680,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             type="text"
                                                                             fullWidth
                                                                             name="campus"
-                                                                            value={cl?.campus || ''}
+                                                                            value={cl?.campus ?? ''}
                                                                             onChange={(event) => changeInputCollaborator(event, cl.index)}
                                                                         />
                                                                     </Grid>
@@ -737,11 +765,20 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                     </Tooltip>
 
 
-                                                                    <Tooltip title="Guardar Archivo" placement="top">
+                                                                    <Tooltip title="Guardar Cambios" placement="top">
                                                                         <span>
                                                                             <IconButton
                                                                                 disabled={validatorSaveEmployeeInsetDisabled(cl)}
-                                                                            //onClick={(event) => handleUpdate(event)}
+                                                                                onClick={() => putEmployeeReportStore(
+                                                                                    cl.state.find((el) => el.employee_state === EmployeeState.NUEVOINGRESO) ?? null,
+                                                                                    ({
+                                                                                        campus: cl?.campus ?? '',
+                                                                                        company: cl?.company ?? '',
+                                                                                        delivery_date: cl?.delivery_date ?? '',
+                                                                                        induction_date: cl?.induction_date ?? '',
+                                                                                        st_date: cl?.sst_date ?? '',
+                                                                                    })
+                                                                                )}
                                                                             >
                                                                                 <SaveIcon
                                                                                     sx={{ color: !validatorSaveEmployeeInsetDisabled(cl) ? palette.primary.main : '' }}
@@ -761,6 +798,32 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                             })
                                         }
                                     </Grid>
+                                </ReportCardComponent>
+
+                                <ReportCardComponent
+                                    sx={{ borderRadius: '0px' }}
+                                    title="3 RETIRO DE EMPLEADOS"
+                                >
+                                    <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
+                                    <Grid container>
+                                        {
+                                            collaborators?.collaborators?.length &&
+                                            collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.RETIRED)).map((cl, index) => {
+                                                return (
+                                                    <Grid container key={cl.index}>
+                                                        <Grid container>
+                                                            <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                                                                <Grid container>
+                                                                    <ReportEmployeeComponent collaborator={cl} show={{ name: true }}></ReportEmployeeComponent>
+                                                                </Grid>
+                                                            </Grid>
+                                                        </Grid>
+                                                        <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
+                                                    </Grid>
+                                                )
+                                            })}
+                                    </Grid>
+
                                 </ReportCardComponent>
 
                                 <ReportCardComponent
@@ -858,7 +921,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                         </Grid>
 
                                                         <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
-                                                           
+
                                                             <Tooltip
                                                                 // open={true}
                                                                 placement="top"
@@ -869,7 +932,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             <MenuItem>Tipo</MenuItem>
                                                                             <MenuItem
                                                                                 // onClick={handleClose}
-                                                                                sx={{paddingTop:'0px', paddingBottom:'0px'}}
+                                                                                sx={{ paddingTop: '0px', paddingBottom: '0px' }}
                                                                             >
                                                                                 <Grid item xs={12} md={4}>
                                                                                     <FormControlLabel
@@ -889,7 +952,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             </MenuItem>
                                                                             <MenuItem
                                                                                 // onClick={handleClose}
-                                                                                sx={{paddingTop:'0px', paddingBottom:'0px'}}
+                                                                                sx={{ paddingTop: '0px', paddingBottom: '0px' }}
                                                                             >
                                                                                 <Grid item xs={12} md={4}>
                                                                                     <FormControlLabel
@@ -908,7 +971,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             </MenuItem>
                                                                             <MenuItem
                                                                                 // onClick={handleClose}
-                                                                                sx={{paddingTop:'0px', paddingBottom:'0px'}}
+                                                                                sx={{ paddingTop: '0px', paddingBottom: '0px' }}
                                                                             >
                                                                                 <Grid item xs={12} md={4}>
                                                                                     <FormControlLabel

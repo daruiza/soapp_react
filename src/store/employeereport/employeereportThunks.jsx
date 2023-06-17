@@ -17,6 +17,15 @@ export const employeeReportStore = ({ form }) => {
     }
 }
 
+export const employeeReportUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { employeereportApi } = useEmployeeReport(dispatch);
+        if (form && form.id) {
+            return employeereportApi.put(`api/employeereport/update/${form.id}`, form);
+        }
+    }
+}
+
 export const employeeReportDelete = ({ form }) => {
     return async (dispatch) => {
         const { employeereportApi } = useEmployeeReport(dispatch);
