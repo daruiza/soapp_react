@@ -15,7 +15,7 @@ const formValidations = {
     identification_type: [(value) => value, 'El Tipo de Identificación es obligatorio.'],
 };
 
-const formData = { id: '', name: '', lastname: '', email: '', adress: '', phone: '', identification_type: '', identification: '', birth_date: '', photo: '', is_employee: false };
+const formData = { id: '', name: '', lastname: '', email: '', adress: '', eps: '', phone: '', identification_type: '', identification: '', birth_date: '', photo: '', is_employee: false };
 
 const setInputsForm = (object) => {
     for (const formField of Object.keys(formData)) {
@@ -39,6 +39,7 @@ export const EmployeeStoreComponent = ({ employee = {}, open = false, identifica
         email,
         phone,
         adress,
+        eps,
         identification_type,
         identification,
         birth_date,
@@ -49,6 +50,7 @@ export const EmployeeStoreComponent = ({ employee = {}, open = false, identifica
         emailValid,
         phoneValid,
         adressValid,
+        epsValid,
         identification_typeValid,
         identificationValid,
         birth_dateValid,
@@ -59,6 +61,7 @@ export const EmployeeStoreComponent = ({ employee = {}, open = false, identifica
         emailToched,
         phoneToched,
         adressToched,
+        epsToched,
         identification_typeToched,
         identificationToched,
         birth_dateToched,
@@ -93,7 +96,7 @@ export const EmployeeStoreComponent = ({ employee = {}, open = false, identifica
     }
 
     // COMPORTAMIENTO
-    const changeFilterToggle = (event) => {        
+    const changeFilterToggle = (event) => {
         setIs_employeeSwitch(event.target.checked);
         setInput('is_employee', event.target.checked ? 1 : 0)
     }
@@ -128,7 +131,7 @@ export const EmployeeStoreComponent = ({ employee = {}, open = false, identifica
         }
     }
 
-    useEffect(() => {
+    useEffect(() => {   
         if (!birth_date) {
             setInput('birth_date', dayjs('1969-01-01').format('YYYY-MM-DD'))
         }
@@ -296,6 +299,21 @@ export const EmployeeStoreComponent = ({ employee = {}, open = false, identifica
                                 onClick={onInputClick}
                                 helperText={!!adressToched && adressValid}
                                 error={!!adressValid && adressToched}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={6} sx={{ mb: 1, pr: 0.5, pl: 0.5 }} >
+                            <TextField
+                                label="EPS"
+                                type="text"
+                                placeholder='Dirección de recidencia'
+                                fullWidth
+                                name="eps"
+                                value={eps}
+                                onChange={onInputChange}
+                                onClick={onInputClick}
+                                helperText={!!epsToched && epsValid}
+                                error={!!epsValid && epsToched}
                             />
                         </Grid>
 

@@ -1,7 +1,6 @@
 export const EmployeeState = {
     NUEVOINGRESO: 'Nuevo Ingreso',
-    EXAMENESMEDICOS: 'Exámenes Médicos',
-    WORKEVENT: 'Evento Laboral',
-    WORKEVENT: 'Evento Laboral',
+    EXAMENESMEDICOS: 'Examenes Médicos',
+    WORKEVENT: 'Accidente/Incidente/Enfermedad',
     RETIRED: 'Retirado',
 }

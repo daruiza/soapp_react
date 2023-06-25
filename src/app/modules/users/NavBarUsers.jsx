@@ -7,7 +7,7 @@ export const NavBarUsers = () => {
     return (
         <>
             <PrivateAgentRoute>
-                <NavLink style={{ color: `${palette.text.primary}` }} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="users/index"> Usuarios </NavLink>
+                <NavLink style={{ color: `${palette.text.primary}` }} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} to="users/index"> Clientes </NavLink>
             </PrivateAgentRoute>
         </>
     )
