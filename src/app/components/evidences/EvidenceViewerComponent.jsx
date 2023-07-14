@@ -3,7 +3,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid } from 
 import { useEffect, useState } from 'react'
 import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer';
 
-export const EvidenceViewerComponent = ({ collaborator = {}, files = [], open = false, handleClose = () => { } }) => {
+export const EvidenceViewerComponent = ({ files = [], open = false, handleClose = () => { } }) => {
     const { palette } = useTheme();
 
 

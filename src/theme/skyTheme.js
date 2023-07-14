@@ -18,6 +18,7 @@ export const skyTheme = createTheme({
             secondary: '#69a1f3',
             support: '#c1d6f5',
             disabled: 'rgba(0, 0, 0, 0.38)',
+            custom:'#0000008C',
             error: red.A400,
             succes: green.A400,
         },

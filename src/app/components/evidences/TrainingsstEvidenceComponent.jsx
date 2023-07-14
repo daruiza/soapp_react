@@ -1,14 +1,15 @@
+
 import { useRef, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTheme } from '@emotion/react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid } from '@mui/material'
-import { EvidenceItemComponent } from './EvidenceItemComponent';
 import { EvidenceViewerComponent } from './EvidenceViewerComponent';
-import { deleteEvidenceId, evidenceStore, showByEmpoyeeReportId } from '../../../store';
-import { getSoappDownloadFile, uploadEvidence } from '../../../api/upload/uploadThuks';
+import { ShowByTrainingsstEvidenceId, deleteTrainingEvidenceId, trainingsstEvidenceStore } from '../../../store';
+import { getSoappDownloadFile, uploadEvidenceFileName } from '../../../api/upload/uploadThuks';
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
+import TrainingsstEvidenceItemComponent from './TrainingsstEvidenceItemComponent';
 
-export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', collaborator = {}, setSelectCollaborator = () => { }, collaboratorsChangeInput = () => { }, open = false, handleClose = () => { }, employee_report = {} }) => {
+export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontenttext = '', open = false, handleClose = () => { }, trainingsst = {}, commerce_id = null, report_id = null }) => {
     const { palette } = useTheme();
     const dispatch = useDispatch();
     const inputFileRef = useRef();
@@ -18,14 +19,14 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
     const [openEvidencesViewer, setOpenEvidencesViewer] = useState(false);
 
     //Init
-    const EmpoyeeReporBytId = (employee_report_id) => {
-        dispatch(showByEmpoyeeReportId({
+    const TrainingsstEvidenceById = (trainingsst_id) => {
+        dispatch(ShowByTrainingsstEvidenceId({
             form: {
-                id: employee_report_id ?? ''
+                id: trainingsst_id ?? ''
             }
         })).then(({ data: { data: { evidence: evidences } } }) => {
-            evidences.forEach(evidence => {
 
+            evidences.forEach(evidence => {
                 dispatch(getSoappDownloadFile({ path: evidence.file }))
                     .then((response) => {
                         const newfile = new Blob([response.data], { type: response.data.type });
@@ -54,14 +55,14 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
         ) return;
 
 
-        dispatch(uploadEvidence(file, collaborator.commerce_id, collaborator.pivot.report_id, employee_report.id))
+        dispatch(uploadEvidenceFileName(file, `images/commerce/${commerce_id}/report/${report_id}/trainingsst/${trainingsst?.id}`))
             .then(({ data }) => {
                 // Guardamos la evidencia
-                dispatch(evidenceStore({
+                dispatch(trainingsstEvidenceStore({
                     form: {
                         name: file.name.split('.')[0],
                         type: file.type,
-                        employee_report_id: employee_report.id,
+                        trainingsst_id: trainingsst.id,
                         file: data.storage_image_path,
                         approved: false
                     }
@@ -88,25 +89,12 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
     };
 
     const handleRemove = (file) => {
-        dispatch(deleteEvidenceId({
+        dispatch(deleteTrainingEvidenceId({
             form: { id: file.evidence_id }
         })).then((data) => {
-
-            setSelectCollaborator({
-                ...collaborator,
-                files: [...collaborator.files.filter(fl => fl.evidence.file !== file)]
-            });
-
-            collaboratorsChangeInput({
-                value: [...collaborator.files.filter(fl => fl.evidence.file !== file)],
-                name: 'files',
-                index: collaborator?.index
-            });
-
             setFiles((files) => [...files.filter(fl => fl !== file)]);
-
             // Refrescamos el Report Component
-            EmpoyeeReporBytId(employee_report.id ?? null)
+            TrainingsstEvidenceById(trainingsst?.id ?? null)
         });
 
     }
@@ -119,32 +107,8 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
         setOpenEvidencesViewer(false)
     }
 
-    // Event Listeners al agregar un nuevo archivo
     useEffect(() => {
-        setSelectCollaborator({
-            ...collaborator,
-            files: [...files.map((fl, index) => ({
-                evidence:
-                    collaborator?.files?.find(el => el.index === index)?.evidence ??
-                    { name: fl?.name ?? '', approved: false, save: false, file: fl }
-            }))
-            ]
-        });
-
-        collaboratorsChangeInput({
-            value: [...files.map((fl, index) => ({
-                evidence:
-                    collaborator?.files?.find(el => el.index === index)?.evidence ??
-                    { name: '', approved: false, save: false, file: fl }
-            }))
-            ],
-            name: 'files',
-            index: collaborator?.index
-        })
-    }, [files])
-
-    useEffect(() => {
-        EmpoyeeReporBytId(employee_report.id ?? null)
+        TrainingsstEvidenceById(trainingsst?.id ?? null)
     }, [])
 
     return (
@@ -182,14 +146,12 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                     onDrop={handleDrag}>
                     {
                         files.map((file, index) => (
-                            <EvidenceItemComponent
+                            <TrainingsstEvidenceItemComponent
                                 key={index}
-                                collaborator={collaborator}
-                                setSelectCollaborator={setSelectCollaborator}
                                 handleRemove={handleRemove}
                                 handleEvidenceViewerOpen={handleEvidenceViewerOpen}
                                 file={file}>
-                            </EvidenceItemComponent>
+                            </TrainingsstEvidenceItemComponent>
                         ))
                     }
                 </Grid>
@@ -228,3 +190,4 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
         </Dialog>
     )
 }
+

@@ -35,3 +35,39 @@ export const deleteEvidenceId = ({ form = {} }) => {
         }
     }
 }
+
+export const ShowByTrainingsstEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/trainingsstevidence/showbytrainingsstevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+export const trainingsstEvidenceStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/trainingsstevidence/store`, form);
+        }
+    }
+}
+
+export const deleteTrainingEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/trainingsstevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const trainingsstEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/trainingsstevidence/update/${form.id}`, form);
+        }
+    }
+}

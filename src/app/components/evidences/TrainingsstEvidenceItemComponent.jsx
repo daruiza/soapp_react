@@ -1,21 +1,17 @@
-import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-
-import { evidenceUpdate } from '../../../store';
-
-import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
-
-import { Grid, IconButton, TextField, Tooltip } from '@mui/material'
 import { useTheme } from '@emotion/react';
+import { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux';
+import { trainingsstEvidenceUpdate } from '../../../store';
+import { Grid, IconButton, TextField, Tooltip } from '@mui/material';
 import { ImgIconsType } from '../../types/ImgIconsType';
-import { DialogAlertComponent } from '../../components';
+import { PrivateAgentRoute, PrivateCustomerRoute } from '../../middleware';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
-import { PrivateAgentRoute, PrivateCustomerRoute } from '../../middleware';
+import { DialogAlertComponent } from '../dialogalert/DialogAlertComponent';
 
-export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator = () => { }, handleRemove = () => { }, handleEvidenceViewerOpen = () => { }, file = {} }) => {
+export default function TrainingsstEvidenceItemComponent({ handleRemove = () => { }, handleEvidenceViewerOpen = () => { }, file = {} }) {
 
     const dispatch = useDispatch();
 
@@ -26,7 +22,6 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
         name: file.name.split('.')[0],
         approved: file.approved ? true : false,
     }));
-
     // Es el objeto {evidence: {}, file:{}}    
     const [selectFile, setSelectFile] = useState({
         evidence: {
@@ -49,7 +44,7 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
 
     const handleUpdate = (event) => {
 
-        dispatch(evidenceUpdate({
+        dispatch(trainingsstEvidenceUpdate({
             form: {
                 ...selectFile?.evidence ?? {},
                 id: selectFile?.evidence?.evidence_id ?? null,
@@ -89,18 +84,6 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
             name: selectFile.evidence.name,
             approved: selectFile.evidence.approved
         }));
-
-        if (selectFile?.evidence?.file || selectFile?.evidence?.name) {
-            // Se debe actualizar el collaborator
-            setSelectCollaborator({
-                ...collaborator,
-                files: [
-                    ...collaborator?.files?.filter(el => el?.evidence?.file !== selectFile?.evidence?.file),
-                    { ...selectFile }
-                ]
-            });
-        }
-
     }, [selectFile]);
 
     return (
@@ -122,7 +105,6 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                     paddingBottom: "8px",
                     paddingTop: "8px"
                 }} >
-
                     <Grid item xs={12} md={5} sx={{
                         height: "90px",
                         display: "flex",
@@ -141,7 +123,7 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
 
                         <Grid item xs={12} md={11} sx={{}} >
                             <Grid container sx={{ display: 'flex', alignItems: 'end', justifyContent: 'end' }}>
-                                <Grid item xs={12} md={3} >
+                                <Grid item xs={12} md={3}>
                                     <Tooltip title={`${selectFile?.evidence?.approved ? 'Invalidar' : 'Validar'}`} placement="top">
                                         <span>
                                             <PrivateAgentRoute>
@@ -168,7 +150,6 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                                         </span>
                                     </Tooltip>
                                 </Grid>
-
                                 <Grid item xs={12} md={3} sx={{}} >
                                     <Tooltip title="Guardar Archivo" placement="top">
                                         <span>
@@ -188,26 +169,25 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                                         </IconButton>
                                     </Tooltip>
                                 </Grid>
+
+                                <Grid item xs={12} md={11} sx={{}} >
+                                    <Tooltip title={selectFile?.evidence?.name}>
+                                        <TextField
+                                            variant="standard"
+                                            size="small"
+                                            label="Nombre"
+                                            type="text"
+                                            fullWidth
+                                            name="name"
+                                            value={selectFile?.evidence?.name}
+                                            onChange={collaboratorsChangeInputAux}
+                                        />
+                                    </Tooltip>
+                                </Grid>
+
                             </Grid>
                         </Grid>
-
-                        <Grid item xs={12} md={11} sx={{}} >
-                            <Tooltip title={selectFile?.evidence?.name}>
-                                <TextField
-                                    variant="standard"
-                                    size="small"
-                                    label="Nombre"
-                                    type="text"
-                                    fullWidth
-                                    name="name"
-                                    value={selectFile?.evidence?.name}
-                                    onChange={collaboratorsChangeInputAux}
-                                />
-                            </Tooltip>
-
-                        </Grid>
                     </Grid>
-
                 </Grid>
                 {
                     openFileDelete && <DialogAlertComponent
@@ -220,7 +200,7 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                         }}
                     ></DialogAlertComponent>
                 }
-            </Grid >
+            </Grid>
         </>
     )
 }

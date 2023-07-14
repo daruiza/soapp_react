@@ -8,3 +8,4 @@ export * from './evidence/evidenceThunks';
 export * from './employeereport/employeereportThunks';
 export * from './requestapi/requestApiSlice';
 export * from './genericlist/genericlistThunks';
+export * from './trainingsst/trainingsstThunks';

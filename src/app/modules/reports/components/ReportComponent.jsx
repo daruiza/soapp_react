@@ -13,16 +13,16 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import es from 'dayjs/locale/es';
 import { useTheme } from '@emotion/react';
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import EditIcon from '@mui/icons-material/Edit';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import InfoIcon from '@mui/icons-material/Info';
 import SaveIcon from '@mui/icons-material/Save';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import HealingIcon from '@mui/icons-material/Healing';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import EditIcon from '@mui/icons-material/Edit';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SupportIcon from '@mui/icons-material/Support';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { EvidencesComponent } from '../../../components/evidences/EvidencesComponent';
@@ -31,6 +31,7 @@ import { ReportSection } from '../../../types/ReportSection';
 
 import { DialogAlertComponent } from '../../../components';
 import { ReportEmployeeComponent } from './ReportEmployeeComponent';
+import { ReportTrainingSST } from './ReportTrainingSST';
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -43,11 +44,15 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [initCollaborators, setInitCollaborators] = useState([]);
 
     const [report, setReport] = useState(null);
+    // trainingsst se inicializa en null y la consulta lo modifica
+    const [trainingsst, setTrainingsst] = useState(null);
+
     const [employeeArray, setEmployeeArray] = useState([]);
     const [examTypeArray, setExamTypeArray] = useState([]);
     const [examArray, setExamArray] = useState([]);
-    const [eventArray, setEventArray] = useState([]);
+    const [workEventArray, setWorkEventArray] = useState([]);
     const [medicalAttentionArray, setMedicalAttentionArray] = useState([]);
+    const [topicSSTArray, setTopicSSTArray] = useState([]);
 
     const { commerce_id: param_commerce_id } = useParams();
     const { report_id: param_report_id } = useParams();
@@ -56,7 +61,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const { commerce: commerceState } = useSelector(state => state.commerce);
     const commerce = useMemo(() => commerceState, [commerceState]);
 
-    const [openNewInEvidences, setOpenNewInEvidences] = useState({
+    const [openEvidences, setopenEvidences] = useState({
         open: false,
         dialogtitle: '',
         dialogcontenttext: '',
@@ -87,6 +92,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 id: id ?? ''
             }
         })).then(({ data: { data: { report } } }) => {
+            // console.log('report', report);
             setReport(report);
             const employees = report.employee.map((em, index) => ({
                 ...em,
@@ -97,6 +103,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
             }));
             setCollaborators([...employees]);
             setInitCollaborators([...employees]);
+            setTrainingsst([...report.trainingsst]);
             dispatch(commerceUpdate({ commerce: report.commerce }))
         });
     }
@@ -117,13 +124,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
 
     const getLists = () => {
-        dispatch(genericListGetByNamelist({ name: 'exam,type_exam,event,medical_attention' }))
+        dispatch(genericListGetByNamelist({ name: 'exam,type_exam,event,medical_attention,topic_sst' }))
             .then(({ data: { data: { generallist } } }) => {
-                console.log('generallist', generallist);
-                setEventArray(generallist?.filter(el => el.name === 'event') ?? []);
+                setWorkEventArray(generallist?.filter(el => el.name === 'event') ?? []);
                 setExamArray(generallist?.filter(el => el.name === 'exam') ?? []);
                 setExamTypeArray(generallist?.filter(el => el.name === 'type_exam') ?? []);
                 setMedicalAttentionArray(generallist?.filter(el => el.name === 'medical_attention') ?? []);
+                setTopicSSTArray(generallist?.filter(el => el.name === 'topic_sst') ?? []);
             });
     }
 
@@ -182,7 +189,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
 
     const changeInputCollaboratorValue = ({ name, value, date = false }, index) => {
-        changeInputCollaborator({ target: { name: name, value: date ? value.format('YYYY-MM-DD') : value } }, index);
+        changeInputCollaborator({ target: { name: name, value: date ? value?.format('YYYY-MM-DD') : value } }, index);
     }
 
     const handleDeleteEmployeeReport = (collaborator, state, index) => {
@@ -203,9 +210,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
     // Manejador de apertura de PopUp de Evidencias
     const handleEvidenceOpen = (collaborator, EmployeeState, ReportSection) => {
-
-        setOpenNewInEvidences((openNewInEvidences) => ({
-            ...openNewInEvidences,
+        setopenEvidences((openEvidences) => ({
+            ...openEvidences,
             dialogtitle: ReportSection,
             dialogcontenttext: `${collaborator.name} ${collaborator.lastname} [${collaborator.identification}]`,
             employee_report: collaborator.state.find(el => el.employee_state === EmployeeState),
@@ -216,7 +222,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
 
     const handleEvidenceClose = () => {
-        setOpenNewInEvidences((openNewInEvidences) => ({ ...openNewInEvidences, open: false }));
+        setopenEvidences((openEvidences) => ({ ...openEvidences, open: false }));
         setSelectCollaborator(null);
     }
 
@@ -226,30 +232,31 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         return JSON.stringify({
             campus: `${collaboratorInit?.campus ?? ''}`,
             company: `${collaboratorInit?.company ?? report?.commerce?.name}`,
-            delivery_date: `${collaboratorInit?.delivery_date ?? ''}`,
-            induction_date: `${collaboratorInit?.induction_date ?? ''}`,
-            st_date: `${collaboratorInit?.st_date ?? ''}`,
+            inset_delivery_date: `${collaboratorInit?.inset_delivery_date ?? ''}`,
+            inset_induction_date: `${collaboratorInit?.induction_date ?? ''}`,
+            inset_st_date: `${collaboratorInit?.st_date ?? ''}`,
         }).trim() === JSON.stringify({
             campus: cl?.campus ?? '',
             company: `${cl?.company ?? report?.commerce?.name}`,
-            delivery_date: cl?.delivery_date ?? '',
-            induction_date: cl?.induction_date ?? '',
-            st_date: cl?.st_date ?? ''
+            inset_delivery_date: cl?.inset_delivery_date ?? '',
+            inset_induction_date: cl?.inset_induction_date ?? '',
+            inset_st_date: cl?.inset_st_date ?? ''
         }).trim()
     }
 
-    const validatorSaveEmployeeExamDisabled = (cl) => {
+    const validatorSaveDisabled = (cl, inputs) => {
         const collaboratorInit = initCollaborators.find(el => el.id === cl.id);
-        return JSON.stringify({
-            exam: `${collaboratorInit?.exam ?? ''}`,
-            type_exam: `${collaboratorInit?.type_exam ?? ''}`,
-            other_exam: `${collaboratorInit?.other_exam ?? ''}`,
-        }).trim() === JSON.stringify({
-            exam: cl?.exam ?? '',
-            type_exam: cl?.type_exam ?? '',
-            other_exam: cl?.other_exam ?? '',
-        }).trim()
+        return JSON.stringify(Object.keys(inputs ?? []).map(el => ({
+            [el]: `${collaboratorInit[el] ?? ''}`
+        }))).trim() === JSON.stringify(Object.keys(inputs ?? []).map(el => ({
+            [el]: cl[el] ?? ''
+        }))).trim()
     }
+
+    const numberPatternValidation = (value) => {
+        const regex = new RegExp(/^\d+$/);
+        return regex.test(value);
+    };
 
     // Muy peligroso y enrreda en demasia
     useEffect(() => {
@@ -652,10 +659,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             className='birth-date-piker'
                                                                             sx={{ width: '100%' }}
                                                                             inputFormat="DD/MM/YYYY"
-                                                                            label={`${cl?.t_date ? 'Fecha' : ''} Inducción SST`}
-                                                                            name="sst_date"
-                                                                            value={cl?.sst_date ?? null}
-                                                                            onChange={(value) => changeInputCollaboratorValue({ name: 'sst_date', value, date: true }, cl.index)}
+                                                                            label={`${cl?.inset_st_date ? 'Fecha' : ''} Inducción SST`}
+                                                                            name="inset_st_date"
+                                                                            value={cl?.inset_st_date ?? null}
+                                                                            onChange={(value) => changeInputCollaboratorValue({ name: 'inset_st_date', value, date: true }, cl.index)}
                                                                             renderInput={(params) => <TextField size="small" {...params} />}
                                                                         />
                                                                     </LocalizationProvider>
@@ -668,10 +675,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             className='birth-date-piker'
                                                                             sx={{ width: '100%' }}
                                                                             inputFormat="DD/MM/YYYY"
-                                                                            label={`${cl?.induction_date ? 'Fecha' : ''} Inducción al Cargo`}
-                                                                            name="induction_date"
-                                                                            value={cl?.induction_date ?? null}
-                                                                            onChange={(value) => changeInputCollaboratorValue({ name: 'induction_date', value, date: true }, cl.index)}
+                                                                            label={`${cl?.inset_induction_date ? 'Fecha' : ''} Inducción al Cargo`}
+                                                                            name="inset_induction_date"
+                                                                            value={cl?.inset_induction_date ?? null}
+                                                                            onChange={(value) => changeInputCollaboratorValue({ name: 'inset_induction_date', value, date: true }, cl.index)}
                                                                             renderInput={(params) => <TextField size="small" {...params} />}
                                                                         />
                                                                     </LocalizationProvider>
@@ -684,10 +691,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             className='birth-date-piker'
                                                                             sx={{ width: '100%' }}
                                                                             inputFormat="DD/MM/YYYY"
-                                                                            label={`${cl?.delivery_date ? 'Fecha' : ''}  Entrega Elementos`}
-                                                                            name="delivery_date"
-                                                                            value={cl?.delivery_date ?? null}
-                                                                            onChange={(value) => changeInputCollaboratorValue({ name: 'delivery_date', value, date: true }, cl.index)}
+                                                                            label={`${cl?.inset_delivery_date ? 'Fecha' : ''}  Entrega Elementos`}
+                                                                            name="inset_delivery_date"
+                                                                            value={cl?.inset_delivery_date ?? null}
+                                                                            onChange={(value) => changeInputCollaboratorValue({ name: 'inset_delivery_date', value, date: true }, cl.index)}
                                                                             renderInput={(params) => <TextField size="small" {...params} />}
                                                                         />
                                                                     </LocalizationProvider>
@@ -719,9 +726,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             ({
                                                                                 campus: cl?.campus ?? '',
                                                                                 company: cl?.company ?? '',
-                                                                                delivery_date: cl?.delivery_date ?? '',
-                                                                                induction_date: cl?.induction_date ?? '',
-                                                                                st_date: cl?.sst_date ?? '',
+                                                                                inset_delivery_date: cl?.inset_delivery_date ?? '',
+                                                                                inset_induction_date: cl?.inset_induction_date ?? '',
+                                                                                inset_st_date: cl?.inset_st_date ?? '',
                                                                             })
                                                                         )}
                                                                     >
@@ -928,7 +935,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Guardar Cambios" placement="top">
                                                                 <span>
                                                                     <IconButton
-                                                                        disabled={validatorSaveEmployeeExamDisabled(cl)}
+                                                                        disabled={validatorSaveDisabled(cl, {
+                                                                            exam: cl?.exam,
+                                                                            type_exam: cl?.type_exam,
+                                                                            other_exam: cl?.other_exam
+                                                                        })}
                                                                         onClick={() => putEmployeeReportStore(
                                                                             cl.state.find((el) => el.employee_state === EmployeeState.EXAMENESMEDICOS) ?? null,
                                                                             ({
@@ -939,7 +950,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                         )}
                                                                     >
                                                                         <SaveIcon
-                                                                            sx={{ color: !validatorSaveEmployeeExamDisabled(cl) ? palette.primary.main : '' }}
+                                                                            sx={{
+                                                                                color: !validatorSaveDisabled(cl, {
+                                                                                    exam: cl?.exam,
+                                                                                    type_exam: cl?.type_exam,
+                                                                                    other_exam: cl?.other_exam
+                                                                                }) ? palette.primary.main : ''
+                                                                            }}
                                                                         ></SaveIcon>
                                                                     </IconButton>
                                                                 </span>
@@ -985,57 +1002,72 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 </ReportEmployeeComponent>
                                                                 <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
                                                                     {
-                                                                        eventArray &&
-                                                                        eventArray.length &&
+                                                                        workEventArray &&
+                                                                        workEventArray.length &&
                                                                         <FormControl
                                                                             fullWidth
                                                                             className='FormControlExamType'
-                                                                            sx={{ marginTop: '0px' }}
-                                                                            error={!cl?.event}>
+                                                                            error={cl?.work_event === '' || cl?.work_event === null}
+                                                                            required={true}
+                                                                            sx={{ marginTop: '0px' }}>
                                                                             <InputLabel
                                                                                 variant="standard"
                                                                                 id="demo-simple-select-label"
                                                                                 sx={{
                                                                                     color: `${palette.text.primary}`
                                                                                 }}
-                                                                            >Novedad Requerido</InputLabel>
+                                                                            >Novedad</InputLabel>
                                                                             <Select
                                                                                 variant="standard"
                                                                                 labelId="demo-simple-select-label"
                                                                                 id="demo-simple-select"
-                                                                                name="event"
-                                                                                value={cl?.event ?? ''}
+                                                                                name="work_event"
+                                                                                value={cl?.work_event ?? ''}
                                                                                 label="Novedad"
-                                                                                onChange={(event) => changeInputCollaborator(event, cl.index)}>
-                                                                                <MenuItem value=''><em></em></MenuItem>
+                                                                                onChange={(event) => {
+                                                                                    changeInputCollaborator(event, cl.index)
+                                                                                    if (event?.target?.value === '') {
+                                                                                        changeInputCollaboratorValue({ name: 'delivery_date', value: null, date: false }, cl.index)
+                                                                                    }
+                                                                                }}>
+                                                                                <MenuItem value={null}><em></em></MenuItem>
                                                                                 {
-                                                                                    eventArray.map((el, index) => (
+                                                                                    workEventArray.map((el, index) => (
                                                                                         <MenuItem key={index} value={el?.value}>{el?.value}</MenuItem>
                                                                                     ))
                                                                                 }
                                                                             </Select>
+                                                                            {
+                                                                                cl?.work_event === '' || cl?.work_event === null &&
+                                                                                <FormHelperText>Novedad es un campo requerido</FormHelperText>
+                                                                            }
                                                                         </FormControl>
                                                                     }
                                                                 </Grid>
 
-                                                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'end' }} >
+                                                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: `${!cl?.work_event ? 'center' : 'end'}` }} >
                                                                     <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                                                         <DatePicker
+                                                                            disabled={!cl?.work_event}
                                                                             size="small"
                                                                             className='birth-date-piker'
                                                                             sx={{ width: '100%' }}
                                                                             inputFormat="DD/MM/YYYY"
-                                                                            label={`${cl?.event_date ? 'Fecha' : ''} ${cl?.event ?? 'Fecha Novedad'}`}
+                                                                            label={`Fecha ${cl?.delivery_date ?? 'Novedad'}`}
                                                                             name="delivery_date"
-                                                                            value={cl?.event_date ?? null}
-                                                                            onChange={(value) => changeInputCollaboratorValue({ name: 'event_date', value, date: true }, cl.index)}
-                                                                            renderInput={(params) => <TextField size="small" {...params} />}
+                                                                            value={cl?.delivery_date ?? null}
+                                                                            onChange={(value) => changeInputCollaboratorValue({ name: 'delivery_date', value, date: true }, cl.index)}
+                                                                            renderInput={(params) => <TextField
+                                                                                size="small" {...params}
+                                                                                error={false}
+                                                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                                                            />}
                                                                         />
                                                                     </LocalizationProvider>
                                                                 </Grid>
 
                                                                 {
-                                                                    cl?.event &&
+                                                                    cl?.work_event &&
                                                                     <>
                                                                         <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, alignItems: 'end' }} >
                                                                             <FormControlLabel
@@ -1048,7 +1080,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                 }
                                                                                 label={`${cl?.was_report === 'on' ? 'Se reportó ' + cl?.event : 'No se reportó ' + cl?.event}`}
                                                                             />
-                                                                        </Grid>                                                                        
+                                                                        </Grid>
 
                                                                         <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, alignItems: 'end' }} >
                                                                             <FormControlLabel
@@ -1072,10 +1104,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                     sx={{ width: '100%' }}
                                                                                     inputFormat="DD/MM/YYYY"
                                                                                     label="Fecha Reporte"
-                                                                                    name="delivery_date"
+                                                                                    name="was_report_date"
                                                                                     value={cl?.was_report_date ?? null}
                                                                                     onChange={(value) => changeInputCollaboratorValue({ name: 'was_report_date', value, date: true }, cl.index)}
-                                                                                    renderInput={(params) => <TextField size="small" {...params} />}
+                                                                                    renderInput={(params) => <TextField
+                                                                                        size="small"
+                                                                                        {...params}
+                                                                                        error={false} />}
                                                                                 />
                                                                             </LocalizationProvider>
                                                                         </Grid>
@@ -1089,10 +1124,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                     sx={{ width: '100%' }}
                                                                                     inputFormat="DD/MM/YYYY"
                                                                                     label="Fecha Investigación"
-                                                                                    name="delivery_date"
+                                                                                    name="was_investigated_date"
                                                                                     value={cl?.was_investigated_date ?? null}
                                                                                     onChange={(value) => changeInputCollaboratorValue({ name: 'was_investigated_date', value, date: true }, cl.index)}
-                                                                                    renderInput={(params) => <TextField size="small" {...params} />}
+                                                                                    renderInput={(params) => <TextField size="small" {...params} error={false}/>}
                                                                                 />
                                                                             </LocalizationProvider>
                                                                         </Grid>
@@ -1115,13 +1150,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                 variant="standard"
                                                                                 size="small"
                                                                                 label="Días de Incapacidad"
-                                                                                type="number"
+                                                                                type="text"
                                                                                 fullWidth
                                                                                 name="out_days"
                                                                                 value={cl?.out_days ?? ''}
                                                                                 onChange={(event) => changeInputCollaborator(event, cl.index)}
-                                                                                error={cl?.out_days < 0 ? true : false}
-                                                                                helperText={cl?.out_days < 0 ? 'Se espera un número positivo' : ''}
+                                                                                error={cl?.out_days && numberPatternValidation(cl?.out_days) ? true : false}
+                                                                                helperText={cl?.out_days && numberPatternValidation(cl?.out_days) ? 'Se espera un número positivo' : ''}
                                                                             />
                                                                         </Grid>
 
@@ -1133,7 +1168,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                     fullWidth
                                                                                     className='FormControlExamType'
                                                                                     sx={{ marginTop: '0px' }}
-                                                                                    error={!cl?.event}>
+                                                                                // error={!cl?.medical_attention}
+                                                                                >
                                                                                     <InputLabel
                                                                                         variant="standard"
                                                                                         id="demo-simple-select-label"
@@ -1198,21 +1234,61 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Guardar Cambios" placement="top">
                                                                 <span>
                                                                     <IconButton
-                                                                        disabled={validatorSaveEmployeeExamDisabled(cl)}
+                                                                        disabled={validatorSaveDisabled(cl, {
+                                                                            work_event: cl?.work_event,
+                                                                            delivery_date: cl?.delivery_date,
+                                                                            was_report: cl?.was_report,
+                                                                            was_investigated: cl?.was_investigated,
+                                                                            was_report_date: cl?.was_report_date,
+                                                                            was_investigated_date: cl?.was_investigated_date,
+                                                                            place: cl?.place,
+                                                                            out_days: cl?.out_days,
+                                                                            medical_attention: cl?.medical_attention,
+                                                                            other_attention: cl?.other_attention,
+                                                                        })}
                                                                         onClick={() => putEmployeeReportStore(
                                                                             cl.state.find((el) => el.employee_state === EmployeeState.WORKEVENT) ?? null,
                                                                             ({
-                                                                                exam: cl?.exam ?? '',
-                                                                                type_exam: cl?.type_exam ?? '',
-                                                                                other_exam: cl?.other_exam ?? '',
+                                                                                work_event: cl?.work_event ?? '',
+                                                                                delivery_date: cl?.delivery_date ?? '',
+                                                                                was_report: cl?.was_report ?? '',
+                                                                                was_investigated: cl?.was_investigated ?? '',
+                                                                                was_report_date: cl?.was_report_date ?? '',
+                                                                                was_investigated_date: cl?.was_investigated_date ?? '',
+                                                                                place: cl?.place ?? '',
+                                                                                out_days: cl?.out_days ?? '',
+                                                                                medical_attention: cl?.medical_attention ?? '',
+                                                                                other_attention: cl?.other_attention ?? '',
                                                                             })
                                                                         )}
                                                                     >
                                                                         <SaveIcon
-                                                                            sx={{ color: !validatorSaveEmployeeExamDisabled(cl) ? palette.primary.main : '' }}
+                                                                            sx={{
+                                                                                color: !validatorSaveDisabled(cl, {
+                                                                                    work_event: cl?.work_event,
+                                                                                    delivery_date: cl?.delivery_date,
+                                                                                    was_report: cl?.was_report,
+                                                                                    was_investigated: cl?.was_investigated,
+                                                                                    was_report_date: cl?.was_report_date,
+                                                                                    was_investigated_date: cl?.was_investigated_date,
+                                                                                    place: cl?.place,
+                                                                                    out_days: cl?.out_days,
+                                                                                    medical_attention: cl?.medical_attention,
+                                                                                    other_attention: cl?.other_attention,
+                                                                                }) ? palette.primary.main : ''
+                                                                            }}
                                                                         ></SaveIcon>
                                                                     </IconButton>
                                                                 </span>
+                                                            </Tooltip>
+
+                                                            <Tooltip title="Evidencias" placement="top">
+                                                                <span>
+                                                                    <IconButton
+                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.WORKEVENT, ReportSection.WORKEVENT)}
+                                                                    ><AttachFileIcon></AttachFileIcon></IconButton>
+                                                                </span>
+
                                                             </Tooltip>
                                                         </Grid>
                                                     </Grid>
@@ -1225,9 +1301,19 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
-                                    title="6. CAPACITACION Y ENTRENAMIENTO SST"
+                                    title="6. CAPACITACIÓN Y ENTRENAMIENTO SST"
                                 >
-
+                                    {
+                                        trainingsst &&
+                                        <ReportTrainingSST
+                                            trainingsst={trainingsst}
+                                            report={report}
+                                            setTrainingsst={setTrainingsst}
+                                            topicSSTArray={topicSSTArray}
+                                            commerce_id={commerce?.id ?? param_commerce_id}
+                                            getReportById={() => getReportById(param_report_id)}
+                                        ></ReportTrainingSST>
+                                    }
                                 </ReportCardComponent>
 
                                 <ReportCardComponent
@@ -1337,7 +1423,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                             <Button
                                 fullWidth
                                 sx={{
-                                    // color: `${palette.text.primary}`,
+                                    color: `${palette.text.custom}`,
                                     // border: '1px solid'
                                 }}
                                 // onClick={onClearForm}
@@ -1348,13 +1434,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 }
             </Grid>
             {
-                openNewInEvidences.open &&
+                openEvidences.open &&
                 <EvidencesComponent
-                    open={openNewInEvidences.open}
-                    dialogtitle={openNewInEvidences.dialogtitle}
-                    dialogcontenttext={openNewInEvidences.dialogcontenttext}
+                    open={openEvidences.open}
+                    dialogtitle={openEvidences.dialogtitle}
+                    dialogcontenttext={openEvidences.dialogcontenttext}
                     collaborator={selectCollaborator}
-                    employee_report={openNewInEvidences.employee_report}
+                    employee_report={openEvidences.employee_report}
                     setSelectCollaborator={setSelectCollaborator}
                     collaboratorsChangeInput={collaboratorsChangeInput}
                     handleClose={handleEvidenceClose}
