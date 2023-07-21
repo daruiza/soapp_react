@@ -8,7 +8,7 @@ export const getCommerceByUser = ({ User: user }) => {
             return commerceApi.get(`api/commerce/showbyuserid/${user?.id}`)
                 .then((response) => {
                     resolve(response);
-                });
+                }).catch(error => reject(error));
         }
     });
 }

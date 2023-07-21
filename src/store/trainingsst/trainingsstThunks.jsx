@@ -9,6 +9,15 @@ export const trainingsstStore = ({ form }) => {
     }
 }
 
+export const trainingsstUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {            
+            return soappLaravelApi.put(`api/trainingsst/update/${form.id}`, form);
+        }
+    }
+}
+
 export const trainingsstDeleteById = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);

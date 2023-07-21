@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, Collapse, IconButton, Typography } from "@mui/material"
+import { Box, Card, CardContent, CardHeader, CircularProgress, Collapse, IconButton, LinearProgress, Typography } from "@mui/material"
 import { styled } from '@mui/material/styles';
 import { useTheme } from "@emotion/react";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -15,21 +15,44 @@ const ExpandMore = styled((props) => {
     }),
 }));
 
-export const ReportCardComponent = ({ children, title, subheader, expandedDefault = true, sx }) => {
+export const ReportCardComponent = ({ children, title, subheader, expandedDefault = false, sx, pending = 100 }) => {
 
     const { palette } = useTheme();
 
     const [expanded, setExpanded] = useState(expandedDefault);
-    const handleExpandClick = () => { setExpanded(!expanded) };   
-
+    const handleExpandClick = () => { setExpanded(!expanded) };    
     return (
         <Card sx={sx} >
             <CardHeader
                 sx={{
-                    backgroundColor: `${palette.primary.main}`,
+                    backgroundColor: `${pending < 100 ? palette.primary.pending : palette.primary.main}`,
                     padding: "6px",
                 }}
                 className="card-header-report"
+                avatar={
+                    pending < 100 ?
+                        <>
+                            {/* <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                                <CircularProgress variant="determinate" value={pending} />
+                                <Box
+                                    sx={{
+                                        top: 0,
+                                        left: 0,
+                                        bottom: 0,
+                                        right: 0,
+                                        position: 'absolute',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <Typography variant="caption" component="div" color="text.secondary">
+                                        {`${parseInt(pending)}%`}
+                                    </Typography>
+                                </Box>
+                            </Box> */}
+                        </> : <></>
+                }
                 action={
                     <ExpandMore
                         expand={expanded}
@@ -41,7 +64,11 @@ export const ReportCardComponent = ({ children, title, subheader, expandedDefaul
                     </ExpandMore>
                 }
                 title={<Typography sx={{ fontSize: "15px", }}>{title ?? ''}</Typography>}
-                subheader={<Typography sx={{ color: `${palette.text.support}`, fontSize: "12px", }}>{subheader ?? ''}</Typography>
+                subheader={
+                    pending < 100 ?
+                        <Box sx={{ width: '100%' }}>
+                            <LinearProgress variant="determinate" value={pending} />
+                        </Box> : <></>
                 }
             />
             <Collapse in={expanded} timeout="auto" unmountOnExit>
