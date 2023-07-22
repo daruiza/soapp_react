@@ -1574,6 +1574,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                 </ReportCardComponent>
 
+                                {/* 6. CAPACITACIÓN Y ENTRENAMIENTO SST */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="6. CAPACITACIÓN Y ENTRENAMIENTO SST"
@@ -1596,7 +1597,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     sx={{ borderRadius: '0px' }}
                                     title="HORAS HOMBRE CAPACITACIÓN"
                                 >
-
+                                    {/* 6. CAPACITACIÓN Y ENTRENAMIENTO SST */}
+                                    {/* Informes excel linea 66 */}
                                 </ReportCardComponent>
 
                                 <ReportCardComponent

@@ -50,7 +50,6 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
 
   const getUsers = (attr = {}, form = formState) => {
     dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => {
-      console.log('users', users);
       setUserTable(users);
       setUSerArray(users.data);
     });

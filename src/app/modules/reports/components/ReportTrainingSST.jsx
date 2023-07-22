@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Button, FormControl, Grid, InputLabel, TextField, Select, MenuItem, Tooltip, IconButton, FormHelperText } from '@mui/material'
+import { Button, FormControl, Grid, InputLabel, TextField, Select, MenuItem, Tooltip, IconButton, FormHelperText, Card, CardContent, Typography, Paper, TableContainer, Table, TableBody, TableRow, TableCell } from '@mui/material'
 import { trainingsstDeleteById, trainingsstStore, trainingsstUpdate } from '../../../../store';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -13,6 +13,7 @@ import { TrainingsstEvidenceComponent } from '../../../components/evidences/Trai
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
+import { DialogAlertComponent } from '../../../components';
 
 export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingsst = () => { }, topicSSTArray = [], getReportById = () => { }, commerce_id = null }) => {
 
@@ -26,6 +27,15 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
         dialogtitle: '',
         dialogcontenttext: '',
         trainingsst: {}
+    });
+
+    const [handleAlert, setHandleAlert] = useState({
+        openAlert: false,
+        functionAlertClose: () => { },
+        functionAlertAgree: () => { },
+        alertTittle: '',
+        alertMessage: '',
+        alertChildren: false
     });
 
     // Eventos
@@ -86,8 +96,6 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                 getReportById();
             });
         }
-
-
     }
 
     // Validacines
@@ -305,30 +313,55 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
             }
 
             <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
+                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                    <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end", mb: 1, pr: 0.5, pl: 0.5 }}>
+                        <Button
+                            disabled={trainingsst?.length === 0}
+                            onClick={() => {
+                                setHandleAlert({
+                                    openAlert: true,
+                                    props: { children: true },
+                                    functionAlertClose: () => setHandleAlert({ openAlert: false }),
+                                    functionAlertAgree: () => setHandleAlert({ openAlert: false }),
+                                    // alertTittle: 'Informe',
+                                    alertChildren: true
+                                });
+                            }}
+                            variant="contained"
+                            sx={{
+                                height: '100%',
+                                color: `${palette.text.custom}`,
+                                // border: '1px solid'
+                            }}>Informe Capacitaciones
+                        </Button>
+                    </Grid>
+                </Grid>
                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
-                    <Button onClick={() => {
-                        setTrainingsst(sst => [...sst, {
-                            topic: undefined,
-                            date: null,
-                            hours: null,
-                            assistants: null,
-                            report_id: report?.id,
-                            save: false
-                        }])
-                    }} variant="contained"
-                        disabled={!!trainingsst.find(el => el.save === false)}
-                        sx={{
-                            height: '100%',
-                            color: `${palette.text.custom}`,
-                            // border: '1px solid'
-                        }}>AGREGAR CAPACITACIÓN
-                    </Button>
+                    <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                        <Button onClick={() => {
+                            setTrainingsst(sst => [...sst, {
+                                topic: undefined,
+                                date: null,
+                                hours: null,
+                                assistants: null,
+                                report_id: report?.id,
+                                save: false
+                            }])
+                        }}
+                            variant="contained"
+                            disabled={!!trainingsst.find(el => el.save === false)}
+                            sx={{
+                                height: '100%',
+                                color: `${palette.text.custom}`,
+                                // border: '1px solid'
+                            }}>AGREGAR CAPACITACIÓN
+                        </Button>
+                    </Grid>
                 </Grid>
             </Grid>
 
             {
-                openEvidences.open &&
-                <TrainingsstEvidenceComponent
+                openEvidences.open && <TrainingsstEvidenceComponent
                     open={openEvidences.open}
                     dialogtitle={openEvidences.dialogtitle}
                     dialogcontenttext={openEvidences.dialogcontenttext}
@@ -337,6 +370,41 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                     commerce_id={commerce_id}
                     handleClose={handleEvidenceClose}
                 ></TrainingsstEvidenceComponent>
+            }
+
+            {
+                handleAlert.openAlert && <DialogAlertComponent
+                    open={handleAlert.openAlert}
+                    handleClose={() => handleAlert.functionAlertClose()}
+                    handleAgree={() => handleAlert.functionAlertAgree()}
+                    props={{
+                        tittle: handleAlert.alertTittle,
+                        message: handleAlert.alertMessage,
+                        children: handleAlert.alertChildren
+                    }}
+                >
+                    <Card>
+                        <CardContent>
+                            <Typography gutterBottom variant="h5" component="div">
+                                INFORMA CAPACITACIÓN Y ENTRANAMIENTO
+                            </Typography>
+                            <TableContainer component={Paper}>
+                                <Table size={'small'} aria-label="simple table"
+                                    sx={{ 
+                                        // minWidth: 650 
+                                    }}
+                                >
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell>Nombre</TableCell>
+                                            <TableCell>Nombre</TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </CardContent>
+                    </Card>
+                </DialogAlertComponent>
             }
 
         </Grid >
