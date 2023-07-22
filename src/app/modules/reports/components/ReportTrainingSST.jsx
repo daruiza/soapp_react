@@ -386,11 +386,14 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                     <Card>
                         <CardContent>
                             <Typography gutterBottom variant="h5" component="div">
-                                INFORMA CAPACITACIÓN Y ENTRANAMIENTO
+                                <span>
+                                    INFORMA CAPACITACIÓN Y ENTRANAMIENTO
+
+                                </span>
                             </Typography>
-                            <TableContainer component={Paper}>
+                            {/* <TableContainer component={Paper}>
                                 <Table size={'small'} aria-label="simple table"
-                                    sx={{ 
+                                    sx={{
                                         // minWidth: 650 
                                     }}
                                 >
@@ -401,7 +404,7 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                                         </TableRow>
                                     </TableBody>
                                 </Table>
-                            </TableContainer>
+                            </TableContainer> */}
                         </CardContent>
                     </Card>
                 </DialogAlertComponent>
