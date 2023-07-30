@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Button, FormControl, Grid, InputLabel, TextField, Select, MenuItem, Tooltip, IconButton, FormHelperText, Card, CardContent, Typography, Paper, TableContainer, Table, TableBody, TableRow, TableCell } from '@mui/material'
+import { Button, FormControl, Grid, InputLabel, TextField, Select, MenuItem, Tooltip, IconButton, FormHelperText, Card, CardContent, Typography, Paper, TableContainer, Table, TableBody, TableRow, TableCell, CardActions, CardHeader, Box } from '@mui/material'
 import { trainingsstDeleteById, trainingsstStore, trainingsstUpdate } from '../../../../store';
+import { DialogAlertComponent } from '../../../components';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useTheme } from '@emotion/react';
@@ -13,7 +14,7 @@ import { TrainingsstEvidenceComponent } from '../../../components/evidences/Trai
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
-import { DialogAlertComponent } from '../../../components';
+import CloseIcon from '@mui/icons-material/Close';
 
 export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingsst = () => { }, topicSSTArray = [], getReportById = () => { }, commerce_id = null }) => {
 
@@ -100,6 +101,7 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
 
     // Validacines
     const numberPatternValidation = (value) => {
+        if(!value) return true;
         const regex = new RegExp(/^\d+$/);
         return regex.test(value);
     };
@@ -125,6 +127,12 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
     useEffect(() => {
         setTrainingsstInit(trainingsst);
     }, []);
+
+    useEffect(() => {
+        console.log('report', report)
+    }, [report]);
+
+
 
 
     useEffect(() => {
@@ -196,8 +204,8 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                                             value={tsst?.assistants ?? ''}
                                             onChange={(event) => changeInputTrainingSST(event, index)}
                                             // error={tsst?.assistants === ''}
-                                            error={tsst?.assistants === '' && !numberPatternValidation(tsst?.assistants) ? true : false}
-                                            helperText={tsst?.assistants === '' && !numberPatternValidation(tsst?.assistants) ? 'Se espera un número positivo' : ''}
+                                            error={!numberPatternValidation(tsst?.assistants) ? true : false}
+                                            helperText={!numberPatternValidation(tsst?.assistants) ? 'Se espera un número positivo' : ''}
                                         />
                                     </Grid>
 
@@ -384,14 +392,12 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                     }}
                 >
                     <Card>
+                        {/* <CardHeader action={<>hello</>}></CardHeader> */}
                         <CardContent>
-                            <Typography gutterBottom variant="h5" component="div">
-                                <span>
-                                    INFORMA CAPACITACIÓN Y ENTRANAMIENTO
-
-                                </span>
+                            <Typography gutterBottom variant="h7" component="div" sx={{ marginBottom: '20px' }}>
+                                INFORME CAPACITACIÓN Y ENTRANAMIENTO
                             </Typography>
-                            {/* <TableContainer component={Paper}>
+                            <TableContainer component={Paper}>
                                 <Table size={'small'} aria-label="simple table"
                                     sx={{
                                         // minWidth: 650 
@@ -399,13 +405,49 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                                 >
                                     <TableBody>
                                         <TableRow>
-                                            <TableCell>Nombre</TableCell>
-                                            <TableCell>Nombre</TableCell>
+                                            <TableCell>Total Capacitaciones en SST</TableCell>
+                                            <TableCell>{trainingsst?.length ?? 0}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>Total duración (Horas) Capacitación SST</TableCell>
+                                            <TableCell>{trainingsst.reduce((a, b) => (a + b.hours), 0) ?? 0}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>Total Asistentes Capacitaciones SST (B)</TableCell>
+                                            <TableCell>{trainingsst.reduce((a, b) => (a + b.assistants), 0) ?? 0}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>N° Total de personas del proyecto (A)</TableCell>
+                                            <TableCell>{report.employee.length ?? 0}</TableCell>
+                                        </TableRow>
+
+                                        <TableRow>
+                                            <TableCell>Sumatoria de N° horas cap. SST * N° personas asistieron a capacitaciones.</TableCell>
+                                            <TableCell>{
+                                                (trainingsst.reduce((a, b) => (a + b.hours), 0) ?? 0) *
+                                                (trainingsst.reduce((a, b) => (a + b.assistants), 0) ?? 0)
+                                            }</TableCell>
+                                        </TableRow>
+
+                                        <TableRow>
+                                            <TableCell>Horas hombre capacitación en SST (B/A).</TableCell>
+                                            <TableCell>{
+                                                (trainingsst.reduce((a, b) => (a + b.assistants), 0) ?? 0) /
+                                                (report.employee.length ?? 0)
+                                            }</TableCell>
                                         </TableRow>
                                     </TableBody>
                                 </Table>
-                            </TableContainer> */}
+                            </TableContainer>
                         </CardContent>
+                        <CardActions disableSpacing sx={{ justifyContent: 'space-between' }}>
+                            <Box></Box>
+                            <Box>
+                                <IconButton onClick={() => handleAlert.functionAlertAgree()}>
+                                    <CloseIcon sx={{ color: palette.text.disabled }} />
+                                </IconButton>
+                            </Box>
+                        </CardActions>
                     </Card>
                 </DialogAlertComponent>
             }

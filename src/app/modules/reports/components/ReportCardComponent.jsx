@@ -26,13 +26,18 @@ export const ReportCardComponent = ({ children, title, subheader, expandedDefaul
             <CardHeader
                 sx={{
                     backgroundColor: `${pending < 100 ? palette.primary.pending : palette.primary.main}`,
-                    padding: "6px",
+                    padding: "6px",                    
+                    '&:hover': { 
+                        backgroundColor: palette.primary.support,
+                        cursor: 'pointer'
+                    },
                 }}
+                onClick={handleExpandClick}
                 className="card-header-report"
                 avatar={
                     pending < 100 ?
                         <>
-                            {/* <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                            <Box sx={{ position: 'relative', display: 'inline-flex' }}>
                                 <CircularProgress variant="determinate" value={pending} />
                                 <Box
                                     sx={{
@@ -50,7 +55,7 @@ export const ReportCardComponent = ({ children, title, subheader, expandedDefaul
                                         {`${parseInt(pending)}%`}
                                     </Typography>
                                 </Box>
-                            </Box> */}
+                            </Box>
                         </> : <></>
                 }
                 action={

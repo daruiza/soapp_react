@@ -35,6 +35,7 @@ import { DialogAlertComponent } from '../../../components';
 import { ReportEmployeeComponent } from './ReportEmployeeComponent';
 import { ReportTrainingSST } from './ReportTrainingSST';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
+import ReportActivityComponent from './ReportActivityComponent';
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -274,13 +275,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         const collaboratorInit = initCollaborators.find(el => el.id === cl.id);
 
         return JSON.stringify(Object.keys(inputs ?? []).map(el => ({
-            [el]: el === 'exam' ? collaboratorInit[el].toString() ?? '' : collaboratorInit[el]
+            [el]: el === 'exam' ? collaboratorInit[el]?.toString() ?? '' : collaboratorInit[el]
         }))).trim() === JSON.stringify(Object.keys(inputs ?? []).map(el => ({
-            [el]: el === 'exam' ? cl[el].toString() ?? '' : inputs[el] ?? ''
+            [el]: el === 'exam' ? cl[el]?.toString() ?? '' : inputs[el] ?? ''
         }))).trim();
     }
 
     const numberPatternValidation = (value) => {
+        if(!value) return true;
         const regex = new RegExp(/^\d+$/);
         return regex.test(value);
     };
@@ -968,7 +970,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     sx={{ borderRadius: '0px' }}
                                     title="4. OTRAS ACTIVIDADES EJECUTADAS EN EL MES"
                                 >
-
+                                    <ReportActivityComponent></ReportActivityComponent>
                                 </ReportCardComponent>
 
                                 {/* 5.2 EXÁMENES MEDICO OCUPACIONAL */}
@@ -1379,8 +1381,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                 name="out_days"
                                                                                 value={cl?.out_days ?? ''}
                                                                                 onChange={(event) => changeInputCollaborator(event, cl.index)}
-                                                                                error={cl?.out_days && numberPatternValidation(cl?.out_days) ? true : false}
-                                                                                helperText={cl?.out_days && numberPatternValidation(cl?.out_days) ? 'Se espera un número positivo' : ''}
+                                                                                error={!numberPatternValidation(cl?.out_days) ? true : false}
+                                                                                helperText={!numberPatternValidation(cl?.out_days) ? 'Se espera un número positivo' : ''}
                                                                             />
                                                                         </Grid>
 
@@ -1593,13 +1595,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     }
                                 </ReportCardComponent>
 
-                                <ReportCardComponent
+                                {/* HORAS HOMBRE CAPACITACIÓN */}
+                                {/* <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="HORAS HOMBRE CAPACITACIÓN"
-                                >
+                                > */}
                                     {/* 6. CAPACITACIÓN Y ENTRENAMIENTO SST */}
                                     {/* Informes excel linea 66 */}
-                                </ReportCardComponent>
+                                {/* </ReportCardComponent> */}
 
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}

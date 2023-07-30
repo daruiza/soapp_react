@@ -10,13 +10,13 @@ export const DialogAlertComponent = ({ children, props = {}, open = false, handl
             onClose={handleClose}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
-            className = { props?.children? 'dialog-soapp-custome': '' }
-            >
+            className={props?.children ? 'dialog-soapp-custome' : ''}
+        >
             {
                 !props?.children &&
                 <DialogTitle id="alert-dialog-title">{props?.tittle ?? ``}</DialogTitle>
             }
-            <DialogContent sx={{ backgroundColor: props?.children ? 'transparent' : '' }}>
+            <DialogContent >
                 {props?.children && children}
                 {
                     'message' in props &&
@@ -25,16 +25,19 @@ export const DialogAlertComponent = ({ children, props = {}, open = false, handl
                     </DialogContentText>
                 }
             </DialogContent>
-            <DialogActions>
-                <Button onClick={handleClose}>{props?.cancel ?? `Cerrar`}</Button>
-                <Button
-                    sx={{
-                        height: '100%',
-                        // color: `${palette.text.primary}`,
-                        border: '1px solid'
-                    }}
-                    onClick={handleAgree} autoFocus>{props?.agree ?? `Aceptar`}</Button>
-            </DialogActions>
+            {
+                !props?.children &&
+                <DialogActions>
+                    <Button onClick={handleClose}>{props?.cancel ?? `Cerrar`}</Button>
+                    <Button
+                        sx={{
+                            height: '100%',
+                            // color: `${palette.text.primary}`,
+                            border: '1px solid'
+                        }}
+                        onClick={handleAgree} autoFocus>{props?.agree ?? `Aceptar`}</Button>
+                </DialogActions>
+            }
         </Dialog>
     )
 }
