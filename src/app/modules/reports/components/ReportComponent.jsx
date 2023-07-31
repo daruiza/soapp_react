@@ -5,7 +5,6 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { commerceUpdate, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, genericListGetByNamelist, reportByreportId } from '../../../../store';
 import { Grid, ImageListItem, Typography, Button, TextField, IconButton, Switch, FormControl, FormControlLabel, FormGroup, Divider, InputLabel, Select, FormLabel, SpeedDial, SpeedDialAction, SpeedDialIcon, FormHelperText } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
-import Paper from '@mui/material/Paper';
 import MenuItem from '@mui/material/MenuItem';
 import { ReportCardComponent } from './ReportCardComponent';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -50,6 +49,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [report, setReport] = useState(null);
     // trainingsst se inicializa en null y la consulta lo modifica
     const [trainingsst, setTrainingsst] = useState(null);
+    const [activities, setActivities] = useState([]);
 
     const [employeeArray, setEmployeeArray] = useState([]);
     const [examTypeArray, setExamTypeArray] = useState([]);
@@ -57,6 +57,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [workEventArray, setWorkEventArray] = useState([]);
     const [medicalAttentionArray, setMedicalAttentionArray] = useState([]);
     const [topicSSTArray, setTopicSSTArray] = useState([]);
+    
 
     const { commerce_id: param_commerce_id } = useParams();
     const { report_id: param_report_id } = useParams();
@@ -96,7 +97,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 id: id ?? ''
             }
         })).then(({ data: { data: { report } } }) => {
-            // console.log('report', report);
+            console.log('report', report);
             // Asignación de Attributes
             setReport(report);
             const employees = report.employee.map((em, index) => ({
@@ -110,6 +111,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
             setCollaborators([...employees]);
             setInitCollaborators([...employees]);
             setTrainingsst([...report.trainingsst]);
+            setActivities([...report.activities]);
             dispatch(commerceUpdate({ commerce: report.commerce }))
         });
     }
@@ -970,7 +972,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     sx={{ borderRadius: '0px' }}
                                     title="4. OTRAS ACTIVIDADES EJECUTADAS EN EL MES"
                                 >
-                                    <ReportActivityComponent></ReportActivityComponent>
+                                    <ReportActivityComponent
+                                        activities={activities}
+                                        setActivities={setActivities} 
+                                        report={report}
+                                    ></ReportActivityComponent>
                                 </ReportCardComponent>
 
                                 {/* 5.2 EXÁMENES MEDICO OCUPACIONAL */}
