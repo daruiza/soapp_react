@@ -6,7 +6,8 @@ export const superTheme = createTheme({
     palette: {
         primary: {
             main: 'rgb(72 10 116)',
-            support: '#c1d6f5'
+            support: '#c1d6f5',
+            pending: '#F9E79F'
         },
         secondary: {
             main: '#dce8f9'

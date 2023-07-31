@@ -29,14 +29,19 @@
     position: relative;
 }
 
-.FormControlExamType .MuiInputBase-root{
+.FormControlExamType .MuiInputBase-root {
     margin-top: 13px;
 }
 
-div:has(> .tooltip-menu-transparent){
- background-color: transparent;
+div:has(> .tooltip-menu-transparent) {
+    background-color: transparent;
 }
 
-div:has(> .tooltip-menu-white){
+div:has(> .tooltip-menu-white) {
     background-color: white;
-   }
+}
+
+.dialog-soapp-custome .MuiDialog-container > div {
+    background-color: transparent;
+    box-shadow: none;
+}

@@ -5,7 +5,6 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { commerceUpdate, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, genericListGetByNamelist, reportByreportId } from '../../../../store';
 import { Grid, ImageListItem, Typography, Button, TextField, IconButton, Switch, FormControl, FormControlLabel, FormGroup, Divider, InputLabel, Select, FormLabel, SpeedDial, SpeedDialAction, SpeedDialIcon, FormHelperText } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
-import Paper from '@mui/material/Paper';
 import MenuItem from '@mui/material/MenuItem';
 import { ReportCardComponent } from './ReportCardComponent';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -20,6 +19,8 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import HealingIcon from '@mui/icons-material/Healing';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckIcon from '@mui/icons-material/Check';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import EditIcon from '@mui/icons-material/Edit';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -32,6 +33,8 @@ import { ReportSection } from '../../../types/ReportSection';
 import { DialogAlertComponent } from '../../../components';
 import { ReportEmployeeComponent } from './ReportEmployeeComponent';
 import { ReportTrainingSST } from './ReportTrainingSST';
+import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
+import ReportActivityComponent from './ReportActivityComponent';
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -46,6 +49,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [report, setReport] = useState(null);
     // trainingsst se inicializa en null y la consulta lo modifica
     const [trainingsst, setTrainingsst] = useState(null);
+    const [activities, setActivities] = useState([]);
 
     const [employeeArray, setEmployeeArray] = useState([]);
     const [examTypeArray, setExamTypeArray] = useState([]);
@@ -53,6 +57,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [workEventArray, setWorkEventArray] = useState([]);
     const [medicalAttentionArray, setMedicalAttentionArray] = useState([]);
     const [topicSSTArray, setTopicSSTArray] = useState([]);
+    
 
     const { commerce_id: param_commerce_id } = useParams();
     const { report_id: param_report_id } = useParams();
@@ -92,7 +97,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 id: id ?? ''
             }
         })).then(({ data: { data: { report } } }) => {
-            // console.log('report', report);
+            console.log('report', report);
+            // Asignación de Attributes
             setReport(report);
             const employees = report.employee.map((em, index) => ({
                 ...em,
@@ -101,9 +107,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 ...em.state.reduce((a, b) => ({ ...a, ...JSON.parse(b.attributes) }), {}),
                 index
             }));
+
             setCollaborators([...employees]);
             setInitCollaborators([...employees]);
             setTrainingsst([...report.trainingsst]);
+            setActivities([...report.activities]);
             dispatch(commerceUpdate({ commerce: report.commerce }))
         });
     }
@@ -191,7 +199,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const changeInputCollaboratorValue = ({ name, value, date = false }, index) => {
         changeInputCollaborator({ target: { name: name, value: date ? value?.format('YYYY-MM-DD') : value } }, index);
     }
-
     const handleDeleteEmployeeReport = (collaborator, state, index) => {
         // collaboratorsChangeInput({ value: [collaborator.state.filter(el => el.employee_state !== EmployeeState.NUEVOINGRESO)], name: 'state', index })
         setHandleAlert({
@@ -226,34 +233,58 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         setSelectCollaborator(null);
     }
 
+    const reportCardPending = (attibute, EmployeeState) => (
+        (100 - ((collaborators?.
+            collaborators?.
+            filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState))?.
+            filter(el => !el[attibute]).length * 100) /
+            collaborators?.
+                collaborators?.
+                filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState)).length))
+    )
+
     //Validaciones
     const validatorSaveEmployeeInsetDisabled = (cl) => {
         const collaboratorInit = initCollaborators.find(el => el.id === cl.id);
+
         return JSON.stringify({
             campus: `${collaboratorInit?.campus ?? ''}`,
             company: `${collaboratorInit?.company ?? report?.commerce?.name}`,
             inset_delivery_date: `${collaboratorInit?.inset_delivery_date ?? ''}`,
-            inset_induction_date: `${collaboratorInit?.induction_date ?? ''}`,
-            inset_st_date: `${collaboratorInit?.st_date ?? ''}`,
+            inset_induction_date: `${collaboratorInit?.inset_induction_date ?? ''}`,
+            inset_st_date: `${collaboratorInit?.inset_st_date ?? ''}`,
+            approved_induction: collaboratorInit?.approved_induction ?? false,
         }).trim() === JSON.stringify({
             campus: cl?.campus ?? '',
             company: `${cl?.company ?? report?.commerce?.name}`,
             inset_delivery_date: cl?.inset_delivery_date ?? '',
             inset_induction_date: cl?.inset_induction_date ?? '',
-            inset_st_date: cl?.inset_st_date ?? ''
+            inset_st_date: cl?.inset_st_date ?? '',
+            approved_induction: cl?.approved_induction ?? false
         }).trim()
     }
 
     const validatorSaveDisabled = (cl, inputs) => {
         const collaboratorInit = initCollaborators.find(el => el.id === cl.id);
         return JSON.stringify(Object.keys(inputs ?? []).map(el => ({
-            [el]: `${collaboratorInit[el] ?? ''}`
+            [el]: collaboratorInit[el] ?? ''
         }))).trim() === JSON.stringify(Object.keys(inputs ?? []).map(el => ({
             [el]: cl[el] ?? ''
-        }))).trim()
+        }))).trim();
+    }
+
+    const validatorSaveDisabledExam = (cl, inputs) => {
+        const collaboratorInit = initCollaborators.find(el => el.id === cl.id);
+
+        return JSON.stringify(Object.keys(inputs ?? []).map(el => ({
+            [el]: el === 'exam' ? collaboratorInit[el]?.toString() ?? '' : collaboratorInit[el]
+        }))).trim() === JSON.stringify(Object.keys(inputs ?? []).map(el => ({
+            [el]: el === 'exam' ? cl[el]?.toString() ?? '' : inputs[el] ?? ''
+        }))).trim();
     }
 
     const numberPatternValidation = (value) => {
+        if(!value) return true;
         const regex = new RegExp(/^\d+$/);
         return regex.test(value);
     };
@@ -269,6 +300,23 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         // }
 
     }, [collaborators])
+
+
+    useEffect(() => {
+        // console.log('trainingsst', trainingsst);
+        // console.log('trainingsstlength', trainingsst?.length);
+        // console.log('trainingsstUnApproved', trainingsst?.filter(el => !el.approved)?.length);
+        // console.log('porcentage', 100 - parseInt(trainingsst?.filter(el => !el.approved)?.length * 100 / trainingsst?.length));
+
+        // console.log('selectCollaborator', selectCollaborator);
+        // refrescamos el selectCollaborator
+        // if (selectCollaborator && (selectCollaborator?.index || selectCollaborator?.index === 0 || selectCollaborator?.index === '0')) {
+        //     setSelectCollaborator(collaborators?.collaborators.find(el => el.index === selectCollaborator.index));
+        // }
+
+    }, [trainingsst])
+
+
 
     useEffect(() => {
         getEmployees();
@@ -387,11 +435,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                         </Typography>
                     </Grid>
 
-
                     <Grid item xs={12} md={12} mb={2}>
                         {
                             commerce &&
                             <>
+                                {/* 1. INFORMACIÓN GENERAL DE LA EMPRESA */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '4px 4px 0px 0px' }}
                                     title="1. INFORMACIÓN GENERAL DE LA EMPRESA"
@@ -507,9 +555,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     </Grid>
                                 </ReportCardComponent>
 
+                                {/* 2. INFORMACIÓN COLABORADORES DE LA EMPRESA */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="2. INFORMACIÓN COLABORADORES DE LA EMPRESA"
+                                    expandedDefault={true}
                                 >
                                     <Grid container>
                                         {
@@ -602,10 +652,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                 </ReportCardComponent>
 
-
+                                {/* 3. INDUCCIÓN Y PREPARACIÓN EMPLEADOS */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="3. INDUCCIÓN Y PREPARACIÓN EMPLEADOS"
+                                    pending={reportCardPending('approved_induction', EmployeeState.NUEVOINGRESO)}
                                 >   <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                     <Grid container>
                                         {
@@ -627,6 +678,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                                                 <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                                                     <TextField
+                                                                        disabled={cl?.is_employee || cl?.approved_induction ? true : false}
                                                                         variant="standard"
                                                                         size="small"
                                                                         label="Empresa"
@@ -634,13 +686,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                         fullWidth
                                                                         name="company"
                                                                         value={`${cl?.is_employee ? report?.commerce?.name : cl?.company ?? ''}`}
-                                                                        disabled={cl?.is_employee ? true : false}
                                                                         onChange={(event) => changeInputCollaborator(event, cl.index)}
                                                                     />
                                                                 </Grid>
 
                                                                 <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                                                     <TextField
+                                                                        disabled={cl?.approved_induction ? true : false}
                                                                         variant="standard"
                                                                         size="small"
                                                                         label="Sede"
@@ -655,6 +707,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
                                                                     <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                                                         <DatePicker
+                                                                            disabled={cl?.approved_induction ? true : false}
                                                                             size="small"
                                                                             className='birth-date-piker'
                                                                             sx={{ width: '100%' }}
@@ -663,7 +716,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             name="inset_st_date"
                                                                             value={cl?.inset_st_date ?? null}
                                                                             onChange={(value) => changeInputCollaboratorValue({ name: 'inset_st_date', value, date: true }, cl.index)}
-                                                                            renderInput={(params) => <TextField size="small" {...params} />}
+                                                                            renderInput={(params) => <TextField
+                                                                                size="small" {...params}
+                                                                                error={false}
+                                                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                                                            />}
                                                                         />
                                                                     </LocalizationProvider>
                                                                 </Grid>
@@ -671,6 +728,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
                                                                     <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                                                         <DatePicker
+                                                                            disabled={cl?.approved_induction ? true : false}
                                                                             size="small"
                                                                             className='birth-date-piker'
                                                                             sx={{ width: '100%' }}
@@ -679,7 +737,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             name="inset_induction_date"
                                                                             value={cl?.inset_induction_date ?? null}
                                                                             onChange={(value) => changeInputCollaboratorValue({ name: 'inset_induction_date', value, date: true }, cl.index)}
-                                                                            renderInput={(params) => <TextField size="small" {...params} />}
+                                                                            renderInput={(params) => <TextField
+                                                                                size="small" {...params}
+                                                                                error={false}
+                                                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                                                            />}
                                                                         />
                                                                     </LocalizationProvider>
                                                                 </Grid>
@@ -687,6 +749,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5 }} >
                                                                     <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                                                         <DatePicker
+                                                                            disabled={cl?.approved_induction ? true : false}
                                                                             size="small"
                                                                             className='birth-date-piker'
                                                                             sx={{ width: '100%' }}
@@ -695,7 +758,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             name="inset_delivery_date"
                                                                             value={cl?.inset_delivery_date ?? null}
                                                                             onChange={(value) => changeInputCollaboratorValue({ name: 'inset_delivery_date', value, date: true }, cl.index)}
-                                                                            renderInput={(params) => <TextField size="small" {...params} />}
+                                                                            renderInput={(params) => <TextField
+                                                                                size="small" {...params}
+                                                                                error={false}
+                                                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                                                            />}
                                                                         />
                                                                     </LocalizationProvider>
                                                                 </Grid>
@@ -705,16 +772,20 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                                         <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
                                                             <Tooltip title="Eliminar Registro" placement="top">
-                                                                <IconButton onClick={() => handleDeleteEmployeeReport(cl, EmployeeState.NUEVOINGRES, cl.index)}>
-                                                                    <HighlightOffIcon
-                                                                        sx={{
-                                                                            color: palette.text.disabled,
-                                                                            "&:hover": {
-                                                                                // color: `${palette.text.primary}`,
-                                                                                cursor: "pointer"
-                                                                            }
-                                                                        }}></HighlightOffIcon>
-                                                                </IconButton>
+                                                                <span>
+                                                                    <IconButton
+                                                                        disabled={cl?.approved_induction ? true : false}
+                                                                        onClick={() => handleDeleteEmployeeReport(cl, EmployeeState.NUEVOINGRESO, cl.index)}>
+                                                                        <HighlightOffIcon
+                                                                            sx={{
+                                                                                color: palette.text.disabled,
+                                                                                "&:hover": {
+                                                                                    // color: `${palette.text.primary}`,
+                                                                                    cursor: "pointer"
+                                                                                }
+                                                                            }}></HighlightOffIcon>
+                                                                    </IconButton>
+                                                                </span>
                                                             </Tooltip>
 
                                                             <Tooltip title="Guardar Cambios" placement="top">
@@ -729,9 +800,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                 inset_delivery_date: cl?.inset_delivery_date ?? '',
                                                                                 inset_induction_date: cl?.inset_induction_date ?? '',
                                                                                 inset_st_date: cl?.inset_st_date ?? '',
+                                                                                // approved_induction: cl?.approved_induction ?? '',
                                                                             })
-                                                                        )}
-                                                                    >
+                                                                        )}>
                                                                         <SaveIcon
                                                                             sx={{ color: !validatorSaveEmployeeInsetDisabled(cl) ? palette.primary.main : '' }}
                                                                         ></SaveIcon>
@@ -741,11 +812,51 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
+                                                                        disabled={cl?.approved_induction ? true : false}
                                                                         onClick={() => handleEvidenceOpen(cl, EmployeeState.NUEVOINGRESO, ReportSection.NUEVOINGRESO)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
                                                             </Tooltip>
+
+                                                            <Tooltip title={`${cl?.approved_induction ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                                                                <span>
+                                                                    <PrivateAgentRoute>
+                                                                        <IconButton onClick={() =>
+                                                                            putEmployeeReportStore(
+                                                                                cl.state.find((el) => el.employee_state === EmployeeState.NUEVOINGRESO) ?? null,
+                                                                                ({
+                                                                                    campus: cl?.campus ?? '',
+                                                                                    company: cl?.company ?? '',
+                                                                                    inset_delivery_date: cl?.inset_delivery_date ?? '',
+                                                                                    inset_induction_date: cl?.inset_induction_date ?? '',
+                                                                                    inset_st_date: cl?.inset_st_date ?? '',
+                                                                                    approved_induction: !cl?.approved_induction,
+                                                                                })
+                                                                            )}>
+                                                                            {cl?.approved_induction &&
+                                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                                            }
+                                                                            {!cl?.approved_induction &&
+                                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                                            }
+                                                                        </IconButton>
+                                                                    </PrivateAgentRoute>
+
+
+                                                                    <PrivateCustomerRoute>
+                                                                        <IconButton disabled>
+                                                                            {cl?.approved_induction &&
+                                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                                            }
+                                                                            {!cl?.approved_induction &&
+                                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                                            }
+                                                                        </IconButton>
+                                                                    </PrivateCustomerRoute>
+                                                                </span>
+                                                            </Tooltip>
+
                                                         </Grid>
                                                         <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                                     </Grid>
@@ -755,9 +866,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     </Grid>
                                 </ReportCardComponent>
 
+                                {/* 3 RETIRO DE EMPLEADOS */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="3 RETIRO DE EMPLEADOS"
+                                    pending={reportCardPending('approved_retired', EmployeeState.RETIRED)}
                                 >
                                     <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                     <Grid container>
@@ -779,26 +892,72 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                         </Grid>
                                                         <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
                                                             <Tooltip title="Eliminar Registro" placement="top">
-                                                                <IconButton onClick={() => handleDeleteEmployeeReport(cl, EmployeeState.RETIRED, cl.index)}>
-                                                                    <HighlightOffIcon
-                                                                        sx={{
-                                                                            color: palette.text.disabled,
-                                                                            "&:hover": {
-                                                                                // color: `${palette.text.primary}`,
-                                                                                cursor: "pointer"
-                                                                            }
-                                                                        }}></HighlightOffIcon>
-                                                                </IconButton>
+                                                                <span>
+                                                                    <IconButton
+                                                                        disabled={cl?.approved_retired ? true : false}
+                                                                        onClick={() => handleDeleteEmployeeReport(cl, EmployeeState.RETIRED, cl.index)}>
+                                                                        <HighlightOffIcon
+                                                                            sx={{
+                                                                                color: palette.text.disabled,
+                                                                                "&:hover": {
+                                                                                    // color: `${palette.text.primary}`,
+                                                                                    cursor: "pointer"
+                                                                                }
+                                                                            }}></HighlightOffIcon>
+                                                                    </IconButton>
+                                                                </span>
                                                             </Tooltip>
 
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
+                                                                        disabled={cl?.approved_retired ? true : false}
                                                                         onClick={() => handleEvidenceOpen(cl, EmployeeState.RETIRED, ReportSection.RETIRED)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
                                                             </Tooltip>
+
+                                                            <Tooltip title={`${cl?.approved_retired ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                                                                <span>
+                                                                    <PrivateAgentRoute>
+                                                                        <IconButton onClick={() =>
+                                                                            putEmployeeReportStore(
+                                                                                cl.state.find((el) => el.employee_state === EmployeeState.RETIRED) ?? null,
+                                                                                ({
+                                                                                    approved_retired: !cl?.approved_retired,
+                                                                                })
+                                                                            )
+                                                                            // changeInputCollaborator({
+                                                                            //     target: {
+                                                                            //         name: 'approved_retired',
+                                                                            //         value: !cl?.approved_retired
+                                                                            //     }
+                                                                            // }, cl.index)
+
+                                                                        }>
+                                                                            {cl?.approved_retired &&
+                                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                                            }
+                                                                            {!cl?.approved_retired &&
+                                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                                            }
+                                                                        </IconButton>
+                                                                    </PrivateAgentRoute>
+
+                                                                    <PrivateCustomerRoute>
+                                                                        <IconButton disabled>
+                                                                            {cl?.approved_retired &&
+                                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                                            }
+                                                                            {!cl?.approved_retired &&
+                                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                                            }
+                                                                        </IconButton>
+                                                                    </PrivateCustomerRoute>
+                                                                </span>
+                                                            </Tooltip>
+
                                                         </Grid>
                                                         <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                                     </Grid>
@@ -808,16 +967,23 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                 </ReportCardComponent>
 
+                                {/* 4. OTRAS ACTIVIDADES EJECUTADAS EN EL MES */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="4. OTRAS ACTIVIDADES EJECUTADAS EN EL MES"
                                 >
-
+                                    <ReportActivityComponent
+                                        activities={activities}
+                                        setActivities={setActivities} 
+                                        report={report}
+                                    ></ReportActivityComponent>
                                 </ReportCardComponent>
 
+                                {/* 5.2 EXÁMENES MEDICO OCUPACIONAL */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="5.2 EXÁMENES MEDICO OCUPACIONAL"
+                                    pending={reportCardPending('approved_exam', EmployeeState.EXAMENESMEDICOS)}
                                 >
                                     <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                     <Grid container>
@@ -874,20 +1040,25 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                         <FormControl fullWidth className='FormControlExamType' sx={{ marginTop: '0px' }}>
                                                                             <InputLabel
                                                                                 variant="standard"
-                                                                                id="demo-simple-select-label"
+                                                                                id="demo-multiple-name-label"
                                                                                 sx={{
                                                                                     color: `${palette.text.primary}`
                                                                                 }}
                                                                             >Examen</InputLabel>
                                                                             <Select
                                                                                 variant="standard"
-                                                                                labelId="demo-simple-select-label"
-                                                                                id="demo-simple-select"
+                                                                                labelId="demo-multiple-name-label"
+                                                                                id="demo-multiple-name"
                                                                                 name="exam"
-                                                                                value={cl?.exam ?? ''}
+                                                                                value={cl?.exam ?? []}
                                                                                 label="Proyecto"
-                                                                                onChange={(event) => changeInputCollaborator(event, cl.index)}>
-                                                                                <MenuItem value=''><em></em></MenuItem>
+                                                                                multiple={true}
+                                                                                onChange={(event) => changeInputCollaborator({
+                                                                                    target: {
+                                                                                        name: 'exam',
+                                                                                        value: event.target.value.filter(el => el)
+                                                                                    }
+                                                                                }, cl.index)}>
                                                                                 {
                                                                                     examArray.map((el, index) => (
                                                                                         <MenuItem key={index} value={el?.value}>{el?.value}</MenuItem>
@@ -900,8 +1071,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                                                 <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
                                                                     {
-                                                                        cl?.exam === 'Otro' &&
+                                                                        cl?.exam?.find(el => el === 'Otro') &&
                                                                         <TextField
+                                                                            disabled={cl?.approved_exam ? true : false}
                                                                             variant="standard"
                                                                             size="small"
                                                                             label="Otro Examen"
@@ -920,25 +1092,30 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                         <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
 
                                                             <Tooltip title="Eliminar Registro" placement="top">
-                                                                <IconButton onClick={() => handleDeleteEmployeeReport(cl, EmployeeState.EXAMENESMEDICOS, cl.index)}>
-                                                                    <HighlightOffIcon
-                                                                        sx={{
-                                                                            color: palette.text.disabled,
-                                                                            "&:hover": {
-                                                                                // color: `${palette.text.primary}`,
-                                                                                cursor: "pointer"
-                                                                            }
-                                                                        }}></HighlightOffIcon>
-                                                                </IconButton>
+                                                                <span>
+                                                                    <IconButton
+                                                                        disabled={cl?.approved_exam ? true : false}
+                                                                        onClick={() => handleDeleteEmployeeReport(cl, EmployeeState.EXAMENESMEDICOS, cl.index)}>
+                                                                        <HighlightOffIcon
+                                                                            sx={{
+                                                                                color: palette.text.disabled,
+                                                                                "&:hover": {
+                                                                                    // color: `${palette.text.primary}`,
+                                                                                    cursor: "pointer"
+                                                                                }
+                                                                            }}></HighlightOffIcon>
+                                                                    </IconButton>
+                                                                </span>
                                                             </Tooltip>
 
                                                             <Tooltip title="Guardar Cambios" placement="top">
                                                                 <span>
                                                                     <IconButton
-                                                                        disabled={validatorSaveDisabled(cl, {
+                                                                        disabled={validatorSaveDisabledExam(cl, {
                                                                             exam: cl?.exam,
                                                                             type_exam: cl?.type_exam,
-                                                                            other_exam: cl?.other_exam
+                                                                            other_exam: cl?.other_exam,
+                                                                            // approved_exam: cl?.approved_exam ?? false
                                                                         })}
                                                                         onClick={() => putEmployeeReportStore(
                                                                             cl.state.find((el) => el.employee_state === EmployeeState.EXAMENESMEDICOS) ?? null,
@@ -946,15 +1123,17 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                 exam: cl?.exam ?? '',
                                                                                 type_exam: cl?.type_exam ?? '',
                                                                                 other_exam: cl?.other_exam ?? '',
+                                                                                // approved_exam: cl?.approved_exam ?? '',
                                                                             })
                                                                         )}
                                                                     >
                                                                         <SaveIcon
                                                                             sx={{
-                                                                                color: !validatorSaveDisabled(cl, {
+                                                                                color: !validatorSaveDisabledExam(cl, {
                                                                                     exam: cl?.exam,
                                                                                     type_exam: cl?.type_exam,
-                                                                                    other_exam: cl?.other_exam
+                                                                                    other_exam: cl?.other_exam,
+                                                                                    // approved_exam: cl?.approved_exam ?? false
                                                                                 }) ? palette.primary.main : ''
                                                                             }}
                                                                         ></SaveIcon>
@@ -965,11 +1144,57 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
+                                                                        disabled={cl?.approved_exam ? true : false}
                                                                         onClick={() => handleEvidenceOpen(cl, EmployeeState.EXAMENESMEDICOS, ReportSection.EXAMENESMEDICOS)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
                                                             </Tooltip>
+
+                                                            <Tooltip title={`${cl?.approved_exam ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                                                                <span>
+                                                                    <PrivateAgentRoute>
+                                                                        <IconButton onClick={() =>
+                                                                            putEmployeeReportStore(
+                                                                                cl.state.find((el) => el.employee_state === EmployeeState.EXAMENESMEDICOS) ?? null,
+                                                                                ({
+                                                                                    exam: cl?.exam ?? '',
+                                                                                    type_exam: cl?.type_exam ?? '',
+                                                                                    other_exam: cl?.other_exam ?? '',
+                                                                                    approved_exam: !cl?.approved_exam,
+                                                                                })
+                                                                            )
+                                                                            // changeInputCollaborator({
+                                                                            //     target: {
+                                                                            //         name: 'approved_exam',
+                                                                            //         value: !cl?.approved_exam
+                                                                            //     }
+                                                                            // }, cl.index)
+
+                                                                        }>
+                                                                            {cl?.approved_exam &&
+                                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                                            }
+                                                                            {!cl?.approved_exam &&
+                                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                                            }
+                                                                        </IconButton>
+                                                                    </PrivateAgentRoute>
+
+
+                                                                    <PrivateCustomerRoute>
+                                                                        <IconButton disabled>
+                                                                            {cl?.approved_exam &&
+                                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                                            }
+                                                                            {!cl?.approved_exam &&
+                                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                                            }
+                                                                        </IconButton>
+                                                                    </PrivateCustomerRoute>
+                                                                </span>
+                                                            </Tooltip>
+
                                                         </Grid>
                                                         <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
 
@@ -980,9 +1205,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     </Grid>
                                 </ReportCardComponent>
 
+                                {/* 5. VIGILANCIA EN SALUD DE LOS TRABAJADORES */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="5. VIGILANCIA EN SALUD DE LOS TRABAJADORES"
+                                    pending={reportCardPending('approved_work', EmployeeState.WORKEVENT)}
                                 >
                                     <Grid container>
                                         {
@@ -1018,6 +1245,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                 }}
                                                                             >Novedad</InputLabel>
                                                                             <Select
+                                                                                disabled={cl?.approved_work ? true : false}
                                                                                 variant="standard"
                                                                                 labelId="demo-simple-select-label"
                                                                                 id="demo-simple-select"
@@ -1048,7 +1276,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                 <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: `${!cl?.work_event ? 'center' : 'end'}` }} >
                                                                     <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                                                         <DatePicker
-                                                                            disabled={!cl?.work_event}
+                                                                            disabled={!cl?.work_event || cl?.approved_work ? true : false}
                                                                             size="small"
                                                                             className='birth-date-piker'
                                                                             sx={{ width: '100%' }}
@@ -1074,6 +1302,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                 sx={{ ml: 2 }}
                                                                                 control={
                                                                                     <Switch
+                                                                                        disabled={cl?.approved_work ? true : false}
                                                                                         checked={cl?.was_report === 'on' ? true : false}
                                                                                         onChange={(event) => changeInputCollaborator({ target: { name: 'was_report', value: cl?.was_report === 'on' ? 'off' : 'on' } }, cl.index)}
                                                                                         name="was_report" />
@@ -1087,6 +1316,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                 sx={{ ml: 2 }}
                                                                                 control={
                                                                                     <Switch
+                                                                                        disabled={cl?.approved_work ? true : false}
                                                                                         checked={cl?.was_investigated === 'on' ? true : false}
                                                                                         onChange={(event) => changeInputCollaborator({ target: { name: 'was_investigated', value: cl?.was_investigated === 'on' ? 'off' : 'on' } }, cl.index)}
                                                                                         name="was_investigated" />
@@ -1098,7 +1328,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                         <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'end' }} >
                                                                             <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                                                                 <DatePicker
-                                                                                    disabled={cl?.was_report === 'on' ? false : true}
+                                                                                    disabled={cl?.was_report === 'on' ? false : true || cl?.approved_work ? true : false}
                                                                                     size="small"
                                                                                     className='birth-date-piker'
                                                                                     sx={{ width: '100%' }}
@@ -1118,7 +1348,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                         <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'end' }} >
                                                                             <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                                                                 <DatePicker
-                                                                                    disabled={cl?.was_investigated === 'on' ? false : true}
+                                                                                    disabled={cl?.was_investigated === 'on' ? false : true || cl?.approved_work ? true : false}
                                                                                     size="small"
                                                                                     className='birth-date-piker'
                                                                                     sx={{ width: '100%' }}
@@ -1127,13 +1357,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                     name="was_investigated_date"
                                                                                     value={cl?.was_investigated_date ?? null}
                                                                                     onChange={(value) => changeInputCollaboratorValue({ name: 'was_investigated_date', value, date: true }, cl.index)}
-                                                                                    renderInput={(params) => <TextField size="small" {...params} error={false}/>}
+                                                                                    renderInput={(params) => <TextField size="small" {...params} error={false} />}
                                                                                 />
                                                                             </LocalizationProvider>
                                                                         </Grid>
 
                                                                         <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                                                             <TextField
+                                                                                disabled={cl?.approved_work ? true : false}
                                                                                 variant="standard"
                                                                                 size="small"
                                                                                 label={`Donde Ocurrió ${cl?.event}`}
@@ -1147,6 +1378,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                                                         <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                                                             <TextField
+                                                                                disabled={cl?.approved_work ? true : false}
                                                                                 variant="standard"
                                                                                 size="small"
                                                                                 label="Días de Incapacidad"
@@ -1155,8 +1387,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                 name="out_days"
                                                                                 value={cl?.out_days ?? ''}
                                                                                 onChange={(event) => changeInputCollaborator(event, cl.index)}
-                                                                                error={cl?.out_days && numberPatternValidation(cl?.out_days) ? true : false}
-                                                                                helperText={cl?.out_days && numberPatternValidation(cl?.out_days) ? 'Se espera un número positivo' : ''}
+                                                                                error={!numberPatternValidation(cl?.out_days) ? true : false}
+                                                                                helperText={!numberPatternValidation(cl?.out_days) ? 'Se espera un número positivo' : ''}
                                                                             />
                                                                         </Grid>
 
@@ -1178,6 +1410,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                         }}
                                                                                     >Atención Medica</InputLabel>
                                                                                     <Select
+                                                                                        disabled={cl?.approved_work ? true : false}
                                                                                         variant="standard"
                                                                                         labelId="demo-simple-select-label"
                                                                                         id="demo-simple-select"
@@ -1200,6 +1433,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                             {
                                                                                 cl?.medical_attention === 'Otro' &&
                                                                                 <TextField
+                                                                                    disabled={cl?.approved_work ? true : false}
                                                                                     variant="standard"
                                                                                     size="small"
                                                                                     label="Otra Atención"
@@ -1219,16 +1453,21 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                         </Grid>
                                                         <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'start' }}>
                                                             <Tooltip title="Eliminar Registro" placement="top">
-                                                                <IconButton onClick={() => handleDeleteEmployeeReport(cl, EmployeeState.WORKEVENT, cl.index)}>
-                                                                    <HighlightOffIcon
-                                                                        sx={{
-                                                                            color: palette.text.disabled,
-                                                                            "&:hover": {
-                                                                                // color: `${palette.text.primary}`,
-                                                                                cursor: "pointer"
-                                                                            }
-                                                                        }}></HighlightOffIcon>
-                                                                </IconButton>
+                                                                <span>
+                                                                    <IconButton
+                                                                        disabled={cl?.approved_work ? true : false}
+                                                                        onClick={() => handleDeleteEmployeeReport(cl, EmployeeState.WORKEVENT, cl.index)}>
+                                                                        <HighlightOffIcon
+                                                                            sx={{
+                                                                                color: palette.text.disabled,
+                                                                                "&:hover": {
+                                                                                    // color: `${palette.text.primary}`,
+                                                                                    cursor: "pointer"
+                                                                                }
+                                                                            }}></HighlightOffIcon>
+                                                                    </IconButton>
+
+                                                                </span>
                                                             </Tooltip>
 
                                                             <Tooltip title="Guardar Cambios" placement="top">
@@ -1285,10 +1524,54 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
+                                                                        disabled={cl?.approved_work ? true : false}
                                                                         onClick={() => handleEvidenceOpen(cl, EmployeeState.WORKEVENT, ReportSection.WORKEVENT)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
+                                                            </Tooltip>
+
+                                                            <Tooltip title={`${cl?.approved_work ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                                                                <span>
+                                                                    <PrivateAgentRoute>
+                                                                        <IconButton onClick={() =>
+                                                                            putEmployeeReportStore(
+                                                                                cl.state.find((el) => el.employee_state === EmployeeState.WORKEVENT) ?? null,
+                                                                                ({
+                                                                                    work_event: cl?.work_event,
+                                                                                    delivery_date: cl?.delivery_date,
+                                                                                    was_report: cl?.was_report,
+                                                                                    was_investigated: cl?.was_investigated,
+                                                                                    was_report_date: cl?.was_report_date,
+                                                                                    was_investigated_date: cl?.was_investigated_date,
+                                                                                    place: cl?.place,
+                                                                                    out_days: cl?.out_days,
+                                                                                    medical_attention: cl?.medical_attention,
+                                                                                    other_attention: cl?.other_attention,
+                                                                                    approved_work: !cl?.approved_work,
+                                                                                })
+                                                                            )}>
+                                                                            {cl?.approved_work &&
+                                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                                            }
+                                                                            {!cl?.approved_work &&
+                                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                                            }
+                                                                        </IconButton>
+                                                                    </PrivateAgentRoute>
+
+
+                                                                    <PrivateCustomerRoute>
+                                                                        <IconButton disabled>
+                                                                            {cl?.approved_work &&
+                                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                                            }
+                                                                            {!cl?.approved_work &&
+                                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                                            }
+                                                                        </IconButton>
+                                                                    </PrivateCustomerRoute>
+                                                                </span>
                                                             </Tooltip>
                                                         </Grid>
                                                     </Grid>
@@ -1299,12 +1582,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                 </ReportCardComponent>
 
+                                {/* 6. CAPACITACIÓN Y ENTRENAMIENTO SST */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="6. CAPACITACIÓN Y ENTRENAMIENTO SST"
+                                    pending={(100 - trainingsst?.filter(el => !el.approved)?.length * 100 / trainingsst?.length)}
                                 >
                                     {
-                                        trainingsst &&
+                                        trainingsst && report &&
                                         <ReportTrainingSST
                                             trainingsst={trainingsst}
                                             report={report}
@@ -1316,12 +1601,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     }
                                 </ReportCardComponent>
 
-                                <ReportCardComponent
+                                {/* HORAS HOMBRE CAPACITACIÓN */}
+                                {/* <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="HORAS HOMBRE CAPACITACIÓN"
-                                >
-
-                                </ReportCardComponent>
+                                > */}
+                                    {/* 6. CAPACITACIÓN Y ENTRENAMIENTO SST */}
+                                    {/* Informes excel linea 66 */}
+                                {/* </ReportCardComponent> */}
 
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}

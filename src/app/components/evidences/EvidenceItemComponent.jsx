@@ -156,7 +156,7 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                                             </PrivateAgentRoute>
 
                                             <PrivateCustomerRoute>
-                                                <IconButton disabled onClick={() => handleApprovedToggle()}>
+                                                <IconButton disabled>
                                                     {selectFile?.evidence?.approved &&
                                                         <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
                                                     }
@@ -165,6 +165,7 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                                                     }
                                                 </IconButton>
                                             </PrivateCustomerRoute>
+                                           
                                         </span>
                                     </Tooltip>
                                 </Grid>

@@ -36,7 +36,7 @@ const setInputsForm = (commerce) => {
     return formData;
 };
 
-export const CommerceComponent = ({ commerce = {}, user = {}, open = false, handleClose = () => { } }) => {
+export const CommerceComponent = ({ commerce = {}, user = {}, open = false, handleClose = () => { }, getUsers = () => { } }) => {
 
     const dispatch = useDispatch();
 
@@ -98,6 +98,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
                     initialForm: setInputsForm({ ...commerce, ...data.commerce }),
                     formState: { ...formState, id: data?.commerce?.id ?? '' }
                 });
+                getUsers();// Refrescamos la tabla                
             }, error => setMessageSnackbar({ dispatch, error }));
         }
     }
@@ -202,11 +203,11 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
                                     labelId="demo-simple-select-label"
                                     id="demo-simple-select"
                                     name="department"
-                                    value={department}
+                                    value={departmentArray.find(el => el === department) ? department : ''}
                                     label="Departamento"
                                     onChange={e => { onInputChange(e); geoMunicipiosByDepartamento(e) }}>
                                     {
-                                        departmentArray.map((el, index) => (
+                                        departmentArray && departmentArray.map((el, index) => (
                                             <MenuItem key={index} value={el}>{el}</MenuItem>
                                         ))
                                     }
@@ -226,7 +227,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
                                     label="Municipio"
                                     onChange={onInputChange}>
                                     {
-                                        cityArray.map((el, index) => (
+                                        cityArray && cityArray.map((el, index) => (
                                             <MenuItem key={index} value={el}>{el}</MenuItem>
                                         ))
                                     }

@@ -87,7 +87,9 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     dispatch(getCommerceByUser({ User: user })).then(({ data: { data: { commerce: commercebyuser } } }) => {
       dispatch(commerceUpdate({ commerce: commercebyuser }))
       setOpenCommerce(true);
-    }, error => setMessageSnackbar({ dispatch, error }));
+    }, error => {      
+      setOpenCommerce(true);      
+    });
   }
 
   const navegateCommece = ({ commerce }) => {
@@ -329,7 +331,8 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.lastname}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.email}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.phone}</TableCell>
-                      <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.rol.name}</TableCell>
+                      <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.rol.name} {` - [${user?.commerce?.name}]`}</TableCell>
+                      
                       <TableCell align="center">
                         <Grid sx={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'center' }}>
                           <Tooltip title="Editar">
@@ -380,10 +383,10 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                               </Tooltip>
 
                               <Tooltip title="Reportes">
-                                <Link to={`/reports/commerce/${user.commerce.id}`}>
+                                <Link to={`/reports/commerce/${user?.commerce?.id}`}>
                                   <IconButton
                                     sx={{ ml: 0.5 }}
-                                    // onClick={() => navegateReports(user)}
+                                  // onClick={() => navegateReports(user)}
                                   >
                                     <ContentPasteIcon sx={{
                                       color: `${palette.text.secondary}`,
@@ -465,7 +468,9 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
           open={openCommerce}
           handleClose={handleCommeceClose}
           user={user}
-          commerce={commerce}>
+          commerce={commerce}
+          getUsers={getUsers}
+          >
         </CommerceComponent>
       }
     </Grid>

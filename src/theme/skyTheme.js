@@ -6,7 +6,8 @@ export const skyTheme = createTheme({
     palette: {
         primary: {
             main: '#69a1f3',
-            support: '#c1d6f5'
+            support: '#c1d6f5',
+            pending: '#F9E79F'
         },
         secondary: {
             main: '#dce8f9',

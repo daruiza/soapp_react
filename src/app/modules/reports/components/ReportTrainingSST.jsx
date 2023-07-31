@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Button, FormControl, Grid, InputLabel, TextField, Select, MenuItem, Tooltip, IconButton, FormHelperText } from '@mui/material'
-import { trainingsstDeleteById, trainingsstStore } from '../../../../store';
+import { Button, FormControl, Grid, InputLabel, TextField, Select, MenuItem, Tooltip, IconButton, FormHelperText, Card, CardContent, Typography, Paper, TableContainer, Table, TableBody, TableRow, TableCell, CardActions, CardHeader, Box } from '@mui/material'
+import { trainingsstDeleteById, trainingsstStore, trainingsstUpdate } from '../../../../store';
+import { DialogAlertComponent } from '../../../components';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useTheme } from '@emotion/react';
@@ -10,6 +11,10 @@ import SaveIcon from '@mui/icons-material/Save';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { TrainingsstEvidenceComponent } from '../../../components/evidences/TrainingsstEvidenceComponent';
+import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 
 export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingsst = () => { }, topicSSTArray = [], getReportById = () => { }, commerce_id = null }) => {
 
@@ -25,7 +30,18 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
         trainingsst: {}
     });
 
+    const [handleAlert, setHandleAlert] = useState({
+        openAlert: false,
+        functionAlertClose: () => { },
+        functionAlertAgree: () => { },
+        alertTittle: '',
+        alertMessage: '',
+        alertChildren: false
+    });
+
     // Eventos
+
+    // Cambios en los inputs del Array trainingsst
     const changeInputTrainingSST = ({ target: { value, name } }, index) => {
         setTrainingsst((sst) => sst.toSpliced(index, 1,
             {
@@ -65,16 +81,27 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
             !tsst.date) {
             return;
         }
-        dispatch(trainingsstStore({
-            form: { ...tsst }
-        })).then((data) => {
-            setTrainingsstInit(trainingsst);
-            getReportById();
-        });
+
+        if ('id' in tsst && tsst.id) {
+            dispatch(trainingsstUpdate({
+                form: { ...tsst }
+            })).then(({ data: { data: { trainingsst } } }) => {
+                setTrainingsstInit(tsst => ([...tsst.filter(el => el.id !== trainingsst.id), trainingsst]));
+                getReportById();
+            });
+        } else {
+            dispatch(trainingsstStore({
+                form: { ...tsst }
+            })).then(({ data: { data: { testingsst } } }) => {
+                setTrainingsstInit(tsst => ([...tsst.filter(el => el.id !== testingsst.id), testingsst]));
+                getReportById();
+            });
+        }
     }
 
     // Validacines
     const numberPatternValidation = (value) => {
+        if(!value) return true;
         const regex = new RegExp(/^\d+$/);
         return regex.test(value);
     };
@@ -86,8 +113,11 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
             !tsst.date) {
             return true;
         }
+
+        const tssttrainingsstinit = trainingsstinit?.find(el => el.id === tsst.id);
+
         return 'id' in tsst ?
-            JSON.stringify(trainingsstinit?.find(el => el.id === tsst.id)) == JSON.stringify({ ...tsst, assistants: +tsst.assistants, hours: +tsst.hours }) :
+            JSON.stringify({ ...tssttrainingsstinit, approved: tssttrainingsstinit?.approved ? true : false }) == JSON.stringify({ ...tsst, assistants: +tsst?.assistants, hours: +tsst?.hours, approved: tsst?.approved ? true : false }) :
             !!(!tsst.topic ||
                 !tsst.hours ||
                 !tsst.assistants ||
@@ -96,17 +126,13 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
 
     useEffect(() => {
         setTrainingsstInit(trainingsst);
-    }, []);
-
+    }, []);    
 
     useEffect(() => {
         if (trainingsstinit.length) {
             trainingSSTSavevalidator(trainingsst[trainingsst.length - 1])
         }
     }, [trainingsstinit]);
-
-
-
 
     return (
         <Grid container>
@@ -136,6 +162,7 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                                                     }}
                                                 >Tema</InputLabel>
                                                 <Select
+                                                    disabled={tsst?.approved ? true : false}
                                                     variant="standard"
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
@@ -160,6 +187,7 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
 
                                     <Grid item xs={12} md={2} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                         <TextField
+                                            disabled={tsst?.approved ? true : false}
                                             variant="standard"
                                             size="small"
                                             label="Asistentes"
@@ -169,13 +197,14 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                                             value={tsst?.assistants ?? ''}
                                             onChange={(event) => changeInputTrainingSST(event, index)}
                                             // error={tsst?.assistants === ''}
-                                            error={tsst?.assistants === '' && !numberPatternValidation(tsst?.assistants) ? true : false}
-                                            helperText={tsst?.assistants === '' && !numberPatternValidation(tsst?.assistants) ? 'Se espera un número positivo' : ''}
+                                            error={!numberPatternValidation(tsst?.assistants) ? true : false}
+                                            helperText={!numberPatternValidation(tsst?.assistants) ? 'Se espera un número positivo' : ''}
                                         />
                                     </Grid>
 
                                     <Grid item xs={12} md={2} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                         <TextField
+                                            disabled={tsst?.approved ? true : false}
                                             variant="standard"
                                             size="small"
                                             label="Horas"
@@ -189,9 +218,10 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                                         />
                                     </Grid>
 
-                                    <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center' }} >
+                                    <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
                                         <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                             <DatePicker
+                                                disabled={tsst?.approved ? true : false}
                                                 size="small"
                                                 className='birth-date-piker'
                                                 sx={{ width: '100%' }}
@@ -207,24 +237,27 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                                 </Grid>
                                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
                                     <Tooltip title="Eliminar Registro" placement="top">
-                                        <IconButton
-                                            onClick={() => handleDeleteTrainingSST(tsst)}
-                                        >
-                                            <HighlightOffIcon
-                                                sx={{
-                                                    color: palette.text.disabled,
-                                                    "&:hover": {
-                                                        // color: `${palette.text.primary}`,
-                                                        cursor: "pointer"
-                                                    }
-                                                }}></HighlightOffIcon>
-                                        </IconButton>
+                                        <span>
+                                            <IconButton
+                                                disabled={tsst?.approved ? true : false}
+                                                onClick={() => handleDeleteTrainingSST(tsst)}
+                                            >
+                                                <HighlightOffIcon
+                                                    sx={{
+                                                        color: palette.text.disabled,
+                                                        "&:hover": {
+                                                            // color: `${palette.text.primary}`,
+                                                            cursor: "pointer"
+                                                        }
+                                                    }}></HighlightOffIcon>
+                                            </IconButton>
+                                        </span>
                                     </Tooltip>
 
                                     <Tooltip title="Guardar Cambios" placement="top">
                                         <span>
                                             <IconButton
-                                                disabled={trainingSSTSavevalidator(tsst)}
+                                                disabled={trainingSSTSavevalidator(tsst) || tsst?.approved ? true : false}
                                                 onClick={() => handleSaveTrainingSST(tsst)}                                            >
                                                 <SaveIcon
                                                 // sx={{ color: !validatorSaveEmployeeInsetDisabled(cl) ? palette.primary.main : '' }}
@@ -235,13 +268,43 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
 
                                     {
                                         tsst?.id &&
-                                        <Tooltip title="Evidencias" placement="top">
-                                            <span>
-                                                <IconButton
-                                                    onClick={() => handleEvidenceOpen(tsst)}
-                                                ><AttachFileIcon></AttachFileIcon></IconButton>
-                                            </span>
-                                        </Tooltip>
+                                        <>
+                                            <Tooltip title="Evidencias" placement="top">
+                                                <span>
+                                                    <IconButton
+                                                        disabled={tsst?.approved ? true : false}
+                                                        onClick={() => handleEvidenceOpen(tsst)}
+                                                    ><AttachFileIcon></AttachFileIcon></IconButton>
+                                                </span>
+                                            </Tooltip>
+
+                                            <Tooltip title={`${tsst?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                                                <span>
+                                                    <PrivateAgentRoute>
+                                                        <IconButton
+                                                            onClick={() => handleSaveTrainingSST({ ...tsst, approved: !tsst?.approved })}>
+                                                            {!!tsst?.approved &&
+                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                            }
+                                                            {!tsst?.approved &&
+                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                            }
+                                                        </IconButton>
+                                                    </PrivateAgentRoute>
+
+                                                    <PrivateCustomerRoute>
+                                                        <IconButton disabled>
+                                                            {tsst?.approved &&
+                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                            }
+                                                            {!tsst?.approved &&
+                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                            }
+                                                        </IconButton>
+                                                    </PrivateCustomerRoute>
+                                                </span>
+                                            </Tooltip>
+                                        </>
                                     }
 
                                 </Grid>
@@ -251,30 +314,55 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
             }
 
             <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
+                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                    <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end", mb: 1, pr: 0.5, pl: 0.5 }}>
+                        <Button
+                            disabled={trainingsst?.length === 0}
+                            onClick={() => {
+                                setHandleAlert({
+                                    openAlert: true,
+                                    props: { children: true },
+                                    functionAlertClose: () => setHandleAlert({ openAlert: false }),
+                                    functionAlertAgree: () => setHandleAlert({ openAlert: false }),
+                                    // alertTittle: 'Informe',
+                                    alertChildren: true
+                                });
+                            }}
+                            variant="contained"
+                            sx={{
+                                height: '100%',
+                                color: `${palette.text.custom}`,
+                                // border: '1px solid'
+                            }}>Informe Capacitaciones
+                        </Button>
+                    </Grid>
+                </Grid>
                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
-                    <Button onClick={() => {
-                        setTrainingsst(sst => [...sst, {
-                            topic: undefined,
-                            date: null,
-                            hours: null,
-                            assistants: null,
-                            report_id: report.id,
-                            save: false
-                        }])
-                    }} variant="contained"
-                        disabled={!!trainingsst.find(el => el.save === false)}
-                        sx={{
-                            height: '100%',
-                            color: `${palette.text.custom}`,
-                            // border: '1px solid'
-                        }}>AGREGAR CAPACITACIÓN
-                    </Button>
+                    <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                        <Button onClick={() => {
+                            setTrainingsst(sst => [...sst, {
+                                topic: undefined,
+                                date: null,
+                                hours: null,
+                                assistants: null,
+                                report_id: report?.id,
+                                save: false
+                            }])
+                        }}
+                            variant="contained"
+                            disabled={!!trainingsst.find(el => el.save === false)}
+                            sx={{
+                                height: '100%',
+                                color: `${palette.text.custom}`,
+                                // border: '1px solid'
+                            }}>AGREGAR CAPACITACIÓN
+                        </Button>
+                    </Grid>
                 </Grid>
             </Grid>
 
             {
-                openEvidences.open &&
-                <TrainingsstEvidenceComponent
+                openEvidences.open && <TrainingsstEvidenceComponent
                     open={openEvidences.open}
                     dialogtitle={openEvidences.dialogtitle}
                     dialogcontenttext={openEvidences.dialogcontenttext}
@@ -285,6 +373,78 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                 ></TrainingsstEvidenceComponent>
             }
 
-        </Grid>
+            {
+                handleAlert.openAlert && <DialogAlertComponent
+                    open={handleAlert.openAlert}
+                    handleClose={() => handleAlert.functionAlertClose()}
+                    handleAgree={() => handleAlert.functionAlertAgree()}
+                    props={{
+                        tittle: handleAlert.alertTittle,
+                        message: handleAlert.alertMessage,
+                        children: handleAlert.alertChildren
+                    }}
+                >
+                    <Card>
+                        {/* <CardHeader action={<>hello</>}></CardHeader> */}
+                        <CardContent>
+                            <Typography gutterBottom variant="h7" component="div" sx={{ marginBottom: '20px' }}>
+                                INFORME CAPACITACIÓN Y ENTRANAMIENTO
+                            </Typography>
+                            <TableContainer component={Paper}>
+                                <Table size={'small'} aria-label="simple table"
+                                    sx={{
+                                        // minWidth: 650 
+                                    }}
+                                >
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell>Total Capacitaciones en SST</TableCell>
+                                            <TableCell>{trainingsst?.length ?? 0}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>Total duración (Horas) Capacitación SST</TableCell>
+                                            <TableCell>{trainingsst.reduce((a, b) => (a + b.hours), 0) ?? 0}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>Total Asistentes Capacitaciones SST (B)</TableCell>
+                                            <TableCell>{trainingsst.reduce((a, b) => (a + b.assistants), 0) ?? 0}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>N° Total de personas del proyecto (A)</TableCell>
+                                            <TableCell>{report.employee.length ?? 0}</TableCell>
+                                        </TableRow>
+
+                                        <TableRow>
+                                            <TableCell>Sumatoria de N° horas cap. SST * N° personas asistieron a capacitaciones.</TableCell>
+                                            <TableCell>{
+                                                (trainingsst.reduce((a, b) => (a + b.hours), 0) ?? 0) *
+                                                (trainingsst.reduce((a, b) => (a + b.assistants), 0) ?? 0)
+                                            }</TableCell>
+                                        </TableRow>
+
+                                        <TableRow>
+                                            <TableCell>Horas hombre capacitación en SST (B/A).</TableCell>
+                                            <TableCell>{
+                                                (trainingsst.reduce((a, b) => (a + b.assistants), 0) ?? 0) /
+                                                (report.employee.length ?? 0)
+                                            }</TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </CardContent>
+                        <CardActions disableSpacing sx={{ justifyContent: 'space-between' }}>
+                            <Box></Box>
+                            <Box>
+                                <IconButton onClick={() => handleAlert.functionAlertAgree()}>
+                                    <CloseIcon sx={{ color: palette.text.disabled }} />
+                                </IconButton>
+                            </Box>
+                        </CardActions>
+                    </Card>
+                </DialogAlertComponent>
+            }
+
+        </Grid >
     )
 }
