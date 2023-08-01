@@ -126,7 +126,14 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
 
     useEffect(() => {
         setTrainingsstInit(trainingsst);
-    }, []);    
+    }, []);
+
+    useEffect(() => {
+        console.log('report', report)
+    }, [report]);
+
+
+
 
     useEffect(() => {
         if (trainingsstinit.length) {

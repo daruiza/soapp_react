@@ -1,9 +1,9 @@
 import { useTheme } from '@emotion/react';
-import { Grid } from '@mui/material'
-import { useEffect } from 'react';
+import { Button, Grid } from '@mui/material'
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-export default function ReportActivityComponent({ activities = [], report = {}, setActivities = () => { } }) {
+export default function ReportActivityComponent({ activities = [], report = {}, setActivities = () => { }, getReportById = () => { } }) {
 
   const dispatch = useDispatch();
   const { palette } = useTheme();
@@ -53,35 +53,32 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
     setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }));
   }
 
-  const handleDeleteTrainingSST = (tsst) => {
+  const handleDeleteActivity = (act) => {
     dispatch(trainingsstDeleteById({
-      form: { ...tsst }
+      form: { ...act }
     })).then((data) => {
       getReportById();
     });
   }
 
-  const handleSaveTrainingSST = (tsst) => {
+  const handleSaveActivity = (act) => {
     // Validamos que todos los campos esten llenos
-    if (!tsst.topic ||
-      !tsst.hours ||
-      !tsst.assistants ||
-      !tsst.date) {
+    if (!act.activity || !act.date) {
       return;
     }
 
-    if ('id' in tsst && tsst.id) {
+    if ('id' in act && act.id) {
       dispatch(trainingsstUpdate({
-        form: { ...tsst }
-      })).then(({ data: { data: { trainingsst } } }) => {
-        setTrainingsstInit(tsst => ([...tsst.filter(el => el.id !== trainingsst.id), trainingsst]));
+        form: { ...act }
+      })).then(({ data: { data: { activity } } }) => {
+        setActivitiesInit(act => ([...act.filter(el => el.id !== activity.id), activity]));
         getReportById();
       });
     } else {
       dispatch(trainingsstStore({
-        form: { ...tsst }
-      })).then(({ data: { data: { testingsst } } }) => {
-        setTrainingsstInit(tsst => ([...tsst.filter(el => el.id !== testingsst.id), testingsst]));
+        form: { ...act }
+      })).then(({ data: { data: { activity } } }) => {
+        setActivitiesInit(act => ([...act.filter(el => el.id !== activity.id), activity]));
         getReportById();
       });
     }
@@ -94,26 +91,20 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
     return regex.test(value);
   };
 
-  const trainingSSTSavevalidator = (tsst) => {
-    if (!tsst.topic ||
-      !tsst.hours ||
-      !tsst.assistants ||
-      !tsst.date) {
+  const activitySavevalidator = (act) => {
+    if (!act.activity || !act.date) {
       return true;
     }
 
-    const tssttrainingsstinit = trainingsstinit?.find(el => el.id === tsst.id);
+    const auxactivityinit = activitiesinit?.find(el => el.id === act.id);
 
-    return 'id' in tsst ?
-      JSON.stringify({ ...tssttrainingsstinit, approved: tssttrainingsstinit?.approved ? true : false }) == JSON.stringify({ ...tsst, assistants: +tsst?.assistants, hours: +tsst?.hours, approved: tsst?.approved ? true : false }) :
-      !!(!tsst.topic ||
-        !tsst.hours ||
-        !tsst.assistants ||
-        !tsst.date)
+    return 'id' in act ?
+      JSON.stringify({ ...auxactivityinit, approved: auxactivityinit?.approved ? true : false }) == JSON.stringify({ ...act, approved: act?.approved ? true : false }) :
+      !!(!act.activity || !act.date)
   }
 
   useEffect(() => {
-    setTrainingsstInit(trainingsst);
+    setActivitiesInit(activities);
   }, []);
 
   useEffect(() => {
@@ -121,14 +112,53 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
   }, [report]);
 
   useEffect(() => {
-    if (trainingsstinit.length) {
-      trainingSSTSavevalidator(trainingsst[trainingsst.length - 1])
+    if (activitiesinit.length) {
+      activitySavevalidator(activities[activities.length - 1])
     }
-  }, [trainingsstinit]);
+  }, [activitiesinit]);
 
   return (
     <Grid container>
-      { }
+      {
+        activities?.length !== 0 &&
+        activities.map((activity, index) => {
+          return (
+            <Grid container key={index}>
+              <Grid item xs={12} md={12} sx={{ display: "flex" }}>
+                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}></Grid>
+                <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}></Grid>
+              </Grid>
+            </Grid>
+          )
+        })
+      }
+      <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
+        <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+
+        </Grid>
+        <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+          <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+            <Button onClick={() => {
+              // setTrainingsst(sst => [...sst, {
+              //   topic: undefined,
+              //   date: null,
+              //   hours: null,
+              //   assistants: null,
+              //   report_id: report?.id,
+              //   save: false
+              // }])
+            }}
+              variant="contained"
+              disabled={!!activities.find(el => el.save === false)}
+              sx={{
+                height: '100%',
+                color: `${palette.text.custom}`,
+                // border: '1px solid'
+              }}>AGREGAR ACTIVIDAD
+            </Button>
+          </Grid>
+        </Grid>
+      </Grid>
     </Grid>
   )
 }
