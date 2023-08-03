@@ -117,6 +117,10 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
     }
   }, [activitiesinit]);
 
+  useEffect(() => {
+    console.log('activities', activities);
+  }, [activities])
+
   return (
     <Grid container>
       {
@@ -139,14 +143,12 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
         <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
           <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
             <Button onClick={() => {
-              // setTrainingsst(sst => [...sst, {
-              //   topic: undefined,
-              //   date: null,
-              //   hours: null,
-              //   assistants: null,
-              //   report_id: report?.id,
-              //   save: false
-              // }])
+              setActivities(acts => [...acts, {
+                activity: null,
+                date: null,
+                report_id: report?.id,
+                save: false
+              }])
             }}
               variant="contained"
               disabled={!!activities.find(el => el.save === false)}
