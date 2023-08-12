@@ -32,7 +32,7 @@ import { ReportSection } from '../../../types/ReportSection';
 
 import { DialogAlertComponent } from '../../../components';
 import { ReportEmployeeComponent } from './ReportEmployeeComponent';
-import { ReportTrainingSST } from './ReportTrainingSST';
+import { ReportTrainingSSTComponent } from './ReportTrainingSSTComponent';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import ReportActivityComponent from './ReportActivityComponent';
 
@@ -97,7 +97,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 id: id ?? ''
             }
         })).then(({ data: { data: { report } } }) => {
-            console.log('report', report);
             // Asignación de Attributes
             setReport(report);
             const employees = report.employee.map((em, index) => ({
@@ -971,11 +970,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="4. OTRAS ACTIVIDADES EJECUTADAS EN EL MES"
+                                    pending={(100 - activities?.filter(el => !el.approved)?.length * 100 / activities?.length)}
                                 >
                                     <ReportActivityComponent
                                         activities={activities}
                                         setActivities={setActivities} 
                                         report={report}
+                                        getReportById={() => getReportById(param_report_id)}
+                                        commerce_id={commerce?.id ?? param_commerce_id}
                                     ></ReportActivityComponent>
                                 </ReportCardComponent>
 
@@ -1590,14 +1592,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 >
                                     {
                                         trainingsst && report &&
-                                        <ReportTrainingSST
+                                        <ReportTrainingSSTComponent
                                             trainingsst={trainingsst}
                                             report={report}
                                             setTrainingsst={setTrainingsst}
                                             topicSSTArray={topicSSTArray}
                                             commerce_id={commerce?.id ?? param_commerce_id}
                                             getReportById={() => getReportById(param_report_id)}
-                                        ></ReportTrainingSST>
+                                        ></ReportTrainingSSTComponent>
                                     }
                                 </ReportCardComponent>
 

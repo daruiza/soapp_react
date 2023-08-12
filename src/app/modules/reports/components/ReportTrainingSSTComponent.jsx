@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { TrainingsstEvidenceComponent } from '../../../components/evidences/TrainingsstEvidenceComponent';
 import { Button, FormControl, Grid, InputLabel, TextField, Select, MenuItem, Tooltip, IconButton, FormHelperText, Card, CardContent, Typography, Paper, TableContainer, Table, TableBody, TableRow, TableCell, CardActions, CardHeader, Box } from '@mui/material'
 import { trainingsstDeleteById, trainingsstStore, trainingsstUpdate } from '../../../../store';
 import { DialogAlertComponent } from '../../../components';
@@ -10,13 +11,12 @@ import es from 'dayjs/locale/es';
 import SaveIcon from '@mui/icons-material/Save';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { TrainingsstEvidenceComponent } from '../../../components/evidences/TrainingsstEvidenceComponent';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 
-export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingsst = () => { }, topicSSTArray = [], getReportById = () => { }, commerce_id = null }) => {
+export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setTrainingsst = () => { }, topicSSTArray = [], getReportById = () => { }, commerce_id = null }) => {
 
     const dispatch = useDispatch();
     const { palette } = useTheme();
@@ -65,10 +65,10 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
         setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }));
     }
 
-    const handleDeleteTrainingSST = (tsst) => {
+    const handleDeleteTrainingSST = (tsst) => {        
         dispatch(trainingsstDeleteById({
             form: { ...tsst }
-        })).then((data) => {
+        })).then((data) => {            
             getReportById();
         });
     }

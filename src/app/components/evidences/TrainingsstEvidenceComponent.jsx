@@ -44,7 +44,6 @@ export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontentte
     }
 
     // Events
-
     const AddFile = () => { inputFileRef.current.click(); }
 
     const callSaveFile = (file) => {
