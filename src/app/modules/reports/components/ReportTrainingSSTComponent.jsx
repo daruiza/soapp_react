@@ -27,7 +27,8 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
         open: false,
         dialogtitle: '',
         dialogcontenttext: '',
-        trainingsst: {}
+        trainingsst: {},
+        approved: false
     });
 
     const [handleAlert, setHandleAlert] = useState({
@@ -38,6 +39,17 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
         alertMessage: '',
         alertChildren: false
     });
+
+    const [handleAlertDelete, setHandleAlertDelete] = useState({
+        openAlert: false,
+        functionAlertClose: () => { },
+        functionAlertAgree: () => { },
+        alertTittle: '',
+        alertMessage: '',
+        alertChildren: false
+    });
+
+    
 
     // Eventos
 
@@ -57,6 +69,7 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
             dialogtitle: `Evidencias: ${tsst?.topic}`,
             dialogcontenttext: `${tsst?.date}`,
             trainingsst: tsst,
+            approved: tsst?.approved ?? false,
             open: true
         }))
     }
@@ -65,11 +78,22 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
         setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }));
     }
 
-    const handleDeleteTrainingSST = (tsst) => {        
+    const handleDeleteTrainingSSTReport = (tsst) => {        
+        setHandleAlertDelete({
+          openAlert: true,
+          functionAlertClose: () => setHandleAlertDelete({ openAlert: false }),
+          functionAlertAgree: () => handleDeleteTrainingSST(tsst),
+          alertTittle: 'Eliminar Registro',
+          alertMessage: `Estas seguro de borrar el registro ${tsst.topic}.`
+        });
+    }
+
+    const handleDeleteTrainingSST = (tsst) => {
         dispatch(trainingsstDeleteById({
             form: { ...tsst }
-        })).then((data) => {            
+        })).then((data) => {
             getReportById();
+            setHandleAlertDelete({ openAlert: false })
         });
     }
 
@@ -101,7 +125,7 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
 
     // Validacines
     const numberPatternValidation = (value) => {
-        if(!value) return true;
+        if (!value) return true;
         const regex = new RegExp(/^\d+$/);
         return regex.test(value);
     };
@@ -127,13 +151,6 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
     useEffect(() => {
         setTrainingsstInit(trainingsst);
     }, []);
-
-    useEffect(() => {
-        console.log('report', report)
-    }, [report]);
-
-
-
 
     useEffect(() => {
         if (trainingsstinit.length) {
@@ -247,7 +264,7 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
                                         <span>
                                             <IconButton
                                                 disabled={tsst?.approved ? true : false}
-                                                onClick={() => handleDeleteTrainingSST(tsst)}
+                                                onClick={() => handleDeleteTrainingSSTReport(tsst)}
                                             >
                                                 <HighlightOffIcon
                                                     sx={{
@@ -279,7 +296,7 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
                                             <Tooltip title="Evidencias" placement="top">
                                                 <span>
                                                     <IconButton
-                                                        disabled={tsst?.approved ? true : false}
+                                                        disableFocusRipple={tsst?.approved ? true : false}
                                                         onClick={() => handleEvidenceOpen(tsst)}
                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                 </span>
@@ -374,6 +391,7 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
                     dialogtitle={openEvidences.dialogtitle}
                     dialogcontenttext={openEvidences.dialogcontenttext}
                     trainingsst={openEvidences.trainingsst}
+                    approved={openEvidences.approved}
                     report_id={report.id}
                     commerce_id={commerce_id}
                     handleClose={handleEvidenceClose}
@@ -452,6 +470,17 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
                 </DialogAlertComponent>
             }
 
+            {
+                handleAlertDelete.openAlert && <DialogAlertComponent
+                    open={handleAlertDelete.openAlert}
+                    handleClose={() => handleAlertDelete.functionAlertClose()}
+                    handleAgree={() => handleAlertDelete.functionAlertAgree()}
+                    props={{
+                        tittle: handleAlertDelete.alertTittle,
+                        message: handleAlertDelete.alertMessage
+                    }}
+                ></DialogAlertComponent>
+            }
         </Grid >
     )
 }

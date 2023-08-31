@@ -109,3 +109,41 @@ export const activityEvidenceUpdate = ({ form }) => {
         }
     }
 }
+
+
+export const ShowByCompromiseEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/compromiseevidence/showbycompromiseevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+
+export const comprimiseEvidenceStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/compromiseevidence/store`, form);
+        }
+    }
+}
+
+export const deleteCompromiseEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/compromiseevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const compromiseEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/compromiseevidence/update/${form.id}`, form);
+        }
+    }
+}

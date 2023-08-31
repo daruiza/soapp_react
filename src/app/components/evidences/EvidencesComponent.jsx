@@ -8,7 +8,7 @@ import { deleteEvidenceId, evidenceStore, showByEmpoyeeReportId } from '../../..
 import { getSoappDownloadFile, uploadEvidence } from '../../../api/upload/uploadThuks';
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
 
-export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', collaborator = {}, setSelectCollaborator = () => { }, collaboratorsChangeInput = () => { }, open = false, handleClose = () => { }, employee_report = {} }) => {
+export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', collaborator = {}, setSelectCollaborator = () => { }, collaboratorsChangeInput = () => { }, open = false, handleClose = () => { }, employee_report = {}, approved = false }) => {
     const { palette } = useTheme();
     const dispatch = useDispatch();
     const inputFileRef = useRef();
@@ -179,7 +179,7 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                     }}
 
                     onDragOver={onDragOver}
-                    onDrop={handleDrag}>
+                    onDrop={!approved ? handleDrag : () => { }}>
                     {
                         files.map((file, index) => (
                             <EvidenceItemComponent
@@ -188,7 +188,8 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                                 setSelectCollaborator={setSelectCollaborator}
                                 handleRemove={handleRemove}
                                 handleEvidenceViewerOpen={handleEvidenceViewerOpen}
-                                file={file}>
+                                file={file}
+                                approved={approved}>
                             </EvidenceItemComponent>
                         ))
                     }
@@ -204,12 +205,15 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
 
             </DialogContent>
             <DialogActions>
-                <Button onClick={AddFile} variant="contained"
-                    sx={{
-                        height: '100%',
-                        color: `${palette.text.primary}`,
-                        border: '1px solid'
-                    }} >Cargar Archivos</Button>
+                {
+                    !approved &&
+                    <Button onClick={AddFile} variant="contained"
+                        sx={{
+                            height: '100%',
+                            color: `${palette.text.primary}`,
+                            border: '1px solid'
+                        }} >Cargar Archivos</Button>
+                }
                 <Button onClick={handleClose} variant="outlined"
                     sx={{
                         height: '100%',

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useReduceReport } from '../../../../hooks/useReduceReport';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { commerceUpdate, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, genericListGetByNamelist, reportByreportId } from '../../../../store';
+import { commerceUpdate, compromiseShowByReportId, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, genericListGetByNamelist, reportByreportId } from '../../../../store';
 import { Grid, ImageListItem, Typography, Button, TextField, IconButton, Switch, FormControl, FormControlLabel, FormGroup, Divider, InputLabel, Select, FormLabel, SpeedDial, SpeedDialAction, SpeedDialIcon, FormHelperText } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
@@ -35,6 +35,7 @@ import { ReportEmployeeComponent } from './ReportEmployeeComponent';
 import { ReportTrainingSSTComponent } from './ReportTrainingSSTComponent';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import ReportActivityComponent from './ReportActivityComponent';
+import { ReportCompromiseComponent } from './ReportCompromiseComponent';
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -49,6 +50,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [report, setReport] = useState(null);
     // trainingsst se inicializa en null y la consulta lo modifica
     const [trainingsst, setTrainingsst] = useState(null);
+    const [compromises, setCompromises] = useState(null);
     const [activities, setActivities] = useState([]);
 
     const [employeeArray, setEmployeeArray] = useState([]);
@@ -57,7 +59,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [workEventArray, setWorkEventArray] = useState([]);
     const [medicalAttentionArray, setMedicalAttentionArray] = useState([]);
     const [topicSSTArray, setTopicSSTArray] = useState([]);
-    
+
 
     const { commerce_id: param_commerce_id } = useParams();
     const { report_id: param_report_id } = useParams();
@@ -70,7 +72,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         open: false,
         dialogtitle: '',
         dialogcontenttext: '',
-        employee_report: {}
+        employee_report: {},
+        approved: false
     });
     const [selectCollaborator, setSelectCollaborator] = useState({});
 
@@ -139,6 +142,16 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 setMedicalAttentionArray(generallist?.filter(el => el.name === 'medical_attention') ?? []);
                 setTopicSSTArray(generallist?.filter(el => el.name === 'topic_sst') ?? []);
             });
+    }
+
+    const getCompromiseByReportId = () => {
+        if (param_report_id) {
+            dispatch(compromiseShowByReportId({
+                form: { id: param_report_id }
+            })).then(({ data: { data } }) => {
+                setCompromises(data);
+            })
+        }
     }
 
 
@@ -215,12 +228,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
 
     // Manejador de apertura de PopUp de Evidencias
-    const handleEvidenceOpen = (collaborator, EmployeeState, ReportSection) => {
+    const handleEvidenceOpen = (collaborator, EmployeeState, ReportSection, approved = false) => {
         setopenEvidences((openEvidences) => ({
             ...openEvidences,
             dialogtitle: ReportSection,
             dialogcontenttext: `${collaborator.name} ${collaborator.lastname} [${collaborator.identification}]`,
             employee_report: collaborator.state.find(el => el.employee_state === EmployeeState),
+            approved: approved,
             open: true
         }));
 
@@ -274,16 +288,15 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
     const validatorSaveDisabledExam = (cl, inputs) => {
         const collaboratorInit = initCollaborators.find(el => el.id === cl.id);
-
         return JSON.stringify(Object.keys(inputs ?? []).map(el => ({
-            [el]: el === 'exam' ? collaboratorInit[el]?.toString() ?? '' : collaboratorInit[el]
+            [el]: el === 'exam' ? collaboratorInit[el]?.toString() ?? '' : collaboratorInit[el] ?? ''
         }))).trim() === JSON.stringify(Object.keys(inputs ?? []).map(el => ({
             [el]: el === 'exam' ? cl[el]?.toString() ?? '' : inputs[el] ?? ''
         }))).trim();
     }
 
     const numberPatternValidation = (value) => {
-        if(!value) return true;
+        if (!value) return true;
         const regex = new RegExp(/^\d+$/);
         return regex.test(value);
     };
@@ -315,11 +328,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
     }, [trainingsst])
 
-
-
     useEffect(() => {
         getEmployees();
         getReportById(param_report_id);
+        getCompromiseByReportId();
         getLists();
     }, [])
 
@@ -811,8 +823,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
-                                                                        disabled={cl?.approved_induction ? true : false}
-                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.NUEVOINGRESO, ReportSection.NUEVOINGRESO)}
+                                                                        disableFocusRipple={cl?.approved_induction ? true : false}
+                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.NUEVOINGRESO, ReportSection.NUEVOINGRESO, cl.approved_induction ?? false)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
@@ -910,8 +922,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
-                                                                        disabled={cl?.approved_retired ? true : false}
-                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.RETIRED, ReportSection.RETIRED)}
+                                                                        disableFocusRipple={cl?.approved_retired ? true : false}
+                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.RETIRED, ReportSection.RETIRED, cl.approved_retired ?? false)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
@@ -974,7 +986,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 >
                                     <ReportActivityComponent
                                         activities={activities}
-                                        setActivities={setActivities} 
+                                        setActivities={setActivities}
                                         report={report}
                                         getReportById={() => getReportById(param_report_id)}
                                         commerce_id={commerce?.id ?? param_commerce_id}
@@ -1052,7 +1064,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                 labelId="demo-multiple-name-label"
                                                                                 id="demo-multiple-name"
                                                                                 name="exam"
-                                                                                value={cl?.exam ?? []}
+                                                                                value={cl?.exam?.length > 0 ? cl?.exam : []}
                                                                                 label="Proyecto"
                                                                                 multiple={true}
                                                                                 onChange={(event) => changeInputCollaborator({
@@ -1073,6 +1085,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                                                 <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
                                                                     {
+                                                                        cl?.exam?.length > 0 &&
                                                                         cl?.exam?.find(el => el === 'Otro') &&
                                                                         <TextField
                                                                             disabled={cl?.approved_exam ? true : false}
@@ -1146,8 +1159,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
-                                                                        disabled={cl?.approved_exam ? true : false}
-                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.EXAMENESMEDICOS, ReportSection.EXAMENESMEDICOS)}
+                                                                        disableFocusRipple={cl?.approved_exam ? true : false}
+                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.EXAMENESMEDICOS, ReportSection.EXAMENESMEDICOS, cl.approved_exam ?? false)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
@@ -1526,8 +1539,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
-                                                                        disabled={cl?.approved_work ? true : false}
-                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.WORKEVENT, ReportSection.WORKEVENT)}
+                                                                        disableFocusRipple={cl?.approved_work ? true : false}
+                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.WORKEVENT, ReportSection.WORKEVENT, cl.approved_work ?? false)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
@@ -1608,10 +1621,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     sx={{ borderRadius: '0px' }}
                                     title="HORAS HOMBRE CAPACITACIÓN"
                                 > */}
-                                    {/* 6. CAPACITACIÓN Y ENTRENAMIENTO SST */}
-                                    {/* Informes excel linea 66 */}
+                                {/* 6. CAPACITACIÓN Y ENTRENAMIENTO SST */}
+                                {/* Informes excel linea 66 */}
                                 {/* </ReportCardComponent> */}
 
+                                {/* 7. CUMPLIMIENTO DE CRONOGRAMA */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="7. CUMPLIMIENTO DE CRONOGRAMA"
@@ -1619,11 +1633,19 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                 </ReportCardComponent>
 
+                                {/* 8. COMPROMISOS DE ASISTIR EN SALUD Y RIESGOS LABORALES */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="8. COMPROMISOS DE ASISTIR EN SALUD Y RIESGOS LABORALES"
+                                    pending={(100 - compromises?.filter(el => !el.approved)?.length * 100 / compromises?.length)}
                                 >
-
+                                    <ReportCompromiseComponent
+                                        report_id={param_report_id}
+                                        compromises={compromises}
+                                        setCompromises={setCompromises}
+                                        getReportById={() => getReportById(param_report_id)}
+                                        getCompromiseByReportIdReport={() => getCompromiseByReportId(param_report_id)}
+                                    ></ReportCompromiseComponent>
                                 </ReportCardComponent>
 
                                 <ReportCardComponent
@@ -1692,7 +1714,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                         }
                     </Grid>
                 </Grid>
-            </Grid>
+            </Grid >
             <Grid container sx={{ justifyContent: 'end' }}>
                 {
                     commerce &&
@@ -1730,6 +1752,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     dialogcontenttext={openEvidences.dialogcontenttext}
                     collaborator={selectCollaborator}
                     employee_report={openEvidences.employee_report}
+                    approved={openEvidences.approved}
                     setSelectCollaborator={setSelectCollaborator}
                     collaboratorsChangeInput={collaboratorsChangeInput}
                     handleClose={handleEvidenceClose}

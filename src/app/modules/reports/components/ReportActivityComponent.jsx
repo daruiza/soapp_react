@@ -1,8 +1,8 @@
 import { useTheme } from '@emotion/react';
-import { Button, Grid, TextField, Tooltip, IconButton } from '@mui/material'
+import { Button, Grid, TextField, Tooltip, IconButton, Divider } from '@mui/material'
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { ActivityEvidenceComponent } from '../../../components';
+import { ActivityEvidenceComponent, DialogAlertComponent } from '../../../components';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import es from 'dayjs/locale/es';
@@ -59,6 +59,7 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
       dialogtitle: `Evidencias: ${act?.activity}`,
       dialogcontenttext: `${act?.date}`,
       activity: act,
+      approved: act.approved,
       open: true
     }))
   }
@@ -67,12 +68,24 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
     setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }));
   }
 
+  const handleDeleteActivityReport = (act) => {
+    setHandleAlert({
+      openAlert: true,
+      functionAlertClose: () => setHandleAlert({ openAlert: false }),
+      functionAlertAgree: () => handleDeleteActivity(act),
+      alertTittle: 'Eliminar Registro',
+      alertMessage: `Estas seguro de borrar el registro ${act.activity}.`
+    });
+  }
+
   const handleDeleteActivity = (act) => {
     dispatch(activityDeleteById({
       form: { ...act }
     })).then((data) => {
       console.log('handleDeleteActivity', data);
       getReportById();
+      //cerramos el alert
+      setHandleAlert({ openAlert: false });
     });
   }
 
@@ -93,7 +106,6 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
       dispatch(activityStore({
         form: { ...act }
       })).then(({ data: { data: { activity } } }) => {
-        console.log('data', testingsst);
         setActivitiesInit(act => ([...act.filter(el => el.id !== activity.id), activity]));
         getReportById();
       });
@@ -135,6 +147,7 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
         activities.map((activity, index) => {
           return (
             <Grid container key={index}>
+              {/* <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} /> */}
               <Grid item xs={12} md={12} sx={{ display: "flex" }}>
                 <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
 
@@ -176,7 +189,7 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
                     <span>
                       <IconButton
                         disabled={activity?.approved ? true : false}
-                        onClick={() => handleDeleteActivity(activity)}
+                        onClick={() => handleDeleteActivityReport(activity)}
                       >
                         <HighlightOffIcon
                           sx={{
@@ -208,7 +221,7 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
                       <Tooltip title="Evidencias" placement="top">
                         <span>
                           <IconButton
-                            disabled={activity?.approved ? true : false}
+                            disableFocusRipple={activity?.approved ? true : false}
                             onClick={() => handleEvidenceOpen(activity)}
                           ><AttachFileIcon></AttachFileIcon></IconButton>
                         </span>
@@ -283,8 +296,21 @@ export default function ReportActivityComponent({ activities = [], report = {}, 
           activity={openEvidences.activity}
           report_id={report.id}
           commerce_id={commerce_id}
+          approved={openEvidences.approved}
           handleClose={handleEvidenceClose}
         ></ActivityEvidenceComponent>
+      }
+
+      {
+        handleAlert.openAlert && <DialogAlertComponent
+          open={handleAlert.openAlert}
+          handleClose={() => handleAlert.functionAlertClose()}
+          handleAgree={() => handleAlert.functionAlertAgree()}
+          props={{
+            tittle: handleAlert.alertTittle,
+            message: handleAlert.alertMessage
+          }}
+        ></DialogAlertComponent>
       }
 
     </Grid>

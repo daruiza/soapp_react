@@ -9,7 +9,7 @@ import { getSoappDownloadFile, uploadEvidenceFileName } from '../../../api/uploa
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
 import TrainingsstEvidenceItemComponent from './TrainingsstEvidenceItemComponent';
 
-export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontenttext = '', open = false, handleClose = () => { }, trainingsst = {}, commerce_id = null, report_id = null }) => {
+export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontenttext = '', open = false, handleClose = () => { }, trainingsst = {}, commerce_id = null, report_id = null, approved = false }) => {
     const { palette } = useTheme();
     const dispatch = useDispatch();
     const inputFileRef = useRef();
@@ -142,14 +142,15 @@ export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontentte
                     }}
 
                     onDragOver={onDragOver}
-                    onDrop={handleDrag}>
+                    onDrop={!approved ? handleDrag : () => { }}>
                     {
                         files.map((file, index) => (
                             <TrainingsstEvidenceItemComponent
                                 key={index}
                                 handleRemove={handleRemove}
                                 handleEvidenceViewerOpen={handleEvidenceViewerOpen}
-                                file={file}>
+                                file={file}
+                                approved={approved}>
                             </TrainingsstEvidenceItemComponent>
                         ))
                     }
@@ -165,12 +166,15 @@ export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontentte
 
             </DialogContent>
             <DialogActions>
-                <Button onClick={AddFile} variant="contained"
-                    sx={{
-                        height: '100%',
-                        color: `${palette.text.primary}`,
-                        border: '1px solid'
-                    }} >Cargar Archivos</Button>
+                {
+                    !approved &&
+                    <Button onClick={AddFile} variant="contained"
+                        sx={{
+                            height: '100%',
+                            color: `${palette.text.primary}`,
+                            border: '1px solid'
+                        }} >Cargar Archivos</Button>
+                }
                 <Button onClick={handleClose} variant="outlined"
                     sx={{
                         height: '100%',
