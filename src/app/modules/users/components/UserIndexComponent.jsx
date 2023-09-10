@@ -87,7 +87,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
 
   const handleCommeceOpen = (user) => {
     setUser(user);
-    dispatch(getCommerceByUser({ User: user })).then(({ data: { data: { commerce: commercebyuser } } }) => {
+    dispatch(getCommerceByUser({ User: user })).then(({ data: { data: { commerce: commercebyuser } } }) => {      
       dispatch(commerceUpdate({ commerce: commercebyuser }))
       setOpenCommerce(true);
     }, error => {
@@ -99,9 +99,8 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     
     // Revisamos si tenemos almenos un reporte
     dispatch(reportIndex({
-      form: { commerce_id: commerce.id }
-    })).then(({ data: { data: { report } } }) => {
-      
+      form: { commerce_id: commerce?.id ?? null }
+    })).then(({ data: { data: { report } } }) => {      
       if (report.data.length) {
         dispatch(getCommerceByCommerce({ commerce })).then(({ data: { data: { commerce: commercebycommerce } } }) => {
           dispatch(commerceUpdate({ commerce: commercebycommerce }))
@@ -113,6 +112,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
           }));
         });
       } else {
+        dispatch(commerceUpdate({ commerce: {} }))
         dispatch(messagePush({
           message: 'Debes primero crear almenos un Reporte',
           alert: 'warning'
