@@ -2,7 +2,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
-import { compromiseDeleteById, compromiseShowByReportId, compromiseStore, compromiseUpdate } from '../../../../store';
+import { ShowByCompromiseEvidenceId, compromiseDeleteById, compromiseEvidenceStore, compromiseShowByReportId, compromiseStore, compromiseUpdate, deleteCompromiseEvidenceId } from '../../../../store';
 import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -14,13 +14,24 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import { DialogAlertComponent } from '../../../components';
+import { CompromiseEvidenceComponent } from '../../../components/evidences/CompromiseEvidenceComponent';
+import { getSoappDownloadFile } from '../../../../api';
+import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
-export const ReportCompromiseComponent = ({ report_id = null, compromises = null, setCompromises = () => { }, getReportById = () => { }, getCompromiseByReportIdReport = () => { } }) => {
+export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null, compromises = null, setCompromises = () => { }, getReportById = () => { }, getCompromiseByReportIdReport = () => { } }) => {
 
     const dispatch = useDispatch();
     const { palette } = useTheme();
 
     const [compormisesinit, setCompromisesInit] = useState([]);
+    const [files, setFiles] = useState([]);
+
+    const [openEvidences, setOpenEvidences] = useState({
+        open: false,
+        dialogtitle: '',
+        dialogcontenttext: '',
+        object: {}
+    });
 
     const [handleAlert, setHandleAlert] = useState({
         openAlert: false,
@@ -30,6 +41,8 @@ export const ReportCompromiseComponent = ({ report_id = null, compromises = null
         alertMessage: '',
         alertChildren: false
     });
+
+
 
     const getCompromiseByReportId = () => {
         if (report_id) {
@@ -54,6 +67,17 @@ export const ReportCompromiseComponent = ({ report_id = null, compromises = null
         )
     }
 
+    const handleEvidenceOpen = (cmms) => {
+        setOpenEvidences((openEvidences) => ({
+            ...openEvidences,
+            dialogtitle: `Evidencias Compromiso Item:: ${cmms?.item}`,
+            dialogcontenttext: `Norma: ${cmms?.rule} -- Nombre: ${cmms?.name}`,
+            object: cmms,
+            approved: cmms.approved,
+            open: true
+        }))
+    }
+
     const handleDeleteComprmiseReport = (cmms) => {
         setHandleAlert({
             openAlert: true,
@@ -74,7 +98,6 @@ export const ReportCompromiseComponent = ({ report_id = null, compromises = null
     }
 
     const handleSaveCompromise = (cmms) => {
-        console.log('cmms', cmms);
         // Validamos que todos los campos esten llenos
         if (!cmms.item ||
             !cmms.rule ||
@@ -105,9 +128,56 @@ export const ReportCompromiseComponent = ({ report_id = null, compromises = null
         }
     }
 
-    const getDate = (dateinit) => {
-        const date = new Date(dateinit);
-        return date.setDate(date.getDate() + 1);
+    const getEvidencesById = (id) => {
+        if (id) {
+            dispatch(ShowByCompromiseEvidenceId({
+                form: {
+                    id: id ?? ''
+                }
+            })).then(({ data: { data: { evidence: evidences } } }) => {
+                evidences.forEach(evidence => {
+                    dispatch(getSoappDownloadFile({ path: evidence.file }))
+                        .then((response) => {
+                            const newfile = new Blob([response.data], { type: response.data.type });
+                            newfile.name = evidence.name;
+                            newfile.approved = evidence.approved;
+                            newfile.evidence_id = evidence.id;
+                            setFiles((files) => [
+                                // filtra que ya no este el mismo archivo, 
+                                ...files.filter(file => file.name !== newfile.name),
+                                newfile
+                            ])
+                        })
+                });
+            });
+        }
+    }
+
+    // Evidenses
+    const storeCompromiseEvidence = (data, file, object) => {
+        dispatch(compromiseEvidenceStore({
+            form: {
+                name: file.name.split('.')[0],
+                type: file.type,
+                compromise_id: object.id,
+                file: data.storage_image_path,
+                approved: false
+            }
+        })).then(({ data: { data: { evidence } } }) => {
+            file.approved = evidence?.approved ? true : false;
+            file.evidence_id = evidence.id;
+            setFiles((files) => [...files, file]);
+        }, error => setMessageSnackbar({ dispatch, error }))
+    }
+
+    const handleRemoveCompromiseEvidence = (file, object) => {
+        dispatch(deleteCompromiseEvidenceId({
+            form: { id: file.evidence_id }
+        })).then((data) => {
+            setFiles((files) => [...files.filter(fl => fl !== file)]);
+            // Refrescamos el Report Component
+            getEvidencesById(openEvidences?.object?.id ?? null)
+        });
 
     }
 
@@ -142,6 +212,11 @@ export const ReportCompromiseComponent = ({ report_id = null, compromises = null
                 !cmms.detail)
     }
 
+    const getDate = (dateinit) => {
+        const date = new Date(dateinit);
+        return date.setDate(date.getDate() + 1);
+
+    }
 
     useEffect(() => {
         setCompromisesInit(compromises);
@@ -329,6 +404,15 @@ export const ReportCompromiseComponent = ({ report_id = null, compromises = null
                                         cmms?.id &&
                                         <>
 
+                                            <Tooltip title="Evidencias" placement="top">
+                                                <span>
+                                                    <IconButton
+                                                        disableFocusRipple={cmms?.approved ? true : false}
+                                                        onClick={() => handleEvidenceOpen(cmms)}
+                                                    ><AttachFileIcon></AttachFileIcon></IconButton>
+                                                </span>
+                                            </Tooltip>
+
                                             <Tooltip title={`${cmms?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
                                                 <span>
                                                     <PrivateAgentRoute>
@@ -393,6 +477,25 @@ export const ReportCompromiseComponent = ({ report_id = null, compromises = null
                     </Grid>
                 </Grid>
             </Grid>
+
+            {
+                openEvidences.open && <CompromiseEvidenceComponent
+                    open={openEvidences.open}
+                    dialogtitle={openEvidences.dialogtitle}
+                    dialogcontenttext={openEvidences.dialogcontenttext}
+                    object={openEvidences.object}
+                    report_id={report_id}
+                    commerce_id={commerce_id}
+                    approved={openEvidences.approved}
+                    handleClose={() => setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))}
+                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/compromises/${openEvidences?.object?.id??null}`}
+                    files={files}
+                    setFiles={setFiles}
+                    getEvidencesById={getEvidencesById}
+                    evidenceStore={storeCompromiseEvidence}
+                    handleRemove={handleRemoveCompromiseEvidence}
+                ></CompromiseEvidenceComponent>
+            }
 
             {
                 handleAlert.openAlert && <DialogAlertComponent

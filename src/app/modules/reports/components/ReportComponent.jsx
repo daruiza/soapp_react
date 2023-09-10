@@ -1641,6 +1641,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 >
                                     <ReportCompromiseComponent
                                         report_id={param_report_id}
+                                        commerce_id={param_commerce_id}
                                         compromises={compromises}
                                         setCompromises={setCompromises}
                                         getReportById={() => getReportById(param_report_id)}

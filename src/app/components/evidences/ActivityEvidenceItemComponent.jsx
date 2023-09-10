@@ -127,7 +127,7 @@ export const ActivityEvidenceItemComponent = ({ handleRemove = () => { }, handle
                                     <Tooltip title={`${selectFile?.evidence?.approved ? 'Invalidar' : 'Validar'}`} placement="top">
                                         <span>
                                             <PrivateAgentRoute>
-                                                <IconButton disabled={approved} onClick={() => handleApprovedToggle()}>
+                                                <IconButton disabled={approved?true:false} onClick={() => handleApprovedToggle()}>
                                                     {selectFile?.evidence?.approved &&
                                                         <CheckIcon sx={{ color: `${!approved ? palette.primary.main : null}` }}></CheckIcon>
                                                     }
@@ -154,7 +154,7 @@ export const ActivityEvidenceItemComponent = ({ handleRemove = () => { }, handle
                                     <Tooltip title="Guardar Archivo" placement="top">
                                         <span>
                                             <IconButton
-                                                disabled={disabledSave || approved}
+                                                disabled={(disabledSave || approved)?true:false}
                                                 onClick={(event) => handleUpdate(event)}>
                                                 <SaveIcon></SaveIcon>
                                             </IconButton>
@@ -163,7 +163,7 @@ export const ActivityEvidenceItemComponent = ({ handleRemove = () => { }, handle
                                 </Grid>
 
                                 <Grid item xs={12} md={3} sx={{}} >
-                                    <Tooltip disabled={approved} title="Quitar Archivo" placement="top">
+                                    <Tooltip disabled={approved?true:false} title="Quitar Archivo" placement="top">
                                         <IconButton onClick={() => handleFileDeleteOpen(file)}>
                                             <CancelIcon></CancelIcon>
                                         </IconButton>
@@ -173,7 +173,7 @@ export const ActivityEvidenceItemComponent = ({ handleRemove = () => { }, handle
                                 <Grid item xs={12} md={11} sx={{}} >
                                     <Tooltip title={selectFile?.evidence?.name}>
                                         <TextField
-                                            disabled={approved}
+                                            disabled={approved?true:false}
                                             variant="standard"
                                             size="small"
                                             label="Nombre"

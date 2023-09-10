@@ -4,13 +4,14 @@ import { commerceUpdate, getCommerceByCommerce, reportIndex, userByRolId, userIn
 import { ReportItemComponent } from './ReportItemComponent';
 import { ReportStoreComponent } from './ReportStoreComponent';
 import { useForm } from '../../../../hooks';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PrivateAgentRoute } from '../../../middleware';
-import { Button, Grid, Switch, TextField, Typography, FormControl, FormHelperText, InputLabel, Select, MenuItem, Card, Collapse, Alert, IconButton, Box, Pagination } from '@mui/material';
+import { Button, Grid, Switch, TextField, Typography, FormControl, FormHelperText, InputLabel, Select, MenuItem, Card, Collapse, Alert, IconButton, Box, Pagination, Tooltip } from '@mui/material';
 import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 import { useTheme } from '@emotion/react';
 import dayjs from 'dayjs';
 import CloseIcon from '@mui/icons-material/Close';
+import { Work } from '@mui/icons-material';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 import { RolTypes } from '../../../types';
 
@@ -32,8 +33,9 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
 
   const dispatch = useDispatch();
   const { palette } = useTheme();
-  const { commerce_id: param_commerce_id } = useParams();
-  
+  const navigate = useNavigate();
+  const { commerce_id: param_commerce_id, user_id: param_user_id } = useParams();
+
   const { commerce: commerceState } = useSelector(state => state.commerce);
   const commerce = useMemo(() => commerceState, [commerceState]);
 
@@ -119,13 +121,13 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
     event.preventDefault();
   }
 
-  const onInputYear = (event) => {    
+  const onInputYear = (event) => {
     const { target: { value } } = event;
     if (RegExp('^[0-9]+$').test(value) || !value) {
       setInput('year', value);
     }
     event.preventDefault();
-  }
+  } 
 
   // EVENTOS
   const onClearForm = () => {
@@ -160,6 +162,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   }, [year])
 
   useEffect(() => {
+
     if (commerce || param_commerce_id) {
       getReports();
       getProject();
@@ -169,7 +172,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
       setTimeout(() => onResetForm({ initialForm: formState, formState }), 100);
     }
 
-    if (param_commerce_id && !commerce) {
+    if (param_commerce_id !== 'undefined' && !commerce) {
       dispatch(getCommerceByCommerce({ commerce: { id: param_commerce_id } })).then(({ data: { data: { commerce: commercebycommerce } } }) => {
         dispatch(commerceUpdate({ commerce: commercebycommerce }))
       }, error => setMessageSnackbar({ dispatch, error }));
@@ -223,6 +226,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
                 </Grid>
               </PrivateAgentRoute>
             }
+
             <Grid container sx={{ justifyContent: 'space-between' }}>
               <Grid item xs={12} md={6} sx={{
                 mb: 1,
@@ -272,19 +276,24 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
                       disabled={!isFormValid || !formChange}
                       variant="outlined">Consultar</Button>
                   </Grid>
-                  <PrivateAgentRoute>
-                    <Grid item xs={12} md={4} sx={{ ml: 1 }}>
-                      <Button
-                        fullWidth
-                        sx={{
-                          height: '100%',
-                          // color: `${palette.text.primary}`
-                          color: "text.primary"
-                        }}
-                        onClick={handleReportStoreOpen}
-                        variant="contained">Nuevo Reporte</Button>
-                    </Grid>
-                  </PrivateAgentRoute>
+                  <>
+                    {
+                      param_commerce_id != 'undefined' &&
+                      <PrivateAgentRoute>
+                        <Grid item xs={12} md={4} sx={{ ml: 1 }}>
+                          <Button
+                            fullWidth
+                            sx={{
+                              height: '100%',
+                              // color: `${palette.text.primary}`
+                              color: "text.primary"
+                            }}
+                            onClick={handleReportStoreOpen}
+                            variant="contained">Nuevo Reporte</Button>
+                        </Grid>
+                      </PrivateAgentRoute>
+                    }
+                  </>
                 </Grid>
               </Grid>
             </Grid>

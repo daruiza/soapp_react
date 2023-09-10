@@ -82,7 +82,6 @@ export const ShowByActivityEvidenceId = ({ form = {} }) => {
     }
 }
 
-
 export const activityEvidenceStore = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
@@ -121,7 +120,7 @@ export const ShowByCompromiseEvidenceId = ({ form = {} }) => {
 }
 
 
-export const comprimiseEvidenceStore = ({ form }) => {
+export const compromiseEvidenceStore = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form) {

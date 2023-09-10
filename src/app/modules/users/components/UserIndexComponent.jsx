@@ -3,11 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CommerceComponent } from '../../commerce';
 import { DialogAlertComponent } from '../../../components';
 import { UserStoreComponent } from './UserStoreComponent';
-import { commerceInitialState, commerceUpdate, getAllRols, getCommerceByCommerce, getCommerceByUser, userDelete, userIndex } from '../../../../store';
+import { backdropPop, commerceInitialState, commerceUpdate, getAllRols, getCommerceByCommerce, getCommerceByUser, messagePush, reportIndex, userDelete, userIndex } from '../../../../store';
 import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Tooltip, IconButton, Switch, TableFooter, TablePagination, Pagination } from '@mui/material';
 import { useForm } from '../../../../hooks';
 import { useTheme } from '@emotion/react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { RolTypes } from '../../../types';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -19,8 +19,11 @@ import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 const forminit = { name: '', lastname: '', phone: '', email: '', rol_id: '' };
 export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { palette } = useTheme();
+
+  const [searchParams] = useSearchParams();
+
   const { commerce: commerceState } = useSelector(state => state.commerce);
   const commerce = useMemo(() => commerceState, [commerceState]);
 
@@ -87,23 +90,49 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     dispatch(getCommerceByUser({ User: user })).then(({ data: { data: { commerce: commercebyuser } } }) => {
       dispatch(commerceUpdate({ commerce: commercebyuser }))
       setOpenCommerce(true);
-    }, error => {      
-      setOpenCommerce(true);      
+    }, error => {
+      setOpenCommerce(true);
     });
   }
 
   const navegateCommece = ({ commerce }) => {
-    dispatch(getCommerceByCommerce({ commerce })).then(({ data: { data: { commerce: commercebycommerce } } }) => {
-      dispatch(commerceUpdate({ commerce: commercebycommerce }))
-      navigate(`/employees/commerce/${commerce.id}`);
-    }, error => setMessageSnackbar({ dispatch, error }));
+    
+    // Revisamos si tenemos almenos un reporte
+    dispatch(reportIndex({
+      form: { commerce_id: commerce.id }
+    })).then(({ data: { data: { report } } }) => {
+      
+      if (report.data.length) {
+        dispatch(getCommerceByCommerce({ commerce })).then(({ data: { data: { commerce: commercebycommerce } } }) => {
+          dispatch(commerceUpdate({ commerce: commercebycommerce }))
+          navigate(`/employees/commerce/${commerce.id}`);
+        }, error => {
+          dispatch(messagePush({
+            message: error?.message ?? 'Erorr Inesperado',
+            alert: 'warning'
+          }));
+        });
+      } else {
+        dispatch(messagePush({
+          message: 'Debes primero crear almenos un Reporte',
+          alert: 'warning'
+        }));
+      }
+    });
+    
+
   }
 
-  const navegateReports = ({ commerce }) => {
+  const navegateReports = ({ commerce, id }) => {
     dispatch(getCommerceByCommerce({ commerce })).then(({ data: { data: { commerce: commercebycommerce } } }) => {
       dispatch(commerceUpdate({ commerce: commercebycommerce }))
-      navigate(`/reports/commerce/${commerce.id}`);
-    })
+      navigate(`/reports/commerce/${commerce.id}/${id}`);
+    }, error => {
+      dispatch(messagePush({
+        message: error?.message ?? 'Erorr Inesperado',
+        alert: 'warning'
+      }));
+    });
   }
 
   const handleCommeceClose = () => {
@@ -144,8 +173,15 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   useEffect(() => {
     getUsers();
     getRols();
-    dispatch(commerceInitialState())
+    dispatch(commerceInitialState());
   }, []);
+
+  useEffect(() => {
+    // Llega la orden de creación del negocio
+    if (userArray.length && searchParams.get('workopen') && searchParams.get('userid')) {
+      handleCommeceOpen(userArray.find(user => user.id === +searchParams.get('userid')));
+    }
+  }, [userArray]);
 
   return (
     <Grid container
@@ -332,7 +368,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.email}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.phone}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.rol.name} {` - [${user?.commerce?.name}]`}</TableCell>
-                      
+
                       <TableCell align="center">
                         <Grid sx={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'center' }}>
                           <Tooltip title="Editar">
@@ -383,21 +419,21 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                               </Tooltip>
 
                               <Tooltip title="Reportes">
-                                <Link to={`/reports/commerce/${user?.commerce?.id}`}>
-                                  <IconButton
-                                    sx={{ ml: 0.5 }}
-                                  // onClick={() => navegateReports(user)}
-                                  >
-                                    <ContentPasteIcon sx={{
-                                      color: `${palette.text.secondary}`,
-                                      "&:hover": {
-                                        // color: `${palette.text.primary}`,
-                                        cursor: "pointer"
-                                      }
-                                    }}></ContentPasteIcon>
-                                  </IconButton>
+                                {/* <Link to={`/reports/commerce/${user?.commerce?.id}/${user?.id}`}> */}
+                                <IconButton
+                                  sx={{ ml: 0.5 }}
+                                  onClick={() => navegateReports(user)}
+                                >
+                                  <ContentPasteIcon sx={{
+                                    color: `${palette.text.secondary}`,
+                                    "&:hover": {
+                                      // color: `${palette.text.primary}`,
+                                      cursor: "pointer"
+                                    }
+                                  }}></ContentPasteIcon>
+                                </IconButton>
 
-                                </Link>
+                                {/* </Link> */}
                               </Tooltip>
                             </>
                           }
@@ -470,7 +506,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
           user={user}
           commerce={commerce}
           getUsers={getUsers}
-          >
+        >
         </CommerceComponent>
       }
     </Grid>
