@@ -37,6 +37,7 @@ import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import ReportActivityComponent from './ReportActivityComponent';
 import { ReportCompromiseComponent } from './ReportCompromiseComponent';
 import { ReportCompromiseSSTComponent } from './ReportCompromiseSSTComponent';
+import { ReportCompromiseRSSTComponent } from './ReportCompromiseRSSTComponent';
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -53,6 +54,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [trainingsst, setTrainingsst] = useState(null);
     const [compromises, setCompromises] = useState(null);
     const [compromisesSST, setCompromisesSST] = useState(null);
+    const [compromisesRSST, setCompromisesRSST] = useState(null);
     const [activities, setActivities] = useState([]);
 
     const [employeeArray, setEmployeeArray] = useState([]);
@@ -165,6 +167,18 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
             })
         }
     }
+
+    const getCompromiseRSSTByReportId = () => {
+        if (param_report_id) {
+            dispatch(compromiseSSTShowByReportId({
+                form: { id: param_report_id }
+            })).then(({ data: { data } }) => {
+                setCompromisesRSST(data);
+            })
+        }
+    }
+
+    
 
 
 
@@ -347,6 +361,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         getReportById(param_report_id);
         getCompromiseByReportId();
         getCompromiseSSTByReportId();
+        getCompromiseRSSTByReportId();
         getLists();
     }, [])
 
@@ -1683,7 +1698,17 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="10.TAREAS Y COMPROMISOS COMPROMISOS DEL RESPONSABLE DEL SST"
+                                    pending={(100 - compromisesRSST?.filter(el => !el.approved)?.length * 100 / compromisesRSST?.length)}
                                 >
+
+                                    <ReportCompromiseRSSTComponent
+                                        report_id={param_report_id}
+                                        commerce_id={param_commerce_id}
+                                        compromises={compromisesRSST}
+                                        setCompromises={setCompromisesRSST}
+                                        getReportById={() => getReportById(param_report_id)}
+                                        getCompromiseByReportIdReport={() => getCompromiseRSSTByReportId()}
+                                    ></ReportCompromiseRSSTComponent>
 
                                 </ReportCardComponent>
 
