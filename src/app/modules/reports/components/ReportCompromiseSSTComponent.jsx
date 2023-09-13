@@ -2,9 +2,9 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
-import { ShowByCompromiseEvidenceId, compromiseDeleteById, compromiseEvidenceStore, compromiseShowByReportId, compromiseStore, compromiseUpdate, deleteCompromiseEvidenceId } from '../../../../store';
-import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
 import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
+import { DialogAlertComponent } from '../../../components';
+import { ShowByCompromiseSSTEvidenceId, compromiseSSTDeleteById, compromiseSSTEvidenceStore, compromiseSSTShowByReportId, compromiseSSTStore, compromiseSSTUpdate, deleteCompromiseSSTEvidenceId } from '../../../../store';
 import { useTheme } from '@emotion/react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import es from 'dayjs/locale/es';
@@ -14,11 +14,11 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import { DialogAlertComponent } from '../../../components';
 import { getSoappDownloadFile } from '../../../../api';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
+import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
 
-export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null, compromises = null, setCompromises = () => { }, getReportById = () => { }, getCompromiseByReportIdReport = () => { } }) => {
+export const ReportCompromiseSSTComponent = ({ report_id = null, commerce_id = null, compromises = null, setCompromises = () => { }, getReportById = () => { }, getCompromiseByReportIdReport = () => { } }) => {
 
     const dispatch = useDispatch();
     const { palette } = useTheme();
@@ -46,7 +46,7 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
 
     const getCompromiseByReportId = () => {
         if (report_id) {
-            dispatch(compromiseShowByReportId({
+            dispatch(compromiseSSTShowByReportId({
                 form: { id: report_id }
             })).then(({ data: { data } }) => {
                 setCompromises(data);
@@ -70,7 +70,7 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
     const handleEvidenceOpen = (cmms) => {
         setOpenEvidences((openEvidences) => ({
             ...openEvidences,
-            dialogtitle: `Evidencias Compromiso Item:: ${cmms?.item}`,
+            dialogtitle: `Evidencias Compromiso SST Item:: ${cmms?.item}`,
             dialogcontenttext: `Norma: ${cmms?.rule} -- Nombre: ${cmms?.name}`,
             object: cmms,
             approved: cmms.approved,
@@ -89,7 +89,7 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
     }
 
     const handleDeleteCompromise = (cmms) => {
-        dispatch(compromiseDeleteById({
+        dispatch(compromiseSSTDeleteById({
             form: { ...cmms }
         })).then((data) => {
             getCompromiseByReportIdReport();
@@ -109,20 +109,16 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
         }
 
         if ('id' in cmms && cmms.id) {
-            dispatch(compromiseUpdate({
+            dispatch(compromiseSSTUpdate({
                 form: { ...cmms }
             })).then(({ data: { data: { compromise } } }) => {
-                // setCompromises(cmms => ([...cmms.filter(el => el.id !== compromise.id), compromise]));
                 setCompromisesInit(cmms => ([...cmms.filter(el => el.id !== compromise.id), compromise]));
                 getCompromiseByReportIdReport();
             });
         } else {
-            dispatch(compromiseStore({
+            dispatch(compromiseSSTStore({
                 form: { ...cmms }
-            })).then(({ data: { data: { compromise } } }) => {
-                // setCompromises(cmms => ([...cmms.filter(el => el.id !== compromise.id), compromise]));
-                // setCompromisesInit(cmms => ([...cmms.filter(el => el.id !== compromise.id), compromise]));
-                // getCompromiseByReportIdReport();
+            })).then(({ data: { data: { compromise } } }) => {               
                 getCompromiseByReportId();
             });
         }
@@ -130,7 +126,7 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
 
     const getEvidencesById = (id) => {
         if (id) {
-            dispatch(ShowByCompromiseEvidenceId({
+            dispatch(ShowByCompromiseSSTEvidenceId({
                 form: {
                     id: id ?? ''
                 }
@@ -155,7 +151,7 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
 
     // Evidenses
     const storeCompromiseEvidence = (data, file, object) => {
-        dispatch(compromiseEvidenceStore({
+        dispatch(compromiseSSTEvidenceStore({
             form: {
                 name: file.name.split('.')[0],
                 type: file.type,
@@ -171,7 +167,7 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
     }
 
     const handleRemoveCompromiseEvidence = (file, object) => {
-        dispatch(deleteCompromiseEvidenceId({
+        dispatch(deleteCompromiseSSTEvidenceId({
             form: { id: file.evidence_id }
         })).then((data) => {
             setFiles((files) => [...files.filter(fl => fl !== file)]);
@@ -488,7 +484,7 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
                     commerce_id={commerce_id}
                     approved={openEvidences.approved}
                     handleClose={() => setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))}
-                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/compromises/${openEvidences?.object?.id??null}`}
+                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/compromisessst/${openEvidences?.object?.id??null}`}
                     files={files}
                     setFiles={setFiles}
                     getEvidencesById={getEvidencesById}

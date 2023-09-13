@@ -49,7 +49,7 @@ export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext 
     const callSaveFile = (file) => {
         if (
             file.type == '' || //capetas
-            file.type == 'application/x-zip-compressed' || //RAR
+            // file.type == 'application/x-zip-compressed' || //RAR
             file.type == 'application/x-msdownload'
         ) return;
 

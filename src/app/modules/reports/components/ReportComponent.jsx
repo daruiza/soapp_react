@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useReduceReport } from '../../../../hooks/useReduceReport';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { commerceUpdate, compromiseShowByReportId, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, genericListGetByNamelist, reportByreportId } from '../../../../store';
+import { commerceUpdate, compromiseSSTShowByReportId, compromiseShowByReportId, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, genericListGetByNamelist, reportByreportId } from '../../../../store';
 import { Grid, ImageListItem, Typography, Button, TextField, IconButton, Switch, FormControl, FormControlLabel, FormGroup, Divider, InputLabel, Select, FormLabel, SpeedDial, SpeedDialAction, SpeedDialIcon, FormHelperText } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
@@ -36,6 +36,7 @@ import { ReportTrainingSSTComponent } from './ReportTrainingSSTComponent';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import ReportActivityComponent from './ReportActivityComponent';
 import { ReportCompromiseComponent } from './ReportCompromiseComponent';
+import { ReportCompromiseSSTComponent } from './ReportCompromiseSSTComponent';
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -51,6 +52,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     // trainingsst se inicializa en null y la consulta lo modifica
     const [trainingsst, setTrainingsst] = useState(null);
     const [compromises, setCompromises] = useState(null);
+    const [compromisesSST, setCompromisesSST] = useState(null);
     const [activities, setActivities] = useState([]);
 
     const [employeeArray, setEmployeeArray] = useState([]);
@@ -153,6 +155,18 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
             })
         }
     }
+
+    const getCompromiseSSTByReportId = () => {
+        if (param_report_id) {
+            dispatch(compromiseSSTShowByReportId({
+                form: { id: param_report_id }
+            })).then(({ data: { data } }) => {
+                setCompromisesSST(data);
+            })
+        }
+    }
+
+
 
 
     const setEmployeeReportStore = (collaborator, employee_state) => {
@@ -332,6 +346,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         getEmployees();
         getReportById(param_report_id);
         getCompromiseByReportId();
+        getCompromiseSSTByReportId();
         getLists();
     }, [])
 
@@ -671,7 +686,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 >   <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                     <Grid container>
                                         {
-                                            collaborators?.collaborators?.length &&
+                                            collaborators?.collaborators?.length > 0 &&
                                             collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.NUEVOINGRESO)).map((cl, index) => {
                                                 return (
                                                     <Grid container key={cl.index}
@@ -886,7 +901,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                     <Grid container>
                                         {
-                                            collaborators?.collaborators?.length &&
+                                            collaborators?.collaborators?.length > 0 &&
                                             collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.RETIRED)).map((cl, index) => {
                                                 return (
                                                     <Grid container key={cl.index}>
@@ -1002,7 +1017,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                     <Grid container>
                                         {
-                                            collaborators?.collaborators?.length &&
+                                            collaborators?.collaborators?.length > 0 &&
                                             collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.EXAMENESMEDICOS)).map((cl) => {
                                                 return (
                                                     <Grid container key={cl.index}>
@@ -1228,7 +1243,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 >
                                     <Grid container>
                                         {
-                                            collaborators?.collaborators?.length &&
+                                            collaborators?.collaborators?.length > 0 &&
                                             collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.WORKEVENT)).map((cl) => {
                                                 return (
                                                     <Grid container key={cl.index}>
@@ -1645,14 +1660,23 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                         compromises={compromises}
                                         setCompromises={setCompromises}
                                         getReportById={() => getReportById(param_report_id)}
-                                        getCompromiseByReportIdReport={() => getCompromiseByReportId(param_report_id)}
+                                        getCompromiseByReportIdReport={() => getCompromiseByReportId()}
                                     ></ReportCompromiseComponent>
                                 </ReportCardComponent>
 
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="9. COMPROMISOS DEL RESPONSABLE DEL SST, CADA MES"
+                                    pending={(100 - compromisesSST?.filter(el => !el.approved)?.length * 100 / compromisesSST?.length)}
                                 >
+                                    <ReportCompromiseSSTComponent
+                                        report_id={param_report_id}
+                                        commerce_id={param_commerce_id}
+                                        compromises={compromisesSST}
+                                        setCompromises={setCompromisesSST}
+                                        getReportById={() => getReportById(param_report_id)}
+                                        getCompromiseByReportIdReport={() => getCompromiseSSTByReportId()}
+                                    ></ReportCompromiseSSTComponent>
 
                                 </ReportCardComponent>
 

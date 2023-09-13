@@ -162,7 +162,6 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   }, [year])
 
   useEffect(() => {
-
     if (commerce || param_commerce_id) {
       getReports();
       getProject();

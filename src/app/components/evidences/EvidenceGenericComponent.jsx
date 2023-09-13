@@ -2,13 +2,12 @@ import { useTheme } from '@emotion/react';
 import { Dialog, DialogContent, DialogTitle, DialogActions, Grid, Button, DialogContentText } from '@mui/material'
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { ShowByActivityEvidenceId, activityEvidenceStore, deleteActivityEvidenceId } from '../../../store';
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
-import { getSoappDownloadFile, uploadEvidenceFileName } from '../../../api';
+import { uploadEvidenceFileName } from '../../../api';
 import { ActivityEvidenceItemComponent } from './ActivityEvidenceItemComponent';
 import { EvidenceViewerComponent } from './EvidenceViewerComponent';
 
-export const CompromiseEvidenceComponent = ({
+export const EvidenceGenericComponent = ({
     dialogtitle = '',
     dialogcontenttext = '',
     open = false,
@@ -38,7 +37,7 @@ export const CompromiseEvidenceComponent = ({
     const callSaveFile = (file) => {
         if (
             file.type == '' || //capetas
-            file.type == 'application/x-zip-compressed' || //RAR
+            // file.type == 'application/x-zip-compressed' || //RAR
             file.type == 'application/x-msdownload'
         ) return;
 

@@ -18,7 +18,7 @@ export const ReportRoute = () => {
                 <Routes>
                     <Route path="commerce/:commerce_id" element={<ReportIndexComponent />} />
                     <Route path="commerce/:commerce_id/:user_id" element={<ReportIndexComponent />} />
-                    <Route path="commerce/:commerce_id/report/:report_id" element={<ReportComponent />} />
+                    <Route path="commerce/:commerce_id/:user_id/report/:report_id" element={<ReportComponent />} />
                 </Routes>
             </PrivateAgentRoute>
         </>

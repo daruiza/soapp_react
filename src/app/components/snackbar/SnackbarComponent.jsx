@@ -40,7 +40,7 @@ export const SnackbarComponent = () => {
 
         if (messageArray.length) {
             // Vamos retirando uno a uno los mensajes
-            setTimeout(() => handleClose(messageArray[0]), 3500);
+            setTimeout(() => handleClose(messageArray[0]), 1750);
         }
     }, [messageArray]);
 
@@ -69,7 +69,7 @@ export const SnackbarComponent = () => {
 
         <Grid
             sx={{
-                position: 'absolute',
+                position: 'fixed',
                 bottom: '24px',
                 left: '24px',
                 right: 'auto',
