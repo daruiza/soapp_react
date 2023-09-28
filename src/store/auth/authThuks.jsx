@@ -59,6 +59,7 @@ export const getAllRols = () => {
     }
 }
 
+
 export const logoutDispatcher = () => {
     return async (dispatch) => {
         const { authApi } = useAuth(dispatch);

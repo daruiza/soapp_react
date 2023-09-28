@@ -15,6 +15,7 @@ import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { Work } from '@mui/icons-material';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
+import { useQuery } from 'react-query';
 
 const forminit = { name: '', lastname: '', phone: '', email: '', rol_id: '' };
 export const UserIndexComponent = ({ navBarWidth = 58 }) => {
@@ -48,8 +49,25 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
 
   const [user, setUser] = useState({});
   const [userTable, setUserTable] = useState({});
-  const [rolArray, setRolArray] = useState([]);
+  // const [rolArray, setRolArray] = useState([]);
   const [userArray, setUSerArray] = useState([]);
+
+  const { data: rolArray } = useQuery({
+    queryKey: ['roles'],
+    queryFn: () => dispatch(getAllRols()).then(({ data: { data } }) => (data)),
+    enabled: false,
+    staleTime: Infinity,
+    cacheTime: Infinity
+  })
+
+  const queryUser = useQuery({
+    queryKey: ['users'],
+    queryFn: (attr = {}, form = formState) => dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data } }) => (data)),    
+  })
+
+  console.log('queryUser', queryUser.data);
+  console.log('queryUser', queryUser);
+
 
   const getUsers = (attr = {}, form = formState) => {
     dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => {
@@ -58,11 +76,11 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     });
   }
 
-  const getRols = () => {
-    dispatch(getAllRols()).then(({ data: { data } }) => {
-      setRolArray(data ?? []);
-    });
-  }
+  // const getRols = () => {
+  //   dispatch(getAllRols()).then(({ data: { data } }) => {
+  //     setRolArray(data ?? []);
+  //   });
+  // }
 
   // EVENTOS
   const onClearForm = () => {
@@ -87,7 +105,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
 
   const handleCommeceOpen = (user) => {
     setUser(user);
-    dispatch(getCommerceByUser({ User: user })).then(({ data: { data: { commerce: commercebyuser } } }) => {      
+    dispatch(getCommerceByUser({ User: user })).then(({ data: { data: { commerce: commercebyuser } } }) => {
       dispatch(commerceUpdate({ commerce: commercebyuser }))
       setOpenCommerce(true);
     }, error => {
@@ -96,11 +114,11 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   }
 
   const navegateCommece = ({ commerce }) => {
-    
+
     // Revisamos si tenemos almenos un reporte
     dispatch(reportIndex({
       form: { commerce_id: commerce?.id ?? null }
-    })).then(({ data: { data: { report } } }) => {      
+    })).then(({ data: { data: { report } } }) => {
       if (report.data.length) {
         dispatch(getCommerceByCommerce({ commerce })).then(({ data: { data: { commerce: commercebycommerce } } }) => {
           dispatch(commerceUpdate({ commerce: commercebycommerce }))
@@ -119,7 +137,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
         }));
       }
     });
-    
+
 
   }
 
@@ -172,7 +190,6 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
 
   useEffect(() => {
     getUsers();
-    getRols();
     dispatch(commerceInitialState());
   }, []);
 

@@ -127,7 +127,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
       setInput('year', value);
     }
     event.preventDefault();
-  } 
+  }
 
   // EVENTOS
   const onClearForm = () => {
@@ -407,7 +407,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
           </Grid>
           <Grid item xs={12} md={12}>
             <Grid container>
-              {reportArray.map((report) => (
+              {(monthArray && reportArray) && reportArray.map((report) => (
                 <ReportItemComponent
                   key={report.id}
                   report={report}

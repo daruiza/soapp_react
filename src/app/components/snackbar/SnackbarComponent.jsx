@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import CloseIcon from '@mui/icons-material/Close';
-import { Alert, Grid, IconButton, Snackbar } from '@mui/material';
+import { Alert, Grid, IconButton, styled } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { messagePush } from '../../../store';
 
@@ -13,6 +13,15 @@ export const SnackbarComponent = () => {
     const [messageArray, setMessageArray] = useState([]);
     const { open: stateOpen, message, alert } = useSelector(state => state.requestApi);
     const [open, setOpen] = useState(false);
+
+
+    // STYLE
+    const AlertStyle = styled(Alert)(({ theme }) => ({
+        opacity: '0.4',
+        '&:hover': {
+            opacity: '1',
+        },
+    }));
 
     useEffect(() => {
         if (message) {
@@ -40,7 +49,7 @@ export const SnackbarComponent = () => {
 
         if (messageArray.length) {
             // Vamos retirando uno a uno los mensajes
-            setTimeout(() => handleClose(messageArray[0]), 1750);
+            // setTimeout(() => handleClose(messageArray[0]), 3750);
         }
     }, [messageArray]);
 
@@ -73,12 +82,13 @@ export const SnackbarComponent = () => {
                 bottom: '24px',
                 left: '24px',
                 right: 'auto',
-                zIndex: '1400'
+                zIndex: '1400',
             }}>
             {
                 messageArray.map((m, key) => (
-                    <Alert
+                    <AlertStyle
                         key={key}
+                        // classes={{ root: classes.root, }}
                         action={
                             <React.Fragment>
                                 <IconButton
@@ -94,7 +104,7 @@ export const SnackbarComponent = () => {
                         severity={m.alert ? m.alert : 'info'}
                         sx={{ width: '100%', border: '1px solid', marginBottom: '5px' }}>
                         {m.message}
-                    </Alert>
+                    </AlertStyle>
                 ))
             }
         </Grid >
