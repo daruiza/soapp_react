@@ -70,7 +70,7 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
     const handleEvidenceOpen = (cmms) => {
         setOpenEvidences((openEvidences) => ({
             ...openEvidences,
-            dialogtitle: `Evidencias Compromiso Item:: ${cmms?.item}`,
+            dialogtitle: `Evidencias Compromiso Item: ${cmms?.item}`,
             dialogcontenttext: `Norma: ${cmms?.rule} -- Nombre: ${cmms?.name}`,
             object: cmms,
             approved: cmms.approved,

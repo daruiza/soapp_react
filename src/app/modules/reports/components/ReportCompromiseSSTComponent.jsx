@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
 import { DialogAlertComponent } from '../../../components';
-import { ShowByCompromiseSSTEvidenceId, compromiseSSTDeleteById, compromiseSSTEvidenceStore, compromiseSSTShowByReportId, compromiseSSTStore, compromiseSSTUpdate, deleteCompromiseSSTEvidenceId } from '../../../../store';
+import { ShowByCompromiseSSTEvidenceId, compromiseSSTDeleteById, compromiseSSTEvidenceStore, compromiseSSTEvidenceUpdate, compromiseSSTShowByReportId, compromiseSSTStore, compromiseSSTUpdate, deleteCompromiseSSTEvidenceId } from '../../../../store';
 import { useTheme } from '@emotion/react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import es from 'dayjs/locale/es';
@@ -70,7 +70,7 @@ export const ReportCompromiseSSTComponent = ({ report_id = null, commerce_id = n
     const handleEvidenceOpen = (cmms) => {
         setOpenEvidences((openEvidences) => ({
             ...openEvidences,
-            dialogtitle: `Evidencias Compromiso SST Item:: ${cmms?.item}`,
+            dialogtitle: `Evidencias Compromiso SST Item: ${cmms?.item}`,
             dialogcontenttext: `Norma: ${cmms?.rule} -- Nombre: ${cmms?.name}`,
             object: cmms,
             approved: cmms.approved,
@@ -118,7 +118,7 @@ export const ReportCompromiseSSTComponent = ({ report_id = null, commerce_id = n
         } else {
             dispatch(compromiseSSTStore({
                 form: { ...cmms }
-            })).then(({ data: { data: { compromise } } }) => {               
+            })).then(({ data: { data: { compromise } } }) => {
                 getCompromiseByReportId();
             });
         }
@@ -176,6 +176,34 @@ export const ReportCompromiseSSTComponent = ({ report_id = null, commerce_id = n
         });
 
     }
+
+    const handleFileItemUpload = (selectFile, setFormInit = () => { }, setSelectFile = () => { }) => {
+        dispatch(compromiseSSTEvidenceUpdate({
+            form: {
+                ...selectFile?.evidence ?? {},
+                id: selectFile?.evidence?.evidence_id ?? null,
+                approved: selectFile?.evidence?.approved ? 1 : 0,
+
+            }
+        })).then(({ data: { data: { evidence } } }) => {
+
+            setFormInit(JSON.stringify({
+                name: evidence.name,
+                approved: evidence.approved ? true : false,
+            })
+            )
+
+            setSelectFile({
+                ...selectFile,
+                evidence: {
+                    ...selectFile.evidence,
+                    name: evidence.name,
+                    approved: evidence.approved ? true : false
+                }
+            });
+        }, error => setMessageSnackbar({ dispatch, error }))
+    }
+
 
     // Validacines
     const numberPatternValidation = (value) => {
@@ -484,12 +512,13 @@ export const ReportCompromiseSSTComponent = ({ report_id = null, commerce_id = n
                     commerce_id={commerce_id}
                     approved={openEvidences.approved}
                     handleClose={() => setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))}
-                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/compromisessst/${openEvidences?.object?.id??null}`}
+                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/compromisessst/${openEvidences?.object?.id ?? null}`}
                     files={files}
                     setFiles={setFiles}
                     getEvidencesById={getEvidencesById}
                     evidenceStore={storeCompromiseEvidence}
                     handleRemove={handleRemoveCompromiseEvidence}
+                    handleFileItemUpload={handleFileItemUpload}
                 ></EvidenceGenericComponent>
             }
 

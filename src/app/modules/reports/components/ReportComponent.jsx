@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useReduceReport } from '../../../../hooks/useReduceReport';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { commerceUpdate, compromiseSSTShowByReportId, compromiseShowByReportId, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, genericListGetByNamelist, reportByreportId } from '../../../../store';
+import { commerceUpdate, compromiseRSSTShowByReportId, compromiseSSTShowByReportId, compromiseShowByReportId, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, genericListGetByNamelist, reportByreportId } from '../../../../store';
 import { Grid, ImageListItem, Typography, Button, TextField, IconButton, Switch, FormControl, FormControlLabel, FormGroup, Divider, InputLabel, Select, FormLabel, SpeedDial, SpeedDialAction, SpeedDialIcon, FormHelperText } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
@@ -170,7 +170,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
     const getCompromiseRSSTByReportId = () => {
         if (param_report_id) {
-            dispatch(compromiseSSTShowByReportId({
+            dispatch(compromiseRSSTShowByReportId({
                 form: { id: param_report_id }
             })).then(({ data: { data } }) => {
                 setCompromisesRSST(data);

@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
 import { DialogAlertComponent } from '../../../components';
-import { ShowByCompromiseRSSTEvidenceId, compromiseRSSTDeleteById, compromiseRSSTEvidenceStore, compromiseRSSTShowByReportId, compromiseRSSTStore, compromiseRSSTUpdate, deleteCompromiseRSSTEvidenceId } from '../../../../store';
+import { ShowByCompromiseRSSTEvidenceId, compromiseRSSTDeleteById, compromiseRSSTEvidenceStore, compromiseRSSTEvidenceUpdate, compromiseRSSTShowByReportId, compromiseRSSTStore, compromiseRSSTUpdate, deleteCompromiseRSSTEvidenceId } from '../../../../store';
 import { useTheme } from '@emotion/react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import es from 'dayjs/locale/es';
@@ -42,8 +42,6 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
         alertChildren: false
     });
 
-
-
     const getCompromiseByReportId = () => {
         if (report_id) {
             dispatch(compromiseRSSTShowByReportId({
@@ -70,7 +68,7 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
     const handleEvidenceOpen = (cmms) => {
         setOpenEvidences((openEvidences) => ({
             ...openEvidences,
-            dialogtitle: `Evidencias Compromiso RSST Item:: ${cmms?.item}`,
+            dialogtitle: `Evidencias Compromiso RSST Item: ${cmms?.item}`,
             dialogcontenttext: `Norma: ${cmms?.rule} -- Nombre: ${cmms?.name}`,
             object: cmms,
             approved: cmms.approved,
@@ -118,7 +116,7 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
         } else {
             dispatch(compromiseRSSTStore({
                 form: { ...cmms }
-            })).then(({ data: { data: { compromise } } }) => {               
+            })).then(({ data: { data: { compromise } } }) => {
                 getCompromiseByReportId();
             });
         }
@@ -175,6 +173,33 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
             getEvidencesById(openEvidences?.object?.id ?? null)
         });
 
+    }
+
+    const handleFileItemUpload = (selectFile, setFormInit = () => { }, setSelectFile = () => { }) => {
+        dispatch(compromiseRSSTEvidenceUpdate({
+            form: {
+                ...selectFile?.evidence ?? {},
+                id: selectFile?.evidence?.evidence_id ?? null,
+                approved: selectFile?.evidence?.approved ? 1 : 0,
+
+            }
+        })).then(({ data: { data: { evidence } } }) => {
+
+            setFormInit(JSON.stringify({
+                name: evidence.name,
+                approved: evidence.approved ? true : false,
+            })
+            )
+
+            setSelectFile({
+                ...selectFile,
+                evidence: {
+                    ...selectFile.evidence,
+                    name: evidence.name,
+                    approved: evidence.approved ? true : false
+                }
+            });
+        }, error => setMessageSnackbar({ dispatch, error }))
     }
 
     // Validacines
@@ -484,12 +509,13 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                     commerce_id={commerce_id}
                     approved={openEvidences.approved}
                     handleClose={() => setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))}
-                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/compromisessst/${openEvidences?.object?.id??null}`}
+                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/compromisesrsst/${openEvidences?.object?.id ?? null}`}
                     files={files}
                     setFiles={setFiles}
                     getEvidencesById={getEvidencesById}
                     evidenceStore={storeCompromiseEvidence}
                     handleRemove={handleRemoveCompromiseEvidence}
+                    handleFileItemUpload={handleFileItemUpload}
                 ></EvidenceGenericComponent>
             }
 

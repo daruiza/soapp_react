@@ -21,7 +21,9 @@ export const EvidenceGenericComponent = ({
     setFiles = () => { },
     getEvidencesById = () => { },
     evidenceStore = () => { },
-    handleRemove = () => { }}) => {
+    handleRemove = () => { },
+    handleFileItemUpload = () => { } }
+) => {
 
     const { palette } = useTheme();
     const dispatch = useDispatch();
@@ -60,7 +62,7 @@ export const EvidenceGenericComponent = ({
 
     const onDragOver = (event) => {
         event.preventDefault();
-    }    
+    }
 
     const handleEvidenceViewerOpen = () => {
         setOpenEvidencesViewer(true)
@@ -115,7 +117,8 @@ export const EvidenceGenericComponent = ({
                                 handleRemove={handleRemove}
                                 handleEvidenceViewerOpen={handleEvidenceViewerOpen}
                                 file={file}
-                                approved={approved}>
+                                approved={approved}
+                                handleFileItemUpload={handleFileItemUpload}>
                             </ActivityEvidenceItemComponent>
                         ))
                     }

@@ -62,7 +62,10 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
 
   const queryUser = useQuery({
     queryKey: ['users'],
-    queryFn: (attr = {}, form = formState) => dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data } }) => (data)),    
+    queryFn: (attr = {}, form = formState) => dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data } }) => (data)),
+    enabled: false,
+    staleTime: Infinity,
+    cacheTime: Infinity
   })
 
   console.log('queryUser', queryUser.data);

@@ -49,7 +49,7 @@ export const SnackbarComponent = () => {
 
         if (messageArray.length) {
             // Vamos retirando uno a uno los mensajes
-            // setTimeout(() => handleClose(messageArray[0]), 3750);
+            setTimeout(() => handleClose(messageArray[0]), 3750);
         }
     }, [messageArray]);
 

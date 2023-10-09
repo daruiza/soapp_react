@@ -11,7 +11,12 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
 import { DialogAlertComponent } from '../dialogalert/DialogAlertComponent';
 
-export const ActivityEvidenceItemComponent = ({ handleRemove = () => { }, handleEvidenceViewerOpen = () => { }, file = {}, approved = false }) => {
+export const ActivityEvidenceItemComponent = ({
+    handleRemove = () => { },
+    handleEvidenceViewerOpen = () => { },
+    file = {},
+    approved = false,
+    handleFileItemUpload = () => {} }) => {
 
     const dispatch = useDispatch();
 
@@ -42,6 +47,7 @@ export const ActivityEvidenceItemComponent = ({ handleRemove = () => { }, handle
         setSelectFile({ ...selectFile, evidence: { ...selectFile.evidence, approved: !selectFile.evidence.approved } })
     }
 
+    // Se guarda solo para mostrar como se hace update entes de generalizar
     const handleUpdate = (event) => {
 
         dispatch(activityEvidenceUpdate({
@@ -127,7 +133,7 @@ export const ActivityEvidenceItemComponent = ({ handleRemove = () => { }, handle
                                     <Tooltip title={`${selectFile?.evidence?.approved ? 'Invalidar' : 'Validar'}`} placement="top">
                                         <span>
                                             <PrivateAgentRoute>
-                                                <IconButton disabled={approved?true:false} onClick={() => handleApprovedToggle()}>
+                                                <IconButton disabled={approved ? true : false} onClick={() => handleApprovedToggle()}>
                                                     {selectFile?.evidence?.approved &&
                                                         <CheckIcon sx={{ color: `${!approved ? palette.primary.main : null}` }}></CheckIcon>
                                                     }
@@ -154,8 +160,8 @@ export const ActivityEvidenceItemComponent = ({ handleRemove = () => { }, handle
                                     <Tooltip title="Guardar Archivo" placement="top">
                                         <span>
                                             <IconButton
-                                                disabled={(disabledSave || approved)?true:false}
-                                                onClick={(event) => handleUpdate(event)}>
+                                                disabled={(disabledSave || approved) ? true : false}
+                                                onClick={(event) => handleFileItemUpload(selectFile, setFormInit, setSelectFile)}>
                                                 <SaveIcon></SaveIcon>
                                             </IconButton>
                                         </span>
@@ -163,7 +169,7 @@ export const ActivityEvidenceItemComponent = ({ handleRemove = () => { }, handle
                                 </Grid>
 
                                 <Grid item xs={12} md={3} sx={{}} >
-                                    <Tooltip disabled={approved?true:false} title="Quitar Archivo" placement="top">
+                                    <Tooltip disabled={approved ? true : false} title="Quitar Archivo" placement="top">
                                         <IconButton onClick={() => handleFileDeleteOpen(file)}>
                                             <CancelIcon></CancelIcon>
                                         </IconButton>
@@ -173,7 +179,7 @@ export const ActivityEvidenceItemComponent = ({ handleRemove = () => { }, handle
                                 <Grid item xs={12} md={11} sx={{}} >
                                     <Tooltip title={selectFile?.evidence?.name}>
                                         <TextField
-                                            disabled={approved?true:false}
+                                            disabled={approved ? true : false}
                                             variant="standard"
                                             size="small"
                                             label="Nombre"

@@ -2,7 +2,7 @@ import { useTheme } from '@emotion/react';
 import { Dialog, DialogContent, DialogTitle, DialogActions, Grid, Button, DialogContentText } from '@mui/material'
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { ShowByActivityEvidenceId, activityEvidenceStore, deleteActivityEvidenceId } from '../../../store';
+import { ShowByActivityEvidenceId, activityEvidenceStore, activityEvidenceUpdate, deleteActivityEvidenceId } from '../../../store';
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
 import { getSoappDownloadFile, uploadEvidenceFileName } from '../../../api';
 import { ActivityEvidenceItemComponent } from './ActivityEvidenceItemComponent';
@@ -98,6 +98,34 @@ export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext 
 
     }
 
+    // Actualización de ItemFile
+    const handleFileItemUpload = (selectFile, setFormInit = () => { }, setSelectFile = () => { }) => {
+        dispatch(activityEvidenceUpdate({
+            form: {
+                ...selectFile?.evidence ?? {},
+                id: selectFile?.evidence?.evidence_id ?? null,
+                approved: selectFile?.evidence?.approved ? 1 : 0,
+
+            }
+        })).then(({ data: { data: { evidence } } }) => {
+
+            setFormInit(JSON.stringify({
+                name: evidence.name,
+                approved: evidence.approved ? true : false,
+            })
+            )
+
+            setSelectFile({
+                ...selectFile,
+                evidence: {
+                    ...selectFile.evidence,
+                    name: evidence.name,
+                    approved: evidence.approved ? true : false
+                }
+            });
+        }, error => setMessageSnackbar({ dispatch, error }))
+    }
+
     const handleEvidenceViewerOpen = () => {
         setOpenEvidencesViewer(true)
     }
@@ -151,7 +179,9 @@ export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext 
                                 handleRemove={handleRemove}
                                 handleEvidenceViewerOpen={handleEvidenceViewerOpen}
                                 file={file}
-                                approved={approved}>
+                                approved={approved}
+                                handleFileItemUpload={handleFileItemUpload}>
+
                             </ActivityEvidenceItemComponent>
                         ))
                     }
