@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
 import { DialogAlertComponent } from '../../../components';
+import { TextareaField } from '../../../components/textarea/TextareaField';
 import { ShowByCompromiseRSSTEvidenceId, compromiseRSSTDeleteById, compromiseRSSTEvidenceStore, compromiseRSSTEvidenceUpdate, compromiseRSSTShowByReportId, compromiseRSSTStore, compromiseRSSTUpdate, deleteCompromiseRSSTEvidenceId } from '../../../../store';
 import { useTheme } from '@emotion/react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -17,6 +18,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { getSoappDownloadFile } from '../../../../api';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
+
 
 export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = null, compromises = null, setCompromises = () => { }, getReportById = () => { }, getCompromiseByReportIdReport = () => { } }) => {
 
@@ -102,9 +104,11 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
             !cmms.dateinit ||
             !cmms.dateclose ||
             !cmms.name ||
-            !cmms.detail) {
+            !cmms.detail ||
+            !cmms.recommendations) {
             return;
         }
+
 
         if ('id' in cmms && cmms.id) {
             dispatch(compromiseRSSTUpdate({
@@ -216,7 +220,8 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
             !cmms.name ||
             !cmms.dateinit ||
             !cmms.dateclose ||
-            !cmms.detail) {
+            !cmms.detail ||
+            !cmms.recommendations) {
             return true;
         }
 
@@ -230,7 +235,8 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                 !cmms.name ||
                 !cmms.dateinit ||
                 !cmms.dateclose ||
-                !cmms.detail)
+                !cmms.detail ||
+                !cmms.recommendations)
     }
 
     const getDate = (dateinit) => {
@@ -339,7 +345,7 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                                         <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                             <DatePicker
                                                 disabled={cmms?.approved ? true : false}
-                                                maxDate={getDate(cmms.dateclose)}
+                                                maxDate={cmms.dateclose ? getDate(cmms.dateclose) : ''}
                                                 size="small"
                                                 className='birth-date-piker'
                                                 sx={{ width: '100%' }}
@@ -372,6 +378,7 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                                     </Grid>
 
 
+
                                     <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                         <TextField
                                             disabled={cmms?.approved ? true : false}
@@ -387,7 +394,18 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                                         />
                                     </Grid>
 
-
+                                    <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <TextareaField
+                                            disabled={cmms?.approved ? true : false}
+                                            label="Recomendaciones"
+                                            name="recommendations"
+                                            value={cmms?.recommendations ?? ''}
+                                            onChange={(event) => changeInputCompromise(event, index)}
+                                            placeholder=""
+                                            minRows={2}
+                                            sx={{ minwidth: '100%' }}
+                                        ></TextareaField>
+                                    </Grid>
 
                                 </Grid>
                                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
@@ -414,9 +432,7 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                                             <IconButton
                                                 disabled={compromiseSavevalidator(cmms) || cmms?.approved ? true : false}
                                                 onClick={() => handleSaveCompromise(cmms)}                                            >
-                                                <SaveIcon
-                                                // sx={{ color: !validatorSaveEmployeeInsetDisabled(cl) ? palette.primary.main : '' }}
-                                                ></SaveIcon>
+                                                <SaveIcon></SaveIcon>
                                             </IconButton>
                                         </span>
                                     </Tooltip>
@@ -480,6 +496,7 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                                 rule: null,
                                 name: null,
                                 detail: null,
+                                recommendations: null,
                                 canon: false,
                                 dateinit: null,
                                 dateclose: null,
@@ -508,7 +525,10 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                     report_id={report_id}
                     commerce_id={commerce_id}
                     approved={openEvidences.approved}
-                    handleClose={() => setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))}
+                    handleClose={() => {
+                        setFiles([]);
+                        setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
+                    }}
                     upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/compromisesrsst/${openEvidences?.object?.id ?? null}`}
                     files={files}
                     setFiles={setFiles}

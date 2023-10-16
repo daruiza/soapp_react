@@ -1352,7 +1352,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                         onChange={(event) => changeInputCollaborator({ target: { name: 'was_report', value: cl?.was_report === 'on' ? 'off' : 'on' } }, cl.index)}
                                                                                         name="was_report" />
                                                                                 }
-                                                                                label={`${cl?.was_report === 'on' ? 'Se reportó ' + cl?.event : 'No se reportó ' + cl?.event}`}
+                                                                                label={`${cl?.was_report === 'on' ? 'Se reportó ' + cl?.work_event : 'No se reportó ' + cl?.work_event}`}
                                                                             />
                                                                         </Grid>
 
@@ -1366,7 +1366,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                         onChange={(event) => changeInputCollaborator({ target: { name: 'was_investigated', value: cl?.was_investigated === 'on' ? 'off' : 'on' } }, cl.index)}
                                                                                         name="was_investigated" />
                                                                                 }
-                                                                                label={`${cl?.was_investigated === 'on' ? 'Se investigó ' + cl?.event : 'No se investigó ' + cl?.event}`}
+                                                                                label={`${cl?.was_investigated === 'on' ? 'Se investigó ' + cl?.work_event : 'No se investigó ' + cl?.work_event}`}
                                                                             />
                                                                         </Grid>
 

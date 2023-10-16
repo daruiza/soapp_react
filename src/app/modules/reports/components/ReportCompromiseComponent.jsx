@@ -318,7 +318,7 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
                                         <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                             <DatePicker
                                                 disabled={cmms?.approved ? true : false}
-                                                maxDate={getDate(cmms.dateclose)}
+                                                maxDate={cmms.dateclose ? getDate(cmms.dateclose) : ''}
                                                 size="small"
                                                 className='birth-date-piker'
                                                 sx={{ width: '100%' }}
@@ -487,8 +487,11 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
                     report_id={report_id}
                     commerce_id={commerce_id}
                     approved={openEvidences.approved}
-                    handleClose={() => setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))}
-                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/compromises/${openEvidences?.object?.id??null}`}
+                    handleClose={() => {
+                        setFiles([]);
+                        setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
+                    }}
+                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/compromises/${openEvidences?.object?.id ?? null}`}
                     files={files}
                     setFiles={setFiles}
                     getEvidencesById={getEvidencesById}
