@@ -380,8 +380,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                     <Grid item xs={12} md={12} mb={2} sx={{ marginBottom: '0px' }} display={'flex'}>
                         <Grid item xs={6} md={2} mb={2} sx={{ display: 'flex', alignItems: 'center' }}>
-                            <ImageListItem>
-                                <img
+                            <ImageListItem >
+                                <img                                    
                                     src={asistirEnSaludBran}
                                     alt="asistirEnSaludBran"
                                     loading="lazy" />
