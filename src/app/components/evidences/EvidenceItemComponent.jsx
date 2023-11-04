@@ -15,7 +15,7 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../middleware';
 
-export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator = () => { }, handleRemove = () => { }, handleEvidenceViewerOpen = () => { }, file = {} }) => {
+export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator = () => { }, handleRemove = () => { }, handleEvidenceViewerOpen = () => { }, file = {}, approved = false }) => {
 
     const dispatch = useDispatch();
 
@@ -145,9 +145,11 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                                     <Tooltip title={`${selectFile?.evidence?.approved ? 'Invalidar' : 'Validar'}`} placement="top">
                                         <span>
                                             <PrivateAgentRoute>
-                                                <IconButton onClick={() => handleApprovedToggle()}>
+                                                <IconButton disabled={approved} onClick={() => handleApprovedToggle()}>
                                                     {selectFile?.evidence?.approved &&
-                                                        <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                        <CheckIcon sx={{ 
+                                                            color: `${!approved ? palette.primary.main : null}` 
+                                                        }}></CheckIcon>
                                                     }
                                                     {!selectFile?.evidence?.approved &&
                                                         <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
@@ -165,7 +167,7 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                                                     }
                                                 </IconButton>
                                             </PrivateCustomerRoute>
-                                           
+
                                         </span>
                                     </Tooltip>
                                 </Grid>
@@ -174,7 +176,7 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                                     <Tooltip title="Guardar Archivo" placement="top">
                                         <span>
                                             <IconButton
-                                                disabled={disabledSave}
+                                                disabled={disabledSave || approved}
                                                 onClick={(event) => handleUpdate(event)}>
                                                 <SaveIcon></SaveIcon>
                                             </IconButton>
@@ -184,7 +186,7 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
 
                                 <Grid item xs={12} md={3} sx={{}} >
                                     <Tooltip title="Quitar Archivo" placement="top">
-                                        <IconButton onClick={() => handleFileDeleteOpen(file)}>
+                                        <IconButton disabled={approved} onClick={() => handleFileDeleteOpen(file)}>
                                             <CancelIcon></CancelIcon>
                                         </IconButton>
                                     </Tooltip>
@@ -195,6 +197,7 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                         <Grid item xs={12} md={11} sx={{}} >
                             <Tooltip title={selectFile?.evidence?.name}>
                                 <TextField
+                                    disabled={approved}
                                     variant="standard"
                                     size="small"
                                     label="Nombre"

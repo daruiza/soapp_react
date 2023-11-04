@@ -2,46 +2,36 @@ import { useTheme } from '@emotion/react';
 import { Dialog, DialogContent, DialogTitle, DialogActions, Grid, Button, DialogContentText } from '@mui/material'
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { ShowByActivityEvidenceId, activityEvidenceStore, activityEvidenceUpdate, deleteActivityEvidenceId } from '../../../store';
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
-import { getSoappDownloadFile, uploadEvidenceFileName } from '../../../api';
+import { uploadEvidenceFileName } from '../../../api';
 import { ActivityEvidenceItemComponent } from './ActivityEvidenceItemComponent';
 import { EvidenceViewerComponent } from './EvidenceViewerComponent';
 
-export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext = '', open = false, handleClose = () => { }, activity = {}, commerce_id = null, report_id = null, approved = false }) => {
+export const EvidenceGenericComponent = ({
+    dialogtitle = '',
+    dialogcontenttext = '',
+    open = false,
+    handleClose = () => { },
+    object = {},
+    commerce_id = null,
+    report_id = null,
+    approved = false,
+    upload_evidence_url = '',
+    files = [],
+    setFiles = () => { },
+    getEvidencesById = () => { },
+    evidenceStore = () => { },
+    handleRemove = () => { },
+    handleFileItemUpload = () => { } }
+) => {
 
     const { palette } = useTheme();
     const dispatch = useDispatch();
     const inputFileRef = useRef();
 
-    const [files, setFiles] = useState([]);
-
     const [openEvidencesViewer, setOpenEvidencesViewer] = useState(false);
 
-
-    //Init
-    const ActivityEvidenceById = (activity_id) => {
-        dispatch(ShowByActivityEvidenceId({
-            form: {
-                id: activity_id ?? ''
-            }
-        })).then(({ data: { data: { evidence: evidences } } }) => {
-            evidences.forEach(evidence => {
-                dispatch(getSoappDownloadFile({ path: evidence.file }))
-                    .then((response) => {
-                        const newfile = new Blob([response.data], { type: response.data.type });
-                        newfile.name = evidence.name;
-                        newfile.approved = evidence.approved;
-                        newfile.evidence_id = evidence.id;
-                        setFiles((files) => [
-                            // filtra que ya no este el mismo archivo, 
-                            ...files.filter(file => file.name !== newfile.name),
-                            newfile
-                        ])
-                    })
-            });
-        });
-    }
+    //Init   
 
     // Events
     const AddFile = () => { inputFileRef.current.click(); }
@@ -54,23 +44,10 @@ export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext 
         ) return;
 
 
-        dispatch(uploadEvidenceFileName(file, `images/commerce/${commerce_id}/report/${report_id}/activities/${activity?.id}`))
+        dispatch(uploadEvidenceFileName(file, upload_evidence_url))
             .then(({ data }) => {
                 // Guardamos la evidencia
-                dispatch(activityEvidenceStore({
-                    form: {
-                        name: file.name.split('.')[0],
-                        type: file.type,
-                        activity_id: activity.id,
-                        file: data.storage_image_path,
-                        approved: false
-                    }
-                })).then(({ data: { data: { evidence } } }) => {
-                    file.approved = evidence?.approved ? true : false;
-                    file.evidence_id = evidence.id;
-
-                    setFiles((files) => [...files, file]);
-                }, error => setMessageSnackbar({ dispatch, error }))
+                evidenceStore(data, file, object);
             }, error => setMessageSnackbar({ dispatch, error }));
     }
 
@@ -87,45 +64,6 @@ export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext 
         event.preventDefault();
     }
 
-    const handleRemove = (file) => {
-        dispatch(deleteActivityEvidenceId({
-            form: { id: file.evidence_id }
-        })).then((data) => {
-            setFiles((files) => [...files.filter(fl => fl !== file)]);
-            // Refrescamos el Report Component
-            ActivityEvidenceById(activity?.id ?? null)
-        });
-
-    }
-
-    // Actualización de ItemFile
-    const handleFileItemUpload = (selectFile, setFormInit = () => { }, setSelectFile = () => { }) => {
-        dispatch(activityEvidenceUpdate({
-            form: {
-                ...selectFile?.evidence ?? {},
-                id: selectFile?.evidence?.evidence_id ?? null,
-                approved: selectFile?.evidence?.approved ? 1 : 0,
-
-            }
-        })).then(({ data: { data: { evidence } } }) => {
-
-            setFormInit(JSON.stringify({
-                name: evidence.name,
-                approved: evidence.approved ? true : false,
-            })
-            )
-
-            setSelectFile({
-                ...selectFile,
-                evidence: {
-                    ...selectFile.evidence,
-                    name: evidence.name,
-                    approved: evidence.approved ? true : false
-                }
-            });
-        }, error => setMessageSnackbar({ dispatch, error }))
-    }
-
     const handleEvidenceViewerOpen = () => {
         setOpenEvidencesViewer(true)
     }
@@ -135,7 +73,7 @@ export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext 
     }
 
     useEffect(() => {
-        ActivityEvidenceById(activity?.id ?? null)
+        getEvidencesById(object?.id ?? null);
     }, [])
 
 
@@ -181,7 +119,6 @@ export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext 
                                 file={file}
                                 approved={approved}
                                 handleFileItemUpload={handleFileItemUpload}>
-
                             </ActivityEvidenceItemComponent>
                         ))
                     }
@@ -224,3 +161,4 @@ export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext 
         </Dialog>
     )
 }
+

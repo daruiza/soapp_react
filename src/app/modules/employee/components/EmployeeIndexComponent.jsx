@@ -66,7 +66,6 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
   const [openAlert, setOpenAlert] = useState(true);
   const [openEmployeeSteteSelect, setOpenEmployeeSteteSelect] = useState(false);
 
-
   const [employee, setEmployee] = useState({});
   const [employeeTable, setEmployeeTable] = useState({});
   const [employeeArray, setEmployeeArray] = useState([]);
@@ -172,7 +171,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
       getEmployeeState();
       getIsEmployeeTypes();
       setInput('commerce_id', commerce?.id ?? param_commerce_id);
-      setTimeout(() => onResetForm({ initialForm: formState, formState }), 100)
+      setTimeout(() => onResetForm({ initialForm: formState, formState }), 100)      
     }
 
     if (param_commerce_id && !commerce) {

@@ -9,3 +9,6 @@ export * from './employeereport/employeereportThunks';
 export * from './requestapi/requestApiSlice';
 export * from './genericlist/genericlistThunks';
 export * from './trainingsst/trainingsstThunks';
+export * from './compromise/compromiseThunks';
+export * from './compromise/compromiseSSTThunks';
+export * from './compromise/compromiseRSSTThunks';

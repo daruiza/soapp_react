@@ -82,7 +82,6 @@ export const ShowByActivityEvidenceId = ({ form = {} }) => {
     }
 }
 
-
 export const activityEvidenceStore = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
@@ -109,3 +108,123 @@ export const activityEvidenceUpdate = ({ form }) => {
         }
     }
 }
+
+
+export const ShowByCompromiseEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/compromiseevidence/showbycompromiseevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+
+export const compromiseEvidenceStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/compromiseevidence/store`, form);
+        }
+    }
+}
+
+export const deleteCompromiseEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/compromiseevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const compromiseEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/compromiseevidence/update/${form.id}`, form);
+        }
+    }
+}
+
+export const ShowByCompromiseSSTEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/compromisesstevidence/showbycompromiseevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+
+export const compromiseSSTEvidenceStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/compromisesstevidence/store`, form);
+        }
+    }
+}
+
+export const deleteCompromiseSSTEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/compromisesstevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const compromiseSSTEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/compromisesstevidence/update/${form.id}`, form);
+        }
+    }
+}
+
+export const ShowByCompromiseRSSTEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/compromisersstevidence/showbycompromiseevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+
+export const compromiseRSSTEvidenceStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/compromisersstevidence/store`, form);
+        }
+    }
+}
+
+export const deleteCompromiseRSSTEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/compromisersstevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const compromiseRSSTEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/compromisersstevidence/update/${form.id}`, form);
+        }
+    }
+}
+
+
+
+
+
+
+
+

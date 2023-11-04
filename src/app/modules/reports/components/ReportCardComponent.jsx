@@ -20,14 +20,16 @@ export const ReportCardComponent = ({ children, title, subheader, expandedDefaul
     const { palette } = useTheme();
 
     const [expanded, setExpanded] = useState(expandedDefault);
-    const handleExpandClick = () => { setExpanded(!expanded) };    
+    const handleExpandClick = () => {
+        setExpanded(!expanded)
+    };
     return (
         <Card sx={sx} >
             <CardHeader
                 sx={{
                     backgroundColor: `${pending < 100 ? palette.primary.pending : palette.primary.main}`,
-                    padding: "6px",                    
-                    '&:hover': { 
+                    padding: "6px",
+                    '&:hover': {
                         backgroundColor: palette.primary.support,
                         cursor: 'pointer'
                     },
