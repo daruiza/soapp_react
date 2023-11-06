@@ -222,6 +222,44 @@ export const compromiseRSSTEvidenceUpdate = ({ form }) => {
 }
 
 
+export const ShowByInspectionRSSTEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/compromisersstevidence/showbycompromiseevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+
+export const inspectionRSSTEvidenceStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/compromisersstevidence/store`, form);
+        }
+    }
+}
+
+export const deleteInspectionRSSTEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/compromisersstevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const inspectionRSSTEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/compromisersstevidence/update/${form.id}`, form);
+        }
+    }
+}
+
+
 
 
 

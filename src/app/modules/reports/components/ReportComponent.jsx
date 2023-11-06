@@ -38,6 +38,9 @@ import ReportActivityComponent from './ReportActivityComponent';
 import { ReportCompromiseComponent } from './ReportCompromiseComponent';
 import { ReportCompromiseSSTComponent } from './ReportCompromiseSSTComponent';
 import { ReportCompromiseRSSTComponent } from './ReportCompromiseRSSTComponent';
+import { ReportInspectionRSSTComponent } from './ReportInspectionRSSTComponent';
+import { inspectionRSSTShowByReportId } from '../../../../store/inspection/inspectionRSSTThunks';
+
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -55,6 +58,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [compromises, setCompromises] = useState(null);
     const [compromisesSST, setCompromisesSST] = useState(null);
     const [compromisesRSST, setCompromisesRSST] = useState(null);
+    const [inspectionsRSST, setInspectionsRSST] = useState(null);
     const [activities, setActivities] = useState([]);
 
     const [employeeArray, setEmployeeArray] = useState([]);
@@ -178,8 +182,15 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         }
     }
 
-    
-
+    const getInspectionRSSTByReportId = () => {
+        if (param_report_id) {
+            dispatch(inspectionRSSTShowByReportId({
+                form: { id: param_report_id }
+            })).then(({ data: { data } }) => {                
+                setInspectionsRSST(data);
+            })
+        }
+    }
 
 
 
@@ -362,6 +373,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         getCompromiseByReportId();
         getCompromiseSSTByReportId();
         getCompromiseRSSTByReportId();
+        getInspectionRSSTByReportId();
         getLists();
     }, [])
 
@@ -381,7 +393,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     <Grid item xs={12} md={12} mb={2} sx={{ marginBottom: '0px' }} display={'flex'}>
                         <Grid item xs={6} md={2} mb={2} sx={{ display: 'flex', alignItems: 'center' }}>
                             <ImageListItem >
-                                <img                                    
+                                <img
                                     src={asistirEnSaludBran}
                                     alt="asistirEnSaludBran"
                                     loading="lazy" />
@@ -1716,6 +1728,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     sx={{ borderRadius: '0px' }}
                                     title="11. INSPECCIONES REALIZADAS POR EL RESPONSABLE DEL SST"
                                 >
+                                    <ReportInspectionRSSTComponent
+                                        report_id={param_report_id}
+                                        commerce_id={param_commerce_id}
+                                        inspections={inspectionsRSST}
+                                        setInspections={setInspectionsRSST}
+                                        getReportById={() => getReportById(param_report_id)}
+                                        getInspectionByReportIdReport={() => getInspectionRSSTByReportId()}
+                                    ></ReportInspectionRSSTComponent>
 
                                 </ReportCardComponent>
 

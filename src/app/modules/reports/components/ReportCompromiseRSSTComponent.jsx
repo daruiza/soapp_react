@@ -20,7 +20,13 @@ import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
 
 
-export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = null, compromises = null, setCompromises = () => { }, getReportById = () => { }, getCompromiseByReportIdReport = () => { } }) => {
+export const ReportCompromiseRSSTComponent = ({ 
+    report_id = null, 
+    commerce_id = null, 
+    compromises = null, 
+    setCompromises = () => { }, 
+    getReportById = () => { }, 
+    getCompromiseByReportIdReport = () => { } }) => {
 
     const dispatch = useDispatch();
     const { palette } = useTheme();
@@ -225,8 +231,8 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
             return true;
         }
 
+        //id indica que ya ha sido aurdado en base
         const cmmscompromiseinit = compormisesinit?.find(el => el.id === cmms.id);
-
         return 'id' in cmms ?
             JSON.stringify({ ...cmmscompromiseinit, canon: cmmscompromiseinit?.canon ? true : false, approved: cmmscompromiseinit?.approved ? true : false }) ==
             JSON.stringify({ ...cmms, canon: cmms?.canon ? true : false, approved: cmms?.approved ? true : false }) :
@@ -257,8 +263,6 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
             })
         }
     }, [compormisesinit]);
-
-
 
     return (
         <Grid container>
