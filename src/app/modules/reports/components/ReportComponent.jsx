@@ -38,6 +38,8 @@ import ReportActivityComponent from './ReportActivityComponent';
 import { ReportCompromiseComponent } from './ReportCompromiseComponent';
 import { ReportCompromiseSSTComponent } from './ReportCompromiseSSTComponent';
 import { ReportCompromiseRSSTComponent } from './ReportCompromiseRSSTComponent';
+import { ReportInspectionRSST } from './ReportInspectionRSST';
+
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -177,11 +179,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
             })
         }
     }
-
-    
-
-
-
 
     const setEmployeeReportStore = (collaborator, employee_state) => {
         // se debe llamar al back para que guarde el cambio
@@ -1697,7 +1694,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
-                                    title="10.TAREAS Y COMPROMISOS COMPROMISOS DEL RESPONSABLE DEL SST"
+                                    title="10. TAREAS Y COMPROMISOS COMPROMISOS DEL RESPONSABLE DEL SST"
                                     pending={(100 - compromisesRSST?.filter(el => !el.approved)?.length * 100 / compromisesRSST?.length)}
                                 >
 
@@ -1716,6 +1713,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     sx={{ borderRadius: '0px' }}
                                     title="11. INSPECCIONES REALIZADAS POR EL RESPONSABLE DEL SST"
                                 >
+                                    <ReportInspectionRSST></ReportInspectionRSST>
 
                                 </ReportCardComponent>
 

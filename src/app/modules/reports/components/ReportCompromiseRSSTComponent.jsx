@@ -270,7 +270,7 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                             <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                             <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
                                 <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
-                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <Grid item xs={12} md={4} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                         <TextField
                                             disabled={cmms?.approved ? true : false}
                                             variant="standard"
@@ -286,7 +286,7 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                                         />
                                     </Grid>
 
-                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <Grid item xs={12} md={4} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                         <TextField
                                             disabled={cmms?.approved ? true : false}
                                             variant="standard"
@@ -301,7 +301,7 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                                         />
                                     </Grid>
 
-                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <Grid item xs={12} md={4} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                         <TextField
                                             disabled={cmms?.approved ? true : false}
                                             variant="standard"
@@ -316,7 +316,43 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                                         />
                                     </Grid>
 
-                                    <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                                    <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                                        <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
+                                            <DatePicker
+                                                disabled={cmms?.approved ? true : false}
+                                                maxDate={cmms.dateclose ? getDate(cmms.dateclose) : ''}
+                                                size="small"
+                                                className='birth-date-piker'
+                                                sx={{ width: '100%' }}
+                                                inputFormat="DD/MM/YYYY"
+                                                label="Fecha Apertura"
+                                                name="dateinit"
+                                                value={cmms?.dateinit ?? null}
+                                                onChange={(value) => changeInputCompromise({ target: { name: 'dateinit', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
+                                                renderInput={(params) => <TextField size="small" {...params} />}
+                                            />
+                                        </LocalizationProvider>
+                                    </Grid>
+
+                                    <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                                        <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
+                                            <DatePicker
+                                                disabled={cmms?.approved ? true : false}
+                                                minDate={getDate(cmms.dateinit)}
+                                                size="small"
+                                                className='birth-date-piker'
+                                                sx={{ width: '100%' }}
+                                                inputFormat="DD/MM/YYYY"
+                                                label="Fecha Cierre"
+                                                name="dateclose"
+                                                value={cmms?.dateclose ?? null}
+                                                onChange={(value) => changeInputCompromise({ target: { name: 'dateclose', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
+                                                renderInput={(params) => <TextField size="small" {...params} />}
+                                            />
+                                        </LocalizationProvider>
+                                    </Grid>
+
+                                    <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
                                         <PrivateCustomerRoute>
                                             <FormControlLabel
                                                 disabled={cmms?.approved ? true : false}
@@ -341,45 +377,7 @@ export const ReportCompromiseRSSTComponent = ({ report_id = null, commerce_id = 
                                         </PrivateAgentRoute>
                                     </Grid>
 
-                                    <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
-                                        <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
-                                            <DatePicker
-                                                disabled={cmms?.approved ? true : false}
-                                                maxDate={cmms.dateclose ? getDate(cmms.dateclose) : ''}
-                                                size="small"
-                                                className='birth-date-piker'
-                                                sx={{ width: '100%' }}
-                                                inputFormat="DD/MM/YYYY"
-                                                label="Fecha Apertura"
-                                                name="dateinit"
-                                                value={cmms?.dateinit ?? null}
-                                                onChange={(value) => changeInputCompromise({ target: { name: 'dateinit', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
-                                                renderInput={(params) => <TextField size="small" {...params} />}
-                                            />
-                                        </LocalizationProvider>
-                                    </Grid>
-
-                                    <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
-                                        <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
-                                            <DatePicker
-                                                disabled={cmms?.approved ? true : false}
-                                                minDate={getDate(cmms.dateinit)}
-                                                size="small"
-                                                className='birth-date-piker'
-                                                sx={{ width: '100%' }}
-                                                inputFormat="DD/MM/YYYY"
-                                                label="Fecha Cierre"
-                                                name="dateclose"
-                                                value={cmms?.dateclose ?? null}
-                                                onChange={(value) => changeInputCompromise({ target: { name: 'dateclose', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
-                                                renderInput={(params) => <TextField size="small" {...params} />}
-                                            />
-                                        </LocalizationProvider>
-                                    </Grid>
-
-
-
-                                    <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5, display: 'flex', alignItems: 'end' }}>
                                         <TextField
                                             disabled={cmms?.approved ? true : false}
                                             variant="standard"
