@@ -38,7 +38,6 @@ import ReportActivityComponent from './ReportActivityComponent';
 import { ReportCompromiseComponent } from './ReportCompromiseComponent';
 import { ReportCompromiseSSTComponent } from './ReportCompromiseSSTComponent';
 import { ReportCompromiseRSSTComponent } from './ReportCompromiseRSSTComponent';
-import { ReportInspectionRSST } from './ReportInspectionRSST';
 import { ReportInspectionRSSTComponent } from './ReportInspectionRSSTComponent';
 import { inspectionRSSTShowByReportId } from '../../../../store/inspection/inspectionRSSTThunks';
 
@@ -1729,7 +1728,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     sx={{ borderRadius: '0px' }}
                                     title="11. INSPECCIONES REALIZADAS POR EL RESPONSABLE DEL SST"
                                 >
-                                    <ReportInspectionRSST></ReportInspectionRSST>
                                     <ReportInspectionRSSTComponent
                                         report_id={param_report_id}
                                         commerce_id={param_commerce_id}
