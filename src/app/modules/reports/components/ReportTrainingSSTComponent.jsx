@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { TrainingsstEvidenceComponent } from '../../../components/evidences/TrainingsstEvidenceComponent';
 import { Button, FormControl, Grid, InputLabel, TextField, Select, MenuItem, Tooltip, IconButton, FormHelperText, Card, CardContent, Typography, Paper, TableContainer, Table, TableBody, TableRow, TableCell, CardActions, CardHeader, Box } from '@mui/material'
 import { trainingsstDeleteById, trainingsstStore, trainingsstUpdate } from '../../../../store';
 import { DialogAlertComponent } from '../../../components';
@@ -10,13 +11,12 @@ import es from 'dayjs/locale/es';
 import SaveIcon from '@mui/icons-material/Save';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { TrainingsstEvidenceComponent } from '../../../components/evidences/TrainingsstEvidenceComponent';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 
-export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingsst = () => { }, topicSSTArray = [], getReportById = () => { }, commerce_id = null }) => {
+export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setTrainingsst = () => { }, topicSSTArray = [], getReportById = () => { }, commerce_id = null }) => {
 
     const dispatch = useDispatch();
     const { palette } = useTheme();
@@ -27,7 +27,8 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
         open: false,
         dialogtitle: '',
         dialogcontenttext: '',
-        trainingsst: {}
+        trainingsst: {},
+        approved: false
     });
 
     const [handleAlert, setHandleAlert] = useState({
@@ -38,6 +39,17 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
         alertMessage: '',
         alertChildren: false
     });
+
+    const [handleAlertDelete, setHandleAlertDelete] = useState({
+        openAlert: false,
+        functionAlertClose: () => { },
+        functionAlertAgree: () => { },
+        alertTittle: '',
+        alertMessage: '',
+        alertChildren: false
+    });
+
+    
 
     // Eventos
 
@@ -57,6 +69,7 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
             dialogtitle: `Evidencias: ${tsst?.topic}`,
             dialogcontenttext: `${tsst?.date}`,
             trainingsst: tsst,
+            approved: tsst?.approved ?? false,
             open: true
         }))
     }
@@ -65,11 +78,22 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
         setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }));
     }
 
+    const handleDeleteTrainingSSTReport = (tsst) => {        
+        setHandleAlertDelete({
+          openAlert: true,
+          functionAlertClose: () => setHandleAlertDelete({ openAlert: false }),
+          functionAlertAgree: () => handleDeleteTrainingSST(tsst),
+          alertTittle: 'Eliminar Registro',
+          alertMessage: `Estas seguro de borrar el registro ${tsst.topic}.`
+        });
+    }
+
     const handleDeleteTrainingSST = (tsst) => {
         dispatch(trainingsstDeleteById({
             form: { ...tsst }
         })).then((data) => {
             getReportById();
+            setHandleAlertDelete({ openAlert: false })
         });
     }
 
@@ -101,7 +125,7 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
 
     // Validacines
     const numberPatternValidation = (value) => {
-        if(!value) return true;
+        if (!value) return true;
         const regex = new RegExp(/^\d+$/);
         return regex.test(value);
     };
@@ -126,7 +150,7 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
 
     useEffect(() => {
         setTrainingsstInit(trainingsst);
-    }, []);    
+    }, []);
 
     useEffect(() => {
         if (trainingsstinit.length) {
@@ -240,7 +264,7 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                                         <span>
                                             <IconButton
                                                 disabled={tsst?.approved ? true : false}
-                                                onClick={() => handleDeleteTrainingSST(tsst)}
+                                                onClick={() => handleDeleteTrainingSSTReport(tsst)}
                                             >
                                                 <HighlightOffIcon
                                                     sx={{
@@ -272,7 +296,7 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                                             <Tooltip title="Evidencias" placement="top">
                                                 <span>
                                                     <IconButton
-                                                        disabled={tsst?.approved ? true : false}
+                                                        disableFocusRipple={tsst?.approved ? true : false}
                                                         onClick={() => handleEvidenceOpen(tsst)}
                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                 </span>
@@ -367,6 +391,7 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                     dialogtitle={openEvidences.dialogtitle}
                     dialogcontenttext={openEvidences.dialogcontenttext}
                     trainingsst={openEvidences.trainingsst}
+                    approved={openEvidences.approved}
                     report_id={report.id}
                     commerce_id={commerce_id}
                     handleClose={handleEvidenceClose}
@@ -445,6 +470,17 @@ export const ReportTrainingSST = ({ trainingsst = [], report = {}, setTrainingss
                 </DialogAlertComponent>
             }
 
+            {
+                handleAlertDelete.openAlert && <DialogAlertComponent
+                    open={handleAlertDelete.openAlert}
+                    handleClose={() => handleAlertDelete.functionAlertClose()}
+                    handleAgree={() => handleAlertDelete.functionAlertAgree()}
+                    props={{
+                        tittle: handleAlertDelete.alertTittle,
+                        message: handleAlertDelete.alertMessage
+                    }}
+                ></DialogAlertComponent>
+            }
         </Grid >
     )
 }

@@ -3,7 +3,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid } from 
 import { useEffect, useState } from 'react'
 import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer';
 
-export const EvidenceViewerComponent = ({ files = [], open = false, handleClose = () => { } }) => {
+export const EvidenceViewerComponent = ({ files = [], open = false, handleClose = () => { }, tittle = '' }) => {
     const { palette } = useTheme();
 
 
@@ -11,7 +11,7 @@ export const EvidenceViewerComponent = ({ files = [], open = false, handleClose 
 
     useEffect(() => {
         setDocs(([...files.map(el => ({ uri: URL.createObjectURL(el), fileName: el.name }))]))
-    }, [])  
+    }, [])
 
     return (
         <Dialog open={open}
@@ -24,12 +24,12 @@ export const EvidenceViewerComponent = ({ files = [], open = false, handleClose 
             <DialogTitle id="alert-dialog-title">
                 <Grid container justifyContent="space-between">
                     <Grid item sx={{ color: `${palette.text.secondary}` }}>
-                        Visualizador de archivos
+                        {tittle}
                     </Grid>
                 </Grid>
             </DialogTitle>
             <DialogContent>
-                
+
                 <DocViewer
                     pluginRenderers={DocViewerRenderers}
                     documents={docs}

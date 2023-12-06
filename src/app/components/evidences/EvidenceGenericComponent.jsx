@@ -1,47 +1,37 @@
-
-import { useRef, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useTheme } from '@emotion/react';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid } from '@mui/material'
-import { EvidenceViewerComponent } from './EvidenceViewerComponent';
-import { ShowByTrainingsstEvidenceId, deleteTrainingEvidenceId, trainingsstEvidenceStore } from '../../../store';
-import { getSoappDownloadFile, uploadEvidenceFileName } from '../../../api/upload/uploadThuks';
+import { Dialog, DialogContent, DialogTitle, DialogActions, Grid, Button, DialogContentText } from '@mui/material'
+import { useEffect, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
-import TrainingsstEvidenceItemComponent from './TrainingsstEvidenceItemComponent';
+import { uploadEvidenceFileName } from '../../../api';
+import { ActivityEvidenceItemComponent } from './ActivityEvidenceItemComponent';
+import { EvidenceViewerComponent } from './EvidenceViewerComponent';
 
-export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontenttext = '', open = false, handleClose = () => { }, trainingsst = {}, commerce_id = null, report_id = null, approved = false }) => {
+export const EvidenceGenericComponent = ({
+    dialogtitle = '',
+    dialogcontenttext = '',
+    open = false,
+    handleClose = () => { },
+    object = {},
+    commerce_id = null,
+    report_id = null,
+    approved = false,
+    upload_evidence_url = '',
+    files = [],
+    setFiles = () => { },
+    getEvidencesById = () => { },
+    evidenceStore = () => { },
+    handleRemove = () => { },
+    handleFileItemUpload = () => { } }
+) => {
+
     const { palette } = useTheme();
     const dispatch = useDispatch();
     const inputFileRef = useRef();
 
-    const [files, setFiles] = useState([]);
-
     const [openEvidencesViewer, setOpenEvidencesViewer] = useState(false);
 
-    //Init
-    const TrainingsstEvidenceById = (trainingsst_id) => {
-        dispatch(ShowByTrainingsstEvidenceId({
-            form: {
-                id: trainingsst_id ?? ''
-            }
-        })).then(({ data: { data: { evidence: evidences } } }) => {
-
-            evidences.forEach(evidence => {
-                dispatch(getSoappDownloadFile({ path: evidence.file }))
-                    .then((response) => {
-                        const newfile = new Blob([response.data], { type: response.data.type });
-                        newfile.name = evidence.name;
-                        newfile.approved = evidence.approved;
-                        newfile.evidence_id = evidence.id;
-                        setFiles((files) => [
-                            // filtra que ya no este el mismo archivo, 
-                            ...files.filter(file => file.name !== newfile.name),
-                            newfile
-                        ])
-                    })
-            });
-        });
-    }
+    //Init   
 
     // Events
     const AddFile = () => { inputFileRef.current.click(); }
@@ -54,23 +44,10 @@ export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontentte
         ) return;
 
 
-        dispatch(uploadEvidenceFileName(file, `images/commerce/${commerce_id}/report/${report_id}/trainingsst/${trainingsst?.id}`))
+        dispatch(uploadEvidenceFileName(file, upload_evidence_url))
             .then(({ data }) => {
                 // Guardamos la evidencia
-                dispatch(trainingsstEvidenceStore({
-                    form: {
-                        name: file.name.split('.')[0],
-                        type: file.type,
-                        trainingsst_id: trainingsst.id,
-                        file: data.storage_image_path,
-                        approved: false
-                    }
-                })).then(({ data: { data: { evidence } } }) => {
-                    file.approved = evidence?.approved ? true : false;
-                    file.evidence_id = evidence.id;
-
-                    setFiles((files) => [...files, file]);
-                }, error => setMessageSnackbar({ dispatch, error }))
+                evidenceStore(data, file, object);
             }, error => setMessageSnackbar({ dispatch, error }));
     }
 
@@ -85,17 +62,6 @@ export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontentte
 
     const onDragOver = (event) => {
         event.preventDefault();
-    };
-
-    const handleRemove = (file) => {
-        dispatch(deleteTrainingEvidenceId({
-            form: { id: file.evidence_id }
-        })).then((data) => {
-            setFiles((files) => [...files.filter(fl => fl !== file)]);
-            // Refrescamos el Report Component
-            TrainingsstEvidenceById(trainingsst?.id ?? null)
-        });
-
     }
 
     const handleEvidenceViewerOpen = () => {
@@ -107,8 +73,9 @@ export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontentte
     }
 
     useEffect(() => {
-        TrainingsstEvidenceById(trainingsst?.id ?? null)
+        getEvidencesById(object?.id ?? null);
     }, [])
+
 
     return (
         <Dialog
@@ -145,13 +112,14 @@ export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontentte
                     onDrop={!approved ? handleDrag : () => { }}>
                     {
                         files.map((file, index) => (
-                            <TrainingsstEvidenceItemComponent
+                            <ActivityEvidenceItemComponent
                                 key={index}
                                 handleRemove={handleRemove}
                                 handleEvidenceViewerOpen={handleEvidenceViewerOpen}
                                 file={file}
-                                approved={approved}>
-                            </TrainingsstEvidenceItemComponent>
+                                approved={approved}
+                                handleFileItemUpload={handleFileItemUpload}>
+                            </ActivityEvidenceItemComponent>
                         ))
                     }
                 </Grid>
@@ -163,8 +131,8 @@ export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontentte
                         </form>
                     </Grid>
                 </Grid>
-
             </DialogContent>
+
             <DialogActions>
                 {
                     !approved &&

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useReduceReport } from '../../../../hooks/useReduceReport';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { commerceUpdate, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, genericListGetByNamelist, reportByreportId } from '../../../../store';
+import { commerceUpdate, compromiseRSSTShowByReportId, compromiseSSTShowByReportId, compromiseShowByReportId, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, genericListGetByNamelist, reportByreportId } from '../../../../store';
 import { Grid, ImageListItem, Typography, Button, TextField, IconButton, Switch, FormControl, FormControlLabel, FormGroup, Divider, InputLabel, Select, FormLabel, SpeedDial, SpeedDialAction, SpeedDialIcon, FormHelperText } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
@@ -32,9 +32,15 @@ import { ReportSection } from '../../../types/ReportSection';
 
 import { DialogAlertComponent } from '../../../components';
 import { ReportEmployeeComponent } from './ReportEmployeeComponent';
-import { ReportTrainingSST } from './ReportTrainingSST';
+import { ReportTrainingSSTComponent } from './ReportTrainingSSTComponent';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import ReportActivityComponent from './ReportActivityComponent';
+import { ReportCompromiseComponent } from './ReportCompromiseComponent';
+import { ReportCompromiseSSTComponent } from './ReportCompromiseSSTComponent';
+import { ReportCompromiseRSSTComponent } from './ReportCompromiseRSSTComponent';
+import { ReportInspectionRSSTComponent } from './ReportInspectionRSSTComponent';
+import { inspectionRSSTShowByReportId } from '../../../../store/inspection/inspectionRSSTThunks';
+
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
 
@@ -49,6 +55,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [report, setReport] = useState(null);
     // trainingsst se inicializa en null y la consulta lo modifica
     const [trainingsst, setTrainingsst] = useState(null);
+    const [compromises, setCompromises] = useState(null);
+    const [compromisesSST, setCompromisesSST] = useState(null);
+    const [compromisesRSST, setCompromisesRSST] = useState(null);
+    const [inspectionsRSST, setInspectionsRSST] = useState(null);
     const [activities, setActivities] = useState([]);
 
     const [employeeArray, setEmployeeArray] = useState([]);
@@ -57,7 +67,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [workEventArray, setWorkEventArray] = useState([]);
     const [medicalAttentionArray, setMedicalAttentionArray] = useState([]);
     const [topicSSTArray, setTopicSSTArray] = useState([]);
-    
+
 
     const { commerce_id: param_commerce_id } = useParams();
     const { report_id: param_report_id } = useParams();
@@ -70,7 +80,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         open: false,
         dialogtitle: '',
         dialogcontenttext: '',
-        employee_report: {}
+        employee_report: {},
+        approved: false
     });
     const [selectCollaborator, setSelectCollaborator] = useState({});
 
@@ -97,7 +108,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 id: id ?? ''
             }
         })).then(({ data: { data: { report } } }) => {
-            console.log('report', report);
             // Asignación de Attributes
             setReport(report);
             const employees = report.employee.map((em, index) => ({
@@ -141,6 +151,47 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 setTopicSSTArray(generallist?.filter(el => el.name === 'topic_sst') ?? []);
             });
     }
+
+    const getCompromiseByReportId = () => {
+        if (param_report_id) {
+            dispatch(compromiseShowByReportId({
+                form: { id: param_report_id }
+            })).then(({ data: { data } }) => {
+                setCompromises(data);
+            })
+        }
+    }
+
+    const getCompromiseSSTByReportId = () => {
+        if (param_report_id) {
+            dispatch(compromiseSSTShowByReportId({
+                form: { id: param_report_id }
+            })).then(({ data: { data } }) => {
+                setCompromisesSST(data);
+            })
+        }
+    }
+
+    const getCompromiseRSSTByReportId = () => {
+        if (param_report_id) {
+            dispatch(compromiseRSSTShowByReportId({
+                form: { id: param_report_id }
+            })).then(({ data: { data } }) => {
+                setCompromisesRSST(data);
+            })
+        }
+    }
+
+    const getInspectionRSSTByReportId = () => {
+        if (param_report_id) {
+            dispatch(inspectionRSSTShowByReportId({
+                form: { id: param_report_id }
+            })).then(({ data: { data } }) => {                
+                setInspectionsRSST(data);
+            })
+        }
+    }
+
 
 
     const setEmployeeReportStore = (collaborator, employee_state) => {
@@ -216,12 +267,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
 
     // Manejador de apertura de PopUp de Evidencias
-    const handleEvidenceOpen = (collaborator, EmployeeState, ReportSection) => {
+    const handleEvidenceOpen = (collaborator, EmployeeState, ReportSection, approved = false) => {
         setopenEvidences((openEvidences) => ({
             ...openEvidences,
             dialogtitle: ReportSection,
             dialogcontenttext: `${collaborator.name} ${collaborator.lastname} [${collaborator.identification}]`,
             employee_report: collaborator.state.find(el => el.employee_state === EmployeeState),
+            approved: approved,
             open: true
         }));
 
@@ -275,16 +327,15 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
     const validatorSaveDisabledExam = (cl, inputs) => {
         const collaboratorInit = initCollaborators.find(el => el.id === cl.id);
-
         return JSON.stringify(Object.keys(inputs ?? []).map(el => ({
-            [el]: el === 'exam' ? collaboratorInit[el]?.toString() ?? '' : collaboratorInit[el]
+            [el]: el === 'exam' ? collaboratorInit[el]?.toString() ?? '' : collaboratorInit[el] ?? ''
         }))).trim() === JSON.stringify(Object.keys(inputs ?? []).map(el => ({
             [el]: el === 'exam' ? cl[el]?.toString() ?? '' : inputs[el] ?? ''
         }))).trim();
     }
 
     const numberPatternValidation = (value) => {
-        if(!value) return true;
+        if (!value) return true;
         const regex = new RegExp(/^\d+$/);
         return regex.test(value);
     };
@@ -316,11 +367,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
     }, [trainingsst])
 
-
-
     useEffect(() => {
         getEmployees();
         getReportById(param_report_id);
+        getCompromiseByReportId();
+        getCompromiseSSTByReportId();
+        getCompromiseRSSTByReportId();
+        getInspectionRSSTByReportId();
         getLists();
     }, [])
 
@@ -339,7 +392,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                     <Grid item xs={12} md={12} mb={2} sx={{ marginBottom: '0px' }} display={'flex'}>
                         <Grid item xs={6} md={2} mb={2} sx={{ display: 'flex', alignItems: 'center' }}>
-                            <ImageListItem>
+                            <ImageListItem >
                                 <img
                                     src={asistirEnSaludBran}
                                     alt="asistirEnSaludBran"
@@ -660,7 +713,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 >   <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                     <Grid container>
                                         {
-                                            collaborators?.collaborators?.length &&
+                                            collaborators?.collaborators?.length > 0 &&
                                             collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.NUEVOINGRESO)).map((cl, index) => {
                                                 return (
                                                     <Grid container key={cl.index}
@@ -812,8 +865,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
-                                                                        disabled={cl?.approved_induction ? true : false}
-                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.NUEVOINGRESO, ReportSection.NUEVOINGRESO)}
+                                                                        disableFocusRipple={cl?.approved_induction ? true : false}
+                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.NUEVOINGRESO, ReportSection.NUEVOINGRESO, cl.approved_induction ?? false)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
@@ -875,7 +928,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                     <Grid container>
                                         {
-                                            collaborators?.collaborators?.length &&
+                                            collaborators?.collaborators?.length > 0 &&
                                             collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.RETIRED)).map((cl, index) => {
                                                 return (
                                                     <Grid container key={cl.index}>
@@ -911,8 +964,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
-                                                                        disabled={cl?.approved_retired ? true : false}
-                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.RETIRED, ReportSection.RETIRED)}
+                                                                        disableFocusRipple={cl?.approved_retired ? true : false}
+                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.RETIRED, ReportSection.RETIRED, cl.approved_retired ?? false)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
@@ -971,11 +1024,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="4. OTRAS ACTIVIDADES EJECUTADAS EN EL MES"
+                                    pending={(100 - activities?.filter(el => !el.approved)?.length * 100 / activities?.length)}
                                 >
                                     <ReportActivityComponent
                                         activities={activities}
-                                        setActivities={setActivities} 
+                                        setActivities={setActivities}
                                         report={report}
+                                        getReportById={() => getReportById(param_report_id)}
+                                        commerce_id={commerce?.id ?? param_commerce_id}
                                     ></ReportActivityComponent>
                                 </ReportCardComponent>
 
@@ -988,7 +1044,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                                     <Grid container>
                                         {
-                                            collaborators?.collaborators?.length &&
+                                            collaborators?.collaborators?.length > 0 &&
                                             collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.EXAMENESMEDICOS)).map((cl) => {
                                                 return (
                                                     <Grid container key={cl.index}>
@@ -1050,7 +1106,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                 labelId="demo-multiple-name-label"
                                                                                 id="demo-multiple-name"
                                                                                 name="exam"
-                                                                                value={cl?.exam ?? []}
+                                                                                value={cl?.exam?.length > 0 ? cl?.exam : []}
                                                                                 label="Proyecto"
                                                                                 multiple={true}
                                                                                 onChange={(event) => changeInputCollaborator({
@@ -1071,6 +1127,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                                                 <Grid item xs={12} md={3} sx={{ mb: 1, pr: 0.5, pl: 0.5 }}>
                                                                     {
+                                                                        cl?.exam?.length > 0 &&
                                                                         cl?.exam?.find(el => el === 'Otro') &&
                                                                         <TextField
                                                                             disabled={cl?.approved_exam ? true : false}
@@ -1144,8 +1201,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
-                                                                        disabled={cl?.approved_exam ? true : false}
-                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.EXAMENESMEDICOS, ReportSection.EXAMENESMEDICOS)}
+                                                                        disableFocusRipple={cl?.approved_exam ? true : false}
+                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.EXAMENESMEDICOS, ReportSection.EXAMENESMEDICOS, cl.approved_exam ?? false)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
@@ -1213,7 +1270,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 >
                                     <Grid container>
                                         {
-                                            collaborators?.collaborators?.length &&
+                                            collaborators?.collaborators?.length > 0 &&
                                             collaborators?.collaborators?.filter((cll) => cll.state.find((el) => el.employee_state === EmployeeState.WORKEVENT)).map((cl) => {
                                                 return (
                                                     <Grid container key={cl.index}>
@@ -1307,7 +1364,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                         onChange={(event) => changeInputCollaborator({ target: { name: 'was_report', value: cl?.was_report === 'on' ? 'off' : 'on' } }, cl.index)}
                                                                                         name="was_report" />
                                                                                 }
-                                                                                label={`${cl?.was_report === 'on' ? 'Se reportó ' + cl?.event : 'No se reportó ' + cl?.event}`}
+                                                                                label={`${cl?.was_report === 'on' ? 'Se reportó ' + cl?.work_event : 'No se reportó ' + cl?.work_event}`}
                                                                             />
                                                                         </Grid>
 
@@ -1321,7 +1378,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                                                         onChange={(event) => changeInputCollaborator({ target: { name: 'was_investigated', value: cl?.was_investigated === 'on' ? 'off' : 'on' } }, cl.index)}
                                                                                         name="was_investigated" />
                                                                                 }
-                                                                                label={`${cl?.was_investigated === 'on' ? 'Se investigó ' + cl?.event : 'No se investigó ' + cl?.event}`}
+                                                                                label={`${cl?.was_investigated === 'on' ? 'Se investigó ' + cl?.work_event : 'No se investigó ' + cl?.work_event}`}
                                                                             />
                                                                         </Grid>
 
@@ -1524,8 +1581,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                             <Tooltip title="Evidencias" placement="top">
                                                                 <span>
                                                                     <IconButton
-                                                                        disabled={cl?.approved_work ? true : false}
-                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.WORKEVENT, ReportSection.WORKEVENT)}
+                                                                        disableFocusRipple={cl?.approved_work ? true : false}
+                                                                        onClick={() => handleEvidenceOpen(cl, EmployeeState.WORKEVENT, ReportSection.WORKEVENT, cl.approved_work ?? false)}
                                                                     ><AttachFileIcon></AttachFileIcon></IconButton>
                                                                 </span>
 
@@ -1590,14 +1647,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 >
                                     {
                                         trainingsst && report &&
-                                        <ReportTrainingSST
+                                        <ReportTrainingSSTComponent
                                             trainingsst={trainingsst}
                                             report={report}
                                             setTrainingsst={setTrainingsst}
                                             topicSSTArray={topicSSTArray}
                                             commerce_id={commerce?.id ?? param_commerce_id}
                                             getReportById={() => getReportById(param_report_id)}
-                                        ></ReportTrainingSST>
+                                        ></ReportTrainingSSTComponent>
                                     }
                                 </ReportCardComponent>
 
@@ -1606,10 +1663,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     sx={{ borderRadius: '0px' }}
                                     title="HORAS HOMBRE CAPACITACIÓN"
                                 > */}
-                                    {/* 6. CAPACITACIÓN Y ENTRENAMIENTO SST */}
-                                    {/* Informes excel linea 66 */}
+                                {/* 6. CAPACITACIÓN Y ENTRENAMIENTO SST */}
+                                {/* Informes excel linea 66 */}
                                 {/* </ReportCardComponent> */}
 
+                                {/* 7. CUMPLIMIENTO DE CRONOGRAMA */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="7. CUMPLIMIENTO DE CRONOGRAMA"
@@ -1617,24 +1675,52 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                                 </ReportCardComponent>
 
+                                {/* 8. COMPROMISOS DE ASISTIR EN SALUD Y RIESGOS LABORALES */}
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="8. COMPROMISOS DE ASISTIR EN SALUD Y RIESGOS LABORALES"
+                                    pending={(100 - compromises?.filter(el => !el.approved)?.length * 100 / compromises?.length)}
                                 >
-
+                                    <ReportCompromiseComponent
+                                        report_id={param_report_id}
+                                        commerce_id={param_commerce_id}
+                                        compromises={compromises}
+                                        setCompromises={setCompromises}
+                                        getReportById={() => getReportById(param_report_id)}
+                                        getCompromiseByReportIdReport={() => getCompromiseByReportId()}
+                                    ></ReportCompromiseComponent>
                                 </ReportCardComponent>
 
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="9. COMPROMISOS DEL RESPONSABLE DEL SST, CADA MES"
+                                    pending={(100 - compromisesSST?.filter(el => !el.approved)?.length * 100 / compromisesSST?.length)}
                                 >
+                                    <ReportCompromiseSSTComponent
+                                        report_id={param_report_id}
+                                        commerce_id={param_commerce_id}
+                                        compromises={compromisesSST}
+                                        setCompromises={setCompromisesSST}
+                                        getReportById={() => getReportById(param_report_id)}
+                                        getCompromiseByReportIdReport={() => getCompromiseSSTByReportId()}
+                                    ></ReportCompromiseSSTComponent>
 
                                 </ReportCardComponent>
 
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
-                                    title="10.TAREAS Y COMPROMISOS COMPROMISOS DEL RESPONSABLE DEL SST"
+                                    title="10. TAREAS Y COMPROMISOS COMPROMISOS DEL RESPONSABLE DEL SST"
+                                    pending={(100 - compromisesRSST?.filter(el => !el.approved)?.length * 100 / compromisesRSST?.length)}
                                 >
+
+                                    <ReportCompromiseRSSTComponent
+                                        report_id={param_report_id}
+                                        commerce_id={param_commerce_id}
+                                        compromises={compromisesRSST}
+                                        setCompromises={setCompromisesRSST}
+                                        getReportById={() => getReportById(param_report_id)}
+                                        getCompromiseByReportIdReport={() => getCompromiseRSSTByReportId()}
+                                    ></ReportCompromiseRSSTComponent>
 
                                 </ReportCardComponent>
 
@@ -1642,6 +1728,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     sx={{ borderRadius: '0px' }}
                                     title="11. INSPECCIONES REALIZADAS POR EL RESPONSABLE DEL SST"
                                 >
+                                    <ReportInspectionRSSTComponent
+                                        report_id={param_report_id}
+                                        commerce_id={param_commerce_id}
+                                        inspections={inspectionsRSST}
+                                        setInspections={setInspectionsRSST}
+                                        getReportById={() => getReportById(param_report_id)}
+                                        getInspectionByReportIdReport={() => getInspectionRSSTByReportId()}
+                                    ></ReportInspectionRSSTComponent>
 
                                 </ReportCardComponent>
 
@@ -1690,7 +1784,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                         }
                     </Grid>
                 </Grid>
-            </Grid>
+            </Grid >
             <Grid container sx={{ justifyContent: 'end' }}>
                 {
                     commerce &&
@@ -1728,6 +1822,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     dialogcontenttext={openEvidences.dialogcontenttext}
                     collaborator={selectCollaborator}
                     employee_report={openEvidences.employee_report}
+                    approved={openEvidences.approved}
                     setSelectCollaborator={setSelectCollaborator}
                     collaboratorsChangeInput={collaboratorsChangeInput}
                     handleClose={handleEvidenceClose}

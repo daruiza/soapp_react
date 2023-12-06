@@ -21,6 +21,8 @@ export const getCommerceByCommerce = ({ commerce }) => {
                 .then((response) => {
                     resolve(response);
                 });
+        } else {
+            reject(new Error("Debes primero crear el Negocio"));
         }
     });
 }

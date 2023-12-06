@@ -101,13 +101,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
                 getUsers();// Refrescamos la tabla                
             }, error => setMessageSnackbar({ dispatch, error }));
         }
-    }
-
-    useEffect(() => {
-        dispatch(geoDivCommecerDepartamentos()).then((departamentos) => {
-            setDepartmentArray(departamentos)
-        });
-    }, [])
+    }    
 
     useEffect(() => {
         if (department) {
@@ -122,6 +116,12 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
             formState: { ...formState }
         })
     }, [commerce])
+
+    useEffect(() => {
+        dispatch(geoDivCommecerDepartamentos()).then((departamentos) => {
+            setDepartmentArray(departamentos)
+        });
+    }, [])
 
     return (
         <Dialog
