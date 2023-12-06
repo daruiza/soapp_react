@@ -1,12 +1,13 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Grid, Divider, Button } from '@mui/material';
+import { Grid, Divider, Button, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTUpdate } from '../../../../store/inspection/inspectionRSSTThunks';
 import { ShowByInspectionRSSTEvidenceId, inspectionRSSTEvidenceStore } from '../../../../store';
 import { getSoappDownloadFile } from '../../../../api';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
+import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 
 export const ReportInspectionRSSTComponent = ({
     report_id = null,
@@ -21,6 +22,8 @@ export const ReportInspectionRSSTComponent = ({
 
     const [inspectionsinit, setInspectionsInit] = useState([]);
     const [files, setFiles] = useState([]);
+
+    const [workArray, setWorkArray] = useState([])
 
     const [openEvidences, setOpenEvidences] = useState({
         open: false,
@@ -38,6 +41,7 @@ export const ReportInspectionRSSTComponent = ({
         alertChildren: false
     });
 
+    // Llamado de Servicios
     const getInspectionByReportId = () => {
         if (report_id) {
             dispatch(inspectionRSSTShowByReportId({
@@ -47,6 +51,13 @@ export const ReportInspectionRSSTComponent = ({
                 setInspectionsInit(data);
             })
         }
+    }
+
+    const getWork = () => {
+        dispatch(genericListGetByName({ name: 'inspection_work' }))
+            .then(({ data: { data: { generallist } } }) => {
+                setWorkArray(generallist ?? []);
+            });
     }
 
     // Eventos
@@ -251,6 +262,7 @@ export const ReportInspectionRSSTComponent = ({
     }
 
     useEffect(() => {
+        getWork();
         setInspectionsInit(inspections);
     }, [])
 
@@ -273,7 +285,41 @@ export const ReportInspectionRSSTComponent = ({
                             <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                             <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
                                 <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        {/* <TextField
+                                            disabled={cmms?.approved ? true : false}
+                                            variant="standard"
+                                            size="small"
+                                            label="Item"
+                                            type="text"
+                                            fullWidth
+                                            name="item"
+                                            value={cmms?.item ?? ''}
+                                            onChange={(event) => changeInputInspection(event, index)}
+                                            error={!numberPatternValidation(cmms?.item) ? true : false}
+                                            helperText={!numberPatternValidation(cmms?.item) ? 'Se espera un número positivo' : ''}
+                                        /> */}
 
+                                        <FormControl fullWidth>
+                                            <InputLabel id="demo-simple-select-label">Proyecto</InputLabel>
+                                            <Select
+                                                labelId="demo-simple-select-label"
+                                                id="demo-simple-select"
+                                                name="project"
+                                                value={cmms?.project ?? ''}
+                                                label="Obra/Frente/Area"
+                                                onChange={e => changeInputInspection(e, index)}>
+                                                <MenuItem value=''><em></em></MenuItem>
+                                                {
+                                                    workArray &&
+                                                    workArray.length &&
+                                                    workArray.map((el, index) => (
+                                                        <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
+                                                    ))
+                                                }
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
                                 </Grid>
                                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
 
@@ -286,7 +332,9 @@ export const ReportInspectionRSSTComponent = ({
             }
 
             <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
-                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}></Grid>
+                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+
+                </Grid>
                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                     <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                         <Button onClick={() => {

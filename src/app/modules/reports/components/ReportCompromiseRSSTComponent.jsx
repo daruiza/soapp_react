@@ -479,7 +479,6 @@ export const ReportCompromiseRSSTComponent = ({
                                             </Tooltip>
                                         </>
                                     }
-
                                 </Grid>
                             </Grid>
                         </Grid>
