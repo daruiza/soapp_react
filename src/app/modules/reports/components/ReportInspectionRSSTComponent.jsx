@@ -301,7 +301,7 @@ export const ReportInspectionRSSTComponent = ({
                                         /> */}
 
                                         <FormControl fullWidth>
-                                            <InputLabel id="demo-simple-select-label">Proyecto</InputLabel>
+                                            <InputLabel id="demo-simple-select-label">Obra/Frente/Area</InputLabel>
                                             <Select
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
