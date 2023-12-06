@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Grid } from '@mui/material';
+import { Grid, Divider, Button } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTUpdate } from '../../../../store/inspection/inspectionRSSTThunks';
 import { ShowByInspectionRSSTEvidenceId, inspectionRSSTEvidenceStore } from '../../../../store';
@@ -225,18 +225,23 @@ export const ReportInspectionRSSTComponent = ({
             return true;
         }
 
-        
-        // const cmmscompromiseinit = compormisesinit?.find(el => el.id === cmms.id);
-        // return 'id' in cmms ?
-        //     JSON.stringify({ ...cmmscompromiseinit, canon: cmmscompromiseinit?.canon ? true : false, approved: cmmscompromiseinit?.approved ? true : false }) ==
-        //     JSON.stringify({ ...cmms, canon: cmms?.canon ? true : false, approved: cmms?.approved ? true : false }) :
-        //     !!(!cmms.item ||
-        //         !cmms.rule ||
-        //         !cmms.name ||
-        //         !cmms.dateinit ||
-        //         !cmms.dateclose ||
-        //         !cmms.detail ||
-        //         !cmms.recommendations)
+
+        const cmmsinspectionsinit = inspectionsinit?.find(el => el.id === cmms.id);
+        return 'id' in cmms ?
+            JSON.stringify({ ...cmmsinspectionsinit, canon: cmmscompromiseinit?.canon ? true : false, approved: cmmscompromiseinit?.approved ? true : false }) ==
+            JSON.stringify({ ...cmms, canon: cmms?.canon ? true : false, approved: cmms?.approved ? true : false }) :
+            !!(
+                !cmms.work ||
+                !cmms.machines ||
+                !cmms.vehicles ||
+                !cmms.tools ||
+                !cmms.epp ||
+                !cmms.cleanliness ||
+                !cmms.chemicals ||
+                !cmms.risk_work ||
+                !cmms.emergency_item ||
+                !cmms.other
+            )
     }
 
     const getDate = (dateinit) => {
@@ -245,11 +250,8 @@ export const ReportInspectionRSSTComponent = ({
 
     }
 
-
-
     useEffect(() => {
         setInspectionsInit(inspections);
-        // getCompromiseByReportId();
     }, [])
 
     useEffect(() => {
@@ -263,7 +265,57 @@ export const ReportInspectionRSSTComponent = ({
 
     return (
         <Grid container>
-            hOLA  ReportInspectionRSSTConponent
+            {
+                inspections?.length !== 0 &&
+                inspections?.map((cmms, index) => {
+                    return (
+                        <Grid container key={index} >
+                            <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
+                            <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
+                                <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
+
+                                </Grid>
+                                <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
+
+                                </Grid>
+                            </Grid>
+
+                        </Grid>
+                    )
+                })
+            }
+
+            <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
+                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}></Grid>
+                <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                    <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                        <Button onClick={() => {
+                            setInspections(cmps => [...cmps, {
+                                work: null,
+                                machines: false,
+                                vehicles: false,
+                                tools: false,
+                                epp: false,
+                                cleanliness: false,
+                                chemicals: false,
+                                risk_work: false,
+                                emergency_item: false,
+                                other: null,
+                                report_id: report_id,
+                                save: false
+                            }])
+                        }}
+                            variant="contained"
+                            disabled={!!inspections?.find(el => el.save === false)}
+                            sx={{
+                                height: '100%',
+                                color: `${palette.text.custom}`,
+                                // border: '1px solid'
+                            }}>AGREGAR COMPROMISO
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Grid>
         </Grid>
     )
 

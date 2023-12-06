@@ -115,7 +115,6 @@ export const ReportCompromiseRSSTComponent = ({
             return;
         }
 
-
         if ('id' in cmms && cmms.id) {
             dispatch(compromiseRSSTUpdate({
                 form: { ...cmms }
@@ -231,7 +230,7 @@ export const ReportCompromiseRSSTComponent = ({
             return true;
         }
 
-        //id indica que ya ha sido aurdado en base
+        //id indica que ya ha sido guardado en base
         const cmmscompromiseinit = compormisesinit?.find(el => el.id === cmms.id);
         return 'id' in cmms ?
             JSON.stringify({ ...cmmscompromiseinit, canon: cmmscompromiseinit?.canon ? true : false, approved: cmmscompromiseinit?.approved ? true : false }) ==
