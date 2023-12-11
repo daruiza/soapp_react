@@ -3,18 +3,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CommerceComponent } from '../../commerce';
 import { DialogAlertComponent } from '../../../components';
 import { UserStoreComponent } from './UserStoreComponent';
-import { backdropPop, commerceInitialState, commerceUpdate, getAllRols, getCommerceByCommerce, getCommerceByUser, messagePush, reportIndex, userDelete, userIndex } from '../../../../store';
+import { commerceInitialState, commerceUpdate, getAllRols, getCommerceByCommerce, getCommerceByUser, messagePush, reportIndex, userDelete, userIndex } from '../../../../store';
 import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Tooltip, IconButton, Switch, TableFooter, TablePagination, Pagination } from '@mui/material';
 import { useForm } from '../../../../hooks';
 import { useTheme } from '@emotion/react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RolTypes } from '../../../types';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { Work } from '@mui/icons-material';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
-import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 import { useQuery } from 'react-query';
 
 const forminit = { name: '', lastname: '', phone: '', email: '', rol_id: '' };
@@ -55,7 +54,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const { data: rolArray } = useQuery({
     queryKey: ['roles'],
     queryFn: () => dispatch(getAllRols()).then(({ data: { data } }) => (data)),
-    enabled: false,
+    enabled: true,
     staleTime: Infinity,
     cacheTime: Infinity
   })
@@ -68,8 +67,8 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     cacheTime: Infinity
   })
 
-  console.log('queryUser', queryUser.data);
-  console.log('queryUser', queryUser);
+  // console.log('queryUser', queryUser.data);
+  // console.log('queryUser', queryUser);
 
 
   const getUsers = (attr = {}, form = formState) => {
@@ -193,6 +192,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
 
   useEffect(() => {
     getUsers();
+    //getRols
     dispatch(commerceInitialState());
   }, []);
 

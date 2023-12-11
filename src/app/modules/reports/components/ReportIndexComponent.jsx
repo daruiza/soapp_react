@@ -89,7 +89,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
 
   const getProject = () => {
     dispatch(genericListGetByName({ name: 'project' }))
-      .then(({ data: { data: { generallist } } }) => {
+      .then(({ data: { data: { generallist }}}) => {
         setProjectArray(generallist ?? []);
       });
   }
