@@ -72,7 +72,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
 
   // LLAMADO DE SERVICIOS
   const getReports = (attr = {}, form = formState) => {
-    const commerce_id = form?.commerce_id ? form.commerce_id : commerce?.id ?? param_commerce_id;
+    const commerce_id = form?.commerce_id ? form.commerce_id : commerce?.id ?? param_commerce_id;    
     if (commerce_id) {
       dispatch(reportIndex({
         form: {

@@ -1,10 +1,16 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Grid, Divider, Button, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
+import { Grid, Divider, Button, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, Switch, MenuItem, Tooltip } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTUpdate } from '../../../../store/inspection/inspectionRSSTThunks';
 import { ShowByInspectionRSSTEvidenceId, inspectionRSSTEvidenceStore } from '../../../../store';
+import SaveIcon from '@mui/icons-material/Save';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckIcon from '@mui/icons-material/Check';
 import { getSoappDownloadFile } from '../../../../api';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
@@ -296,11 +302,16 @@ export const ReportInspectionRSSTComponent = ({
                             <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
                                 <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
                                     <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                        <FormControl fullWidth>
+                                        <FormControl
+                                            fullWidth
+                                            error={cmms?.topic === '' || cmms?.topic === null}
+                                            required={true}
+                                        >
                                             <InputLabel id="demo-simple-select-label">Obra/Frente/Area</InputLabel>
                                             <Select
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
+                                                disabled={cmms?.approved ? true : false}
                                                 name="work"
                                                 value={cmms?.work ?? ''}
                                                 label="Obra/Frente/Area"
@@ -315,12 +326,101 @@ export const ReportInspectionRSSTComponent = ({
                                                 }
                                             </Select>
                                         </FormControl>
-
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.machines ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'machines' } }, index)}
+                                                name="machines" />}
+                                            label={`${cmms.machines ? 'Incluye' : 'No incluye'} maquinas y equipo`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.vehicles ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'vehicles' } }, index)}
+                                                name="vehicles" />}
+                                            label={`${cmms.vehicles ? 'Incluye' : 'No incluye'} vehiculo`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.tools ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'tools' } }, index)}
+                                                name="tools" />}
+                                            label={`${cmms.tools ? 'Incluye' : 'No incluye'} herramientas`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.epp ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'epp' } }, index)}
+                                                name="epp" />}
+                                            label={`${cmms.epp ? 'Incluye' : 'No incluye'} EPP`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.cleanliness ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'cleanliness' } }, index)}
+                                                name="cleanliness" />}
+                                            label={`${cmms.cleanliness ? 'Incluye' : 'No incluye'} orden y aseo (ambiental)`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.chemicals ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'chemicals' } }, index)}
+                                                name="chemicals" />}
+                                            label={`${cmms.chemicals ? 'Incluye' : 'No incluye'} sustancias quimicas`}
+                                        />
+                                    </Grid>                                    
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.risk_work ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'risk_work' } }, index)}
+                                                name="risk_work" />}
+                                            label={`${cmms.risk_work ? 'Incluye' : 'No incluye'} trabajos de alto riesgo`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.emergency_item ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'emergency_item' } }, index)}
+                                                name="emergency_item" />}
+                                            label={`${cmms.emergency_item ? 'Incluye' : 'No incluye'} elementos de emergencia`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                         <TextField
                                             disabled={cmms?.approved ? true : false}
                                             variant="standard"
                                             size="small"
-                                            label="Other"
+                                            label="Otro, ¿Cual?"
                                             type="text"
                                             fullWidth
                                             name="other"
@@ -329,11 +429,79 @@ export const ReportInspectionRSSTComponent = ({
                                             error={false}
                                             helperText={''}
                                         />
-
                                     </Grid>
+
                                 </Grid>
                                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
+                                    <Tooltip title="Eliminar Registro" placement="top">
+                                        <span>
+                                            <IconButton
+                                                disabled={cmms?.approved ? true : false}
+                                                onClick={() => handleDeleteComprmiseReport(cmms)}
+                                            >
+                                                <HighlightOffIcon
+                                                    sx={{
+                                                        color: palette.text.disabled,
+                                                        "&:hover": {
+                                                            // color: `${palette.text.primary}`,
+                                                            cursor: "pointer"
+                                                        }
+                                                    }}></HighlightOffIcon>
+                                            </IconButton>
+                                        </span>
+                                    </Tooltip>
 
+                                    <Tooltip title="Guardar Cambios" placement="top">
+                                        <span>
+                                            <IconButton
+                                                disabled={inspectionSavevalidator(cmms) || cmms?.approved ? true : false}
+                                                onClick={() => handleSaveInspection(cmms)}                                            >
+                                                <SaveIcon></SaveIcon>
+                                            </IconButton>
+                                        </span>
+                                    </Tooltip>
+
+                                    {
+                                        cmms?.id &&
+                                        <>
+
+                                            <Tooltip title="Evidencias" placement="top">
+                                                <span>
+                                                    <IconButton
+                                                        disableFocusRipple={cmms?.approved ? true : false}
+                                                        onClick={() => handleEvidenceOpen(cmms)}
+                                                    ><AttachFileIcon></AttachFileIcon></IconButton>
+                                                </span>
+                                            </Tooltip>
+
+                                            <Tooltip title={`${cmms?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                                                <span>
+                                                    <PrivateAgentRoute>
+                                                        <IconButton
+                                                            onClick={() => handleSaveInspection({ ...cmms, approved: !cmms?.approved })}>
+                                                            {!!cmms?.approved &&
+                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                            }
+                                                            {!cmms?.approved &&
+                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                            }
+                                                        </IconButton>
+                                                    </PrivateAgentRoute>
+
+                                                    <PrivateCustomerRoute>
+                                                        <IconButton disabled>
+                                                            {cmms?.approved &&
+                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                            }
+                                                            {!cmms?.approved &&
+                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                            }
+                                                        </IconButton>
+                                                    </PrivateCustomerRoute>
+                                                </span>
+                                            </Tooltip>
+                                        </>
+                                    }
                                 </Grid>
                             </Grid>
 
