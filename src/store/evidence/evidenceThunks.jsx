@@ -236,7 +236,7 @@ export const inspectionRSSTEvidenceStore = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form) {
-            return soappLaravelApi.post(`api/compromisersstevidence/store`, form);
+            return soappLaravelApi.post(`api/inspectionrsstevidence/store`, form);
         }
     }
 }
