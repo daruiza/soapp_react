@@ -515,7 +515,6 @@ export const ReportCompromiseRSSTComponent = ({
                     </Grid>
                 </Grid>
             </Grid>
-
             {
                 openEvidences.open && <EvidenceGenericComponent
                     open={openEvidences.open}

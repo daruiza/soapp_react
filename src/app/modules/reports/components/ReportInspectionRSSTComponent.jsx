@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { Grid, Divider, Button, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, Switch, MenuItem, Tooltip } from '@mui/material';
 import { useTheme } from '@emotion/react';
-import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTUpdate } from '../../../../store/inspection/inspectionRSSTThunks';
+import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTStore, inspectionRSSTUpdate } from '../../../../store/inspection/inspectionRSSTThunks';
 import { ShowByInspectionRSSTEvidenceId, inspectionRSSTEvidenceStore } from '../../../../store';
 import SaveIcon from '@mui/icons-material/Save';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -15,6 +15,8 @@ import { getSoappDownloadFile } from '../../../../api';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 import { useQuery } from 'react-query';
+import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
+import { DialogAlertComponent } from '../../../components';
 
 export const ReportInspectionRSSTComponent = ({
     report_id = null,
@@ -83,9 +85,10 @@ export const ReportInspectionRSSTComponent = ({
         setInspections((cmms) => cmms.toSpliced(index, 1,
             {
                 ...inspections[index],
-                [name]: value
+                [name]: value,
+                [`${name}Touched`]: true
             })
-        )
+        );
     }
 
     const handleEvidenceOpen = (cmms) => {
@@ -120,16 +123,7 @@ export const ReportInspectionRSSTComponent = ({
 
     const handleSaveInspection = (cmms) => {
         // Validamos que todos los campos esten llenos
-        if (!cmms.work ||
-            !cmms.machines ||
-            !cmms.vehicles ||
-            !cmms.tools ||
-            !cmms.epp ||
-            !cmms.cleanliness ||
-            !cmms.chemicals ||
-            !cmms.risk_work ||
-            !cmms.emergency_item ||
-            !cmms.other) {
+        if (!cmms.work) {
             return;
         }
 
@@ -141,7 +135,7 @@ export const ReportInspectionRSSTComponent = ({
                 getInspectionByReportIdReport();
             });
         } else {
-            dispatch(compromiseRSSTStore({
+            dispatch(inspectionRSSTStore({
                 form: { ...cmms }
             })).then(({ data: { data: { inspection } } }) => {
                 getInspectionByReportId();
@@ -180,7 +174,7 @@ export const ReportInspectionRSSTComponent = ({
             form: {
                 name: file.name.split('.')[0],
                 type: file.type,
-                compromise_id: object.id,
+                inspection_id: object.id,
                 file: data.storage_image_path,
                 approved: false
             }
@@ -191,7 +185,7 @@ export const ReportInspectionRSSTComponent = ({
         }, error => setMessageSnackbar({ dispatch, error }))
     }
 
-    const handleRemoveCompromiseEvidence = (file, object) => {
+    const handleRemoveInspectionEvidence = (file, object) => {
         dispatch(deleteCompromiseRSSTEvidenceId({
             form: { id: file.evidence_id }
         })).then((data) => {
@@ -239,36 +233,15 @@ export const ReportInspectionRSSTComponent = ({
     };
 
     const inspectionSavevalidator = (cmms) => {
-        if (!cmms.work ||
-            !cmms.machines ||
-            !cmms.vehicles ||
-            !cmms.tools ||
-            !cmms.epp ||
-            !cmms.cleanliness ||
-            !cmms.chemicals ||
-            !cmms.risk_work ||
-            !cmms.emergency_item ||
-            !cmms.other) {
+        if (!cmms.work) {
             return true;
         }
 
-
         const cmmsinspectionsinit = inspectionsinit?.find(el => el.id === cmms.id);
         return 'id' in cmms ?
-            JSON.stringify({ ...cmmsinspectionsinit, canon: cmmscompromiseinit?.canon ? true : false, approved: cmmscompromiseinit?.approved ? true : false }) ==
-            JSON.stringify({ ...cmms, canon: cmms?.canon ? true : false, approved: cmms?.approved ? true : false }) :
-            !!(
-                !cmms.work ||
-                !cmms.machines ||
-                !cmms.vehicles ||
-                !cmms.tools ||
-                !cmms.epp ||
-                !cmms.cleanliness ||
-                !cmms.chemicals ||
-                !cmms.risk_work ||
-                !cmms.emergency_item ||
-                !cmms.other
-            )
+            JSON.stringify({ ...cmmsinspectionsinit }) ==
+            JSON.stringify({ ...cmms }) :
+            !!(!cmms.work)
     }
 
     const getDate = (dateinit) => {
@@ -290,7 +263,6 @@ export const ReportInspectionRSSTComponent = ({
         }
     }, [inspectionsinit]);
 
-
     return (
         <Grid container>
             {
@@ -301,32 +273,6 @@ export const ReportInspectionRSSTComponent = ({
                             <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                             <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
                                 <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
-                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                        <FormControl
-                                            fullWidth
-                                            error={cmms?.topic === '' || cmms?.topic === null}
-                                            required={true}
-                                        >
-                                            <InputLabel id="demo-simple-select-label">Obra/Frente/Area</InputLabel>
-                                            <Select
-                                                labelId="demo-simple-select-label"
-                                                id="demo-simple-select"
-                                                disabled={cmms?.approved ? true : false}
-                                                name="work"
-                                                value={cmms?.work ?? ''}
-                                                label="Obra/Frente/Area"
-                                                onChange={e => changeInputInspection(e, index)}>
-                                                <MenuItem value=''><em></em></MenuItem>
-                                                {
-                                                    workArray &&
-                                                    workArray.length &&
-                                                    workArray.map((el, index) => (
-                                                        <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
-                                                    ))
-                                                }
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
                                     <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                         <FormControlLabel
                                             disabled={cmms?.approved ? true : false}
@@ -392,7 +338,7 @@ export const ReportInspectionRSSTComponent = ({
                                                 name="chemicals" />}
                                             label={`${cmms.chemicals ? 'Incluye' : 'No incluye'} sustancias quimicas`}
                                         />
-                                    </Grid>                                    
+                                    </Grid>
                                     <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                         <FormControlLabel
                                             disabled={cmms?.approved ? true : false}
@@ -430,6 +376,21 @@ export const ReportInspectionRSSTComponent = ({
                                             helperText={''}
                                         />
                                     </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <TextField
+                                            disabled={cmms?.approved ? true : false}
+                                            variant="standard"
+                                            size="small"
+                                            label="Obra/Frente/Area*"
+                                            type="text"
+                                            fullWidth
+                                            name="work"
+                                            value={cmms?.work ?? ''}
+                                            onChange={(event) => changeInputInspection(event, index)}
+                                            error={cmms?.work === ''}
+                                            helperText={cmms?.workTouched && !cmms?.work ? 'Este campo es requerido' : ''}
+                                        />
+                                    </Grid>
 
                                 </Grid>
                                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
@@ -437,8 +398,7 @@ export const ReportInspectionRSSTComponent = ({
                                         <span>
                                             <IconButton
                                                 disabled={cmms?.approved ? true : false}
-                                                onClick={() => handleDeleteComprmiseReport(cmms)}
-                                            >
+                                                onClick={() => handleDeleteInspectionReport(cmms)}                                            >
                                                 <HighlightOffIcon
                                                     sx={{
                                                         color: palette.text.disabled,
@@ -543,6 +503,41 @@ export const ReportInspectionRSSTComponent = ({
                     </Grid>
                 </Grid>
             </Grid>
+
+            {
+                openEvidences.open && <EvidenceGenericComponent
+                    open={openEvidences.open}
+                    dialogtitle={openEvidences.dialogtitle}
+                    dialogcontenttext={openEvidences.dialogcontenttext}
+                    object={openEvidences.object}
+                    report_id={report_id}
+                    commerce_id={commerce_id}
+                    approved={openEvidences.approved}
+                    handleClose={() => {
+                        setFiles([]);
+                        setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
+                    }}
+                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/inspectionsrsst/${openEvidences?.object?.id ?? null}`}
+                    files={files}
+                    setFiles={setFiles}
+                    getEvidencesById={getEvidencesById}
+                    evidenceStore={storeInspectionEvidence}
+                    handleRemove={handleRemoveInspectionEvidence}
+                    handleFileItemUpload={handleFileItemUpload}
+                ></EvidenceGenericComponent>
+            }
+
+            {
+                handleAlert.openAlert && <DialogAlertComponent
+                    open={handleAlert.openAlert}
+                    handleClose={() => handleAlert.functionAlertClose()}
+                    handleAgree={() => handleAlert.functionAlertAgree()}
+                    props={{
+                        tittle: handleAlert.alertTittle,
+                        message: handleAlert.alertMessage
+                    }}
+                ></DialogAlertComponent>
+            }
         </Grid>
     )
 
