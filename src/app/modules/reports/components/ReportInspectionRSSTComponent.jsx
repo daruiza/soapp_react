@@ -32,8 +32,6 @@ export const ReportInspectionRSSTComponent = ({
     const [inspectionsinit, setInspectionsInit] = useState([]);
     const [files, setFiles] = useState([]);
 
-    // const [workArray, setWorkArray] = useState([]);
-
     const [openEvidences, setOpenEvidences] = useState({
         open: false,
         dialogtitle: '',
@@ -55,7 +53,7 @@ export const ReportInspectionRSSTComponent = ({
     const { data: workArray } = useQuery({
         queryKey: ['works'],
         queryFn: () => dispatch(genericListGetByName({ name: 'inspection_work' })).then(({ data: { data: { generallist } } }) => (generallist)),
-        enabled: true,
+        enabled: false,
         staleTime: Infinity,
         cacheTime: Infinity
     })
@@ -69,13 +67,6 @@ export const ReportInspectionRSSTComponent = ({
                 setInspectionsInit(data);
             })
         }
-    }
-
-    const getWork = () => {
-        dispatch(genericListGetByName({ name: 'inspection_work' }))
-            .then(({ data: { data: { generallist } } }) => {
-                setWorkArray(generallist ?? []);
-            });
     }
 
     // Eventos
@@ -94,8 +85,8 @@ export const ReportInspectionRSSTComponent = ({
     const handleEvidenceOpen = (cmms) => {
         setOpenEvidences((openEvidences) => ({
             ...openEvidences,
-            dialogtitle: `Evidencias Inspección RSST Item: ${cmms?.item}`,
-            dialogcontenttext: `Norma: ${cmms?.rule} -- Nombre: ${cmms?.name}`,
+            dialogtitle: `Evidencias Inspección RSST Item: ${cmms?.work}`,
+            dialogcontenttext: ``,
             object: cmms,
             approved: cmms.approved,
             open: true
@@ -221,33 +212,51 @@ export const ReportInspectionRSSTComponent = ({
                 }
             });
         }, error => setMessageSnackbar({ dispatch, error }))
-    }
-
-
-    // Validacines
-    const numberPatternValidation = (value) => {
-        if (!value) return true;
-        // const regex = new RegExp(/^\d+$/);
-        const regex = new RegExp(/^\d*\.?\d*$/);
-        return regex.test(value);
-    };
+    }    
 
     const inspectionSavevalidator = (cmms) => {
         if (!cmms.work) {
             return true;
         }
+        // Quitar todos los Touched 
+        const cmmsinspectionsinit = inspectionsinit?.find(el => el.id === cmms.id);       
 
-        const cmmsinspectionsinit = inspectionsinit?.find(el => el.id === cmms.id);
         return 'id' in cmms ?
-            JSON.stringify({ ...cmmsinspectionsinit }) ==
-            JSON.stringify({ ...cmms }) :
+            JSON.stringify({
+                id: cmmsinspectionsinit?.id,
+                work: cmmsinspectionsinit?.work,
+                machines: cmmsinspectionsinit?.machines ? true : false,
+                vehicles: cmmsinspectionsinit?.vehicles ? true : false,
+                tools: cmmsinspectionsinit?.tools ? true : false,
+                epp: cmmsinspectionsinit?.epp ? true : false,
+                cleanliness: cmmsinspectionsinit?.cleanliness ? true : false,
+                chemicals: cmmsinspectionsinit?.chemicals ? true : false,
+                risk_work: cmmsinspectionsinit?.risk_work ? true : false,
+                emergency_item: cmmsinspectionsinit?.emergency_item ? true : false,
+                other: cmmsinspectionsinit?.other,
+                approved: cmmsinspectionsinit?.approved ? true : false,
+                report_id: cmmsinspectionsinit?.report_id,
+                created_at: cmmsinspectionsinit?.created_at,
+                updated_at: cmmsinspectionsinit?.updated_at,
+            }) ==
+            JSON.stringify({
+                id: cmms.id,
+                work: cmms.work,
+                machines: cmms.machines ? true : false,
+                vehicles: cmms.vehicles ? true : false,
+                tools: cmms.tools ? true : false,
+                epp: cmms.epp ? true : false,
+                cleanliness: cmms.cleanliness ? true : false,
+                chemicals: cmms.chemicals ? true : false,
+                risk_work: cmms.risk_work ? true : false,
+                emergency_item: cmms.emergency_item ? true : false,
+                other: cmms.other,
+                approved: cmms.approved ? true : false,
+                report_id: cmms.report_id,
+                created_at: cmms.created_at,
+                updated_at: cmms.updated_at,
+            }) :
             !!(!cmms.work)
-    }
-
-    const getDate = (dateinit) => {
-        const date = new Date(dateinit);
-        return date.setDate(date.getDate() + 1);
-
     }
 
     useEffect(() => {
@@ -389,6 +398,7 @@ export const ReportInspectionRSSTComponent = ({
                                             onChange={(event) => changeInputInspection(event, index)}
                                             error={cmms?.work === ''}
                                             helperText={cmms?.workTouched && !cmms?.work ? 'Este campo es requerido' : ''}
+                                        // helperText={!cmms?.work ? 'Este campo es requerido' : ''}
                                         />
                                     </Grid>
 

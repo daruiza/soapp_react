@@ -186,7 +186,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         if (param_report_id) {
             dispatch(inspectionRSSTShowByReportId({
                 form: { id: param_report_id }
-            })).then(({ data: { data } }) => {                
+            })).then(({ data: { data } }) => {
                 setInspectionsRSST(data);
             })
         }
@@ -1727,6 +1727,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 <ReportCardComponent
                                     sx={{ borderRadius: '0px' }}
                                     title="11. INSPECCIONES REALIZADAS POR EL RESPONSABLE DEL SST"
+                                    pending={(100 - inspectionsRSST?.filter(el => !el.approved)?.length * 100 / inspectionsRSST?.length)}
                                 >
                                     <ReportInspectionRSSTComponent
                                         report_id={param_report_id}

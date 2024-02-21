@@ -48,7 +48,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
 
   const [user, setUser] = useState({});
   const [userTable, setUserTable] = useState({});
-  
+
   const [userArray, setUSerArray] = useState([]);
 
   const { data: rolArray } = useQuery({
@@ -60,7 +60,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   })
 
   // TODO: hacer el queryTalbe y el queryUser
-  const {data: queryTable, data:{users: queryUser}, refetch } = useQuery({
+  const { data: queryUser, refetch } = useQuery({
     queryKey: ['users'],
     queryFn: (attr = {}, form = formState) => dispatch(
       userIndex({ form: { ...form, ...attr } })).then(({ data: { data } }) => (data)),
@@ -71,13 +71,12 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
 
 
   // console.log('queryUserData', queryUser.data);
-  console.log('queryTable', queryTable);
   console.log('queryUser', queryUser);
 
 
   const getUsers = (attr = {}, form = formState) => {
     dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => {
-      
+
       setUserTable(users);
       setUSerArray(users.data);
     });
