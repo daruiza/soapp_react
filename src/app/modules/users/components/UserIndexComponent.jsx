@@ -14,7 +14,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { Work } from '@mui/icons-material';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 
 const forminit = { name: '', lastname: '', phone: '', email: '', rol_id: '' };
 export const UserIndexComponent = ({ navBarWidth = 58 }) => {
@@ -63,36 +63,39 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const { data: queryUser, refetch } = useQuery({
     queryKey: ['users'],
     queryFn: (attr = {}, form = formState) => dispatch(
-      userIndex({ form: { ...form, ...attr } })).then(({ data: { data } }) => (data)),
+      userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => (users)),
     enabled: true,
     staleTime: Infinity,
     cacheTime: Infinity
   })
 
+  const mutation = useMutation({
+    mutationFn: (formData) => dispatch(
+      userIndex({ form: { ...formData } })).then(({ data: { data: { users } } }) => (users)),
+    onSuccess: (data) => {
+      console.log('Bumm!!', data);
+    },
+    // retry: Infinity,
+    // retryDelay: Infinity
+  })
+
 
   // console.log('queryUserData', queryUser.data);
-  console.log('queryUser', queryUser);
-
+  // console.log('queryUser', queryUser);
 
   const getUsers = (attr = {}, form = formState) => {
     dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => {
-
       setUserTable(users);
       setUSerArray(users.data);
     });
   }
 
-  // const [rolArray, setRolArray] = useState([]);
-  // const getRols = () => {
-  //   dispatch(getAllRols()).then(({ data: { data } }) => {
-  //     setRolArray(data ?? []);
-  //   });
-  // }
 
   // EVENTOS
   const onClearForm = () => {
     onResetForm({ initialForm: forminit });
-    getUsers({ page: 1 }, forminit);
+    // getUsers({ page: 1 }, forminit);
+    refetch({ page: 1 }, forminit)
   }
 
   const handleUserStoreOpen = () => {
@@ -178,12 +181,16 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const handleUserDelete = () => {
     dispatch(userDelete({ form: { ...user } })).then(() => {
       handleUserDeleteClose();
-      getUsers({ page: 1 });
+      // getUsers({ page: 1 });
+      refetch({ page: 1 });
     });
   }
 
   const handlePaginationChange = (event, page) => {
-    getUsers({ page: page });
+    console.log('page', page);
+    // getUsers({ page: page });
+    // refetch({ page: page });
+    mutation.mutate({ ...formState, page: page });
   }
 
   // COMPORTAMIENTO
@@ -192,21 +199,24 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   }
 
   const onSubmit = () => {
-    getUsers();
+    // getUsers();
+    refetch();
   }
 
   useEffect(() => {
-    getUsers();
+    // getUsers();
+    refetch();
+    mutation.mutate();
     //getRols
     dispatch(commerceInitialState());
   }, []);
 
   useEffect(() => {
     // Llega la orden de creación del negocio
-    if (userArray.length && searchParams.get('workopen') && searchParams.get('userid')) {
-      handleCommeceOpen(userArray.find(user => user.id === +searchParams.get('userid')));
+    if (queryUser?.data && queryUser?.data.length && searchParams.get('workopen') && searchParams.get('userid')) {
+      handleCommeceOpen(queryUser?.data.find(user => user.id === +searchParams.get('userid')));
     }
-  }, [userArray]);
+  }, [queryUser]);
 
   return (
     <Grid container
@@ -381,7 +391,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {userArray.map((user) => (
+                  {queryUser?.data.map((user) => (
                     <TableRow
                       key={user.id}
                       sx={{
@@ -490,14 +500,14 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                 color: `${palette.text.secondary}`,
               }} >
                 {
-                  userTable?.data &&
+                  queryUser?.data &&
                   <Pagination
                     showFirstButton showLastButton
                     size="large"
                     sx={{ mr: 5, color: `${palette.text.secondary}`, }}
-                    count={Math.ceil(userTable.total / userTable.per_page)}
+                    count={Math.ceil(queryUser.total / queryUser.per_page)}
                     // defaultPage={userTable.current_page}
-                    page={userTable.current_page}
+                    page={queryUser.current_page}
                     onChange={handlePaginationChange}
                     color="secondary"
                   />
@@ -512,7 +522,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
         handleClose={handleUserStoreClose}
         user={user}
         rolArray={rolArray}
-        getUsers={getUsers}
+        getUsers={refetch}
       ></UserStoreComponent>
       }
       {openUserDelete && <DialogAlertComponent
@@ -530,7 +540,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
           handleClose={handleCommeceClose}
           user={user}
           commerce={commerce}
-          getUsers={getUsers}
+          getUsers={refetch}
         >
         </CommerceComponent>
       }
