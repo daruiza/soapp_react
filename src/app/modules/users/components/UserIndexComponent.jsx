@@ -47,9 +47,6 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const [openCommerce, setOpenCommerce] = useState(false);
 
   const [user, setUser] = useState({});
-  const [userTable, setUserTable] = useState({});
-
-  const [userArray, setUSerArray] = useState([]);
 
   const { data: rolArray } = useQuery({
     queryKey: ['roles'],
@@ -59,29 +56,12 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     cacheTime: Infinity
   })
 
-  // TODO: hacer el queryTalbe y el queryUser
-  const { data: queryUser, refetch } = useQuery({
-    queryKey: ['users'],
-    queryFn: (attr = {}, form = formState) => dispatch(
+  const mutationUser = useMutation({
+    mutationFn: (attr = {}, form = formState) => dispatch(
       userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => (users)),
-    enabled: true,
-    staleTime: Infinity,
-    cacheTime: Infinity
+    onSuccess: (data) => { }
   })
 
-  const mutation = useMutation({
-    mutationFn: (formData) => dispatch(
-      userIndex({ form: { ...formData } })).then(({ data: { data: { users } } }) => (users)),
-    onSuccess: (data) => {
-      console.log('Bumm!!', data);
-    },
-    // retry: Infinity,
-    // retryDelay: Infinity
-  })
-
-
-  // console.log('queryUserData', queryUser.data);
-  // console.log('queryUser', queryUser);
 
   const getUsers = (attr = {}, form = formState) => {
     dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => {
@@ -94,8 +74,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   // EVENTOS
   const onClearForm = () => {
     onResetForm({ initialForm: forminit });
-    // getUsers({ page: 1 }, forminit);
-    refetch({ page: 1 }, forminit)
+    mutationUser.mutate({ page: 1 }, forminit);
   }
 
   const handleUserStoreOpen = () => {
@@ -181,16 +160,13 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const handleUserDelete = () => {
     dispatch(userDelete({ form: { ...user } })).then(() => {
       handleUserDeleteClose();
-      // getUsers({ page: 1 });
-      refetch({ page: 1 });
+      mutationUser.mutate({ page: 1 });
+
     });
   }
 
   const handlePaginationChange = (event, page) => {
-    console.log('page', page);
-    // getUsers({ page: page });
-    // refetch({ page: page });
-    mutation.mutate({ ...formState, page: page });
+    mutationUser.mutate({ page: page });
   }
 
   // COMPORTAMIENTO
@@ -199,24 +175,20 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   }
 
   const onSubmit = () => {
-    // getUsers();
-    refetch();
+    mutationUser.mutate();
   }
 
   useEffect(() => {
-    // getUsers();
-    refetch();
-    mutation.mutate();
-    //getRols
+    mutationUser.mutate();
     dispatch(commerceInitialState());
   }, []);
 
   useEffect(() => {
     // Llega la orden de creación del negocio
-    if (queryUser?.data && queryUser?.data.length && searchParams.get('workopen') && searchParams.get('userid')) {
-      handleCommeceOpen(queryUser?.data.find(user => user.id === +searchParams.get('userid')));
+    if (mutationUser.data?.data && mutationUser.data?.data.length && searchParams.get('workopen') && searchParams.get('userid')) {
+      handleCommeceOpen(mutationUser.data?.data.find(user => user.id === +searchParams.get('userid')));
     }
-  }, [queryUser]);
+  }, [mutationUser]);
 
   return (
     <Grid container
@@ -391,7 +363,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {queryUser?.data.map((user) => (
+                  {mutationUser.isSuccess && mutationUser.data.data.map((user) => (
                     <TableRow
                       key={user.id}
                       sx={{
@@ -500,14 +472,14 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                 color: `${palette.text.secondary}`,
               }} >
                 {
-                  queryUser?.data &&
+                  mutationUser.data?.data &&
                   <Pagination
                     showFirstButton showLastButton
                     size="large"
                     sx={{ mr: 5, color: `${palette.text.secondary}`, }}
-                    count={Math.ceil(queryUser.total / queryUser.per_page)}
+                    count={Math.ceil(mutationUser.data.total / mutationUser.data.per_page)}
                     // defaultPage={userTable.current_page}
-                    page={queryUser.current_page}
+                    page={mutationUser.data.current_page}
                     onChange={handlePaginationChange}
                     color="secondary"
                   />
@@ -522,7 +494,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
         handleClose={handleUserStoreClose}
         user={user}
         rolArray={rolArray}
-        getUsers={refetch}
+        getUsers={mutationUser.mutate}
       ></UserStoreComponent>
       }
       {openUserDelete && <DialogAlertComponent
@@ -540,7 +512,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
           handleClose={handleCommeceClose}
           user={user}
           commerce={commerce}
-          getUsers={refetch}
+          getUsers={mutationUser.mutate}
         >
         </CommerceComponent>
       }
