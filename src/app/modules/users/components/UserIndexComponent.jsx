@@ -3,19 +3,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CommerceComponent } from '../../commerce';
 import { DialogAlertComponent } from '../../../components';
 import { UserStoreComponent } from './UserStoreComponent';
-import { backdropPop, commerceInitialState, commerceUpdate, getAllRols, getCommerceByCommerce, getCommerceByUser, messagePush, reportIndex, userDelete, userIndex } from '../../../../store';
+import { commerceInitialState, commerceUpdate, getAllRols, getCommerceByCommerce, getCommerceByUser, messagePush, reportIndex, userDelete, userIndex } from '../../../../store';
 import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Tooltip, IconButton, Switch, TableFooter, TablePagination, Pagination } from '@mui/material';
 import { useForm } from '../../../../hooks';
 import { useTheme } from '@emotion/react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RolTypes } from '../../../types';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { Work } from '@mui/icons-material';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
-import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 
 const forminit = { name: '', lastname: '', phone: '', email: '', rol_id: '' };
 export const UserIndexComponent = ({ navBarWidth = 58 }) => {
@@ -48,28 +47,20 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const [openCommerce, setOpenCommerce] = useState(false);
 
   const [user, setUser] = useState({});
-  const [userTable, setUserTable] = useState({});
-  // const [rolArray, setRolArray] = useState([]);
-  const [userArray, setUSerArray] = useState([]);
 
   const { data: rolArray } = useQuery({
     queryKey: ['roles'],
     queryFn: () => dispatch(getAllRols()).then(({ data: { data } }) => (data)),
-    enabled: false,
+    enabled: true,
     staleTime: Infinity,
     cacheTime: Infinity
   })
 
-  const queryUser = useQuery({
-    queryKey: ['users'],
-    queryFn: (attr = {}, form = formState) => dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data } }) => (data)),
-    enabled: false,
-    staleTime: Infinity,
-    cacheTime: Infinity
+  const mutationUser = useMutation({
+    mutationFn: (attr = {}, form = formState) => dispatch(
+      userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => (users)),
+    onSuccess: (data) => { }
   })
-
-  console.log('queryUser', queryUser.data);
-  console.log('queryUser', queryUser);
 
 
   const getUsers = (attr = {}, form = formState) => {
@@ -79,16 +70,11 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     });
   }
 
-  // const getRols = () => {
-  //   dispatch(getAllRols()).then(({ data: { data } }) => {
-  //     setRolArray(data ?? []);
-  //   });
-  // }
 
   // EVENTOS
   const onClearForm = () => {
     onResetForm({ initialForm: forminit });
-    getUsers({ page: 1 }, forminit);
+    mutationUser.mutate({ page: 1 }, forminit);
   }
 
   const handleUserStoreOpen = () => {
@@ -174,12 +160,13 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const handleUserDelete = () => {
     dispatch(userDelete({ form: { ...user } })).then(() => {
       handleUserDeleteClose();
-      getUsers({ page: 1 });
+      mutationUser.mutate({ page: 1 });
+
     });
   }
 
   const handlePaginationChange = (event, page) => {
-    getUsers({ page: page });
+    mutationUser.mutate({ page: page });
   }
 
   // COMPORTAMIENTO
@@ -188,20 +175,20 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   }
 
   const onSubmit = () => {
-    getUsers();
+    mutationUser.mutate();
   }
 
   useEffect(() => {
-    getUsers();
+    mutationUser.mutate();
     dispatch(commerceInitialState());
   }, []);
 
   useEffect(() => {
     // Llega la orden de creación del negocio
-    if (userArray.length && searchParams.get('workopen') && searchParams.get('userid')) {
-      handleCommeceOpen(userArray.find(user => user.id === +searchParams.get('userid')));
+    if (mutationUser.data?.data && mutationUser.data?.data.length && searchParams.get('workopen') && searchParams.get('userid')) {
+      handleCommeceOpen(mutationUser.data?.data.find(user => user.id === +searchParams.get('userid')));
     }
-  }, [userArray]);
+  }, [mutationUser]);
 
   return (
     <Grid container
@@ -376,7 +363,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {userArray.map((user) => (
+                  {mutationUser.isSuccess && mutationUser.data.data.map((user) => (
                     <TableRow
                       key={user.id}
                       sx={{
@@ -485,14 +472,14 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                 color: `${palette.text.secondary}`,
               }} >
                 {
-                  userTable?.data &&
+                  mutationUser.data?.data &&
                   <Pagination
                     showFirstButton showLastButton
                     size="large"
                     sx={{ mr: 5, color: `${palette.text.secondary}`, }}
-                    count={Math.ceil(userTable.total / userTable.per_page)}
+                    count={Math.ceil(mutationUser.data.total / mutationUser.data.per_page)}
                     // defaultPage={userTable.current_page}
-                    page={userTable.current_page}
+                    page={mutationUser.data.current_page}
                     onChange={handlePaginationChange}
                     color="secondary"
                   />
@@ -507,7 +494,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
         handleClose={handleUserStoreClose}
         user={user}
         rolArray={rolArray}
-        getUsers={getUsers}
+        getUsers={mutationUser.mutate}
       ></UserStoreComponent>
       }
       {openUserDelete && <DialogAlertComponent
@@ -525,7 +512,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
           handleClose={handleCommeceClose}
           user={user}
           commerce={commerce}
-          getUsers={getUsers}
+          getUsers={mutationUser.mutate}
         >
         </CommerceComponent>
       }

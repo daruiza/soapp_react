@@ -1,12 +1,22 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Grid, Divider, Button } from '@mui/material';
+import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
+import { Grid, Divider, Button, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, Switch, MenuItem, Tooltip } from '@mui/material';
 import { useTheme } from '@emotion/react';
-import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTUpdate } from '../../../../store/inspection/inspectionRSSTThunks';
+import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTStore, inspectionRSSTUpdate } from '../../../../store/inspection/inspectionRSSTThunks';
 import { ShowByInspectionRSSTEvidenceId, inspectionRSSTEvidenceStore } from '../../../../store';
+import SaveIcon from '@mui/icons-material/Save';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckIcon from '@mui/icons-material/Check';
 import { getSoappDownloadFile } from '../../../../api';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
+import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
+import { useQuery } from 'react-query';
+import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
+import { DialogAlertComponent } from '../../../components';
 
 export const ReportInspectionRSSTComponent = ({
     report_id = null,
@@ -38,6 +48,16 @@ export const ReportInspectionRSSTComponent = ({
         alertChildren: false
     });
 
+    // Llamado de Servicios
+
+    const { data: workArray } = useQuery({
+        queryKey: ['works'],
+        queryFn: () => dispatch(genericListGetByName({ name: 'inspection_work' })).then(({ data: { data: { generallist } } }) => (generallist)),
+        enabled: false,
+        staleTime: Infinity,
+        cacheTime: Infinity
+    })
+
     const getInspectionByReportId = () => {
         if (report_id) {
             dispatch(inspectionRSSTShowByReportId({
@@ -56,16 +76,17 @@ export const ReportInspectionRSSTComponent = ({
         setInspections((cmms) => cmms.toSpliced(index, 1,
             {
                 ...inspections[index],
-                [name]: value
+                [name]: value,
+                [`${name}Touched`]: true
             })
-        )
+        );
     }
 
     const handleEvidenceOpen = (cmms) => {
         setOpenEvidences((openEvidences) => ({
             ...openEvidences,
-            dialogtitle: `Evidencias Inspección RSST Item: ${cmms?.item}`,
-            dialogcontenttext: `Norma: ${cmms?.rule} -- Nombre: ${cmms?.name}`,
+            dialogtitle: `Evidencias Inspección RSST Item: ${cmms?.work}`,
+            dialogcontenttext: ``,
             object: cmms,
             approved: cmms.approved,
             open: true
@@ -93,16 +114,7 @@ export const ReportInspectionRSSTComponent = ({
 
     const handleSaveInspection = (cmms) => {
         // Validamos que todos los campos esten llenos
-        if (!cmms.work ||
-            !cmms.machines ||
-            !cmms.vehicles ||
-            !cmms.tools ||
-            !cmms.epp ||
-            !cmms.cleanliness ||
-            !cmms.chemicals ||
-            !cmms.risk_work ||
-            !cmms.emergency_item ||
-            !cmms.other) {
+        if (!cmms.work) {
             return;
         }
 
@@ -114,7 +126,7 @@ export const ReportInspectionRSSTComponent = ({
                 getInspectionByReportIdReport();
             });
         } else {
-            dispatch(compromiseRSSTStore({
+            dispatch(inspectionRSSTStore({
                 form: { ...cmms }
             })).then(({ data: { data: { inspection } } }) => {
                 getInspectionByReportId();
@@ -153,7 +165,7 @@ export const ReportInspectionRSSTComponent = ({
             form: {
                 name: file.name.split('.')[0],
                 type: file.type,
-                compromise_id: object.id,
+                inspection_id: object.id,
                 file: data.storage_image_path,
                 approved: false
             }
@@ -164,7 +176,7 @@ export const ReportInspectionRSSTComponent = ({
         }, error => setMessageSnackbar({ dispatch, error }))
     }
 
-    const handleRemoveCompromiseEvidence = (file, object) => {
+    const handleRemoveInspectionEvidence = (file, object) => {
         dispatch(deleteCompromiseRSSTEvidenceId({
             form: { id: file.evidence_id }
         })).then((data) => {
@@ -200,57 +212,55 @@ export const ReportInspectionRSSTComponent = ({
                 }
             });
         }, error => setMessageSnackbar({ dispatch, error }))
-    }
-
-
-    // Validacines
-    const numberPatternValidation = (value) => {
-        if (!value) return true;
-        // const regex = new RegExp(/^\d+$/);
-        const regex = new RegExp(/^\d*\.?\d*$/);
-        return regex.test(value);
-    };
+    }    
 
     const inspectionSavevalidator = (cmms) => {
-        if (!cmms.work ||
-            !cmms.machines ||
-            !cmms.vehicles ||
-            !cmms.tools ||
-            !cmms.epp ||
-            !cmms.cleanliness ||
-            !cmms.chemicals ||
-            !cmms.risk_work ||
-            !cmms.emergency_item ||
-            !cmms.other) {
+        if (!cmms.work) {
             return true;
         }
+        // Quitar todos los Touched 
+        const cmmsinspectionsinit = inspectionsinit?.find(el => el.id === cmms.id);       
 
-
-        const cmmsinspectionsinit = inspectionsinit?.find(el => el.id === cmms.id);
         return 'id' in cmms ?
-            JSON.stringify({ ...cmmsinspectionsinit, canon: cmmscompromiseinit?.canon ? true : false, approved: cmmscompromiseinit?.approved ? true : false }) ==
-            JSON.stringify({ ...cmms, canon: cmms?.canon ? true : false, approved: cmms?.approved ? true : false }) :
-            !!(
-                !cmms.work ||
-                !cmms.machines ||
-                !cmms.vehicles ||
-                !cmms.tools ||
-                !cmms.epp ||
-                !cmms.cleanliness ||
-                !cmms.chemicals ||
-                !cmms.risk_work ||
-                !cmms.emergency_item ||
-                !cmms.other
-            )
-    }
-
-    const getDate = (dateinit) => {
-        const date = new Date(dateinit);
-        return date.setDate(date.getDate() + 1);
-
+            JSON.stringify({
+                id: cmmsinspectionsinit?.id,
+                work: cmmsinspectionsinit?.work,
+                machines: cmmsinspectionsinit?.machines ? true : false,
+                vehicles: cmmsinspectionsinit?.vehicles ? true : false,
+                tools: cmmsinspectionsinit?.tools ? true : false,
+                epp: cmmsinspectionsinit?.epp ? true : false,
+                cleanliness: cmmsinspectionsinit?.cleanliness ? true : false,
+                chemicals: cmmsinspectionsinit?.chemicals ? true : false,
+                risk_work: cmmsinspectionsinit?.risk_work ? true : false,
+                emergency_item: cmmsinspectionsinit?.emergency_item ? true : false,
+                other: cmmsinspectionsinit?.other,
+                approved: cmmsinspectionsinit?.approved ? true : false,
+                report_id: cmmsinspectionsinit?.report_id,
+                created_at: cmmsinspectionsinit?.created_at,
+                updated_at: cmmsinspectionsinit?.updated_at,
+            }) ==
+            JSON.stringify({
+                id: cmms.id,
+                work: cmms.work,
+                machines: cmms.machines ? true : false,
+                vehicles: cmms.vehicles ? true : false,
+                tools: cmms.tools ? true : false,
+                epp: cmms.epp ? true : false,
+                cleanliness: cmms.cleanliness ? true : false,
+                chemicals: cmms.chemicals ? true : false,
+                risk_work: cmms.risk_work ? true : false,
+                emergency_item: cmms.emergency_item ? true : false,
+                other: cmms.other,
+                approved: cmms.approved ? true : false,
+                report_id: cmms.report_id,
+                created_at: cmms.created_at,
+                updated_at: cmms.updated_at,
+            }) :
+            !!(!cmms.work)
     }
 
     useEffect(() => {
+        // getWork();
         setInspectionsInit(inspections);
     }, [])
 
@@ -262,7 +272,6 @@ export const ReportInspectionRSSTComponent = ({
         }
     }, [inspectionsinit]);
 
-
     return (
         <Grid container>
             {
@@ -273,10 +282,196 @@ export const ReportInspectionRSSTComponent = ({
                             <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                             <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
                                 <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.machines ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'machines' } }, index)}
+                                                name="machines" />}
+                                            label={`${cmms.machines ? 'Incluye' : 'No incluye'} maquinas y equipo`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.vehicles ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'vehicles' } }, index)}
+                                                name="vehicles" />}
+                                            label={`${cmms.vehicles ? 'Incluye' : 'No incluye'} vehiculo`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.tools ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'tools' } }, index)}
+                                                name="tools" />}
+                                            label={`${cmms.tools ? 'Incluye' : 'No incluye'} herramientas`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.epp ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'epp' } }, index)}
+                                                name="epp" />}
+                                            label={`${cmms.epp ? 'Incluye' : 'No incluye'} EPP`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.cleanliness ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'cleanliness' } }, index)}
+                                                name="cleanliness" />}
+                                            label={`${cmms.cleanliness ? 'Incluye' : 'No incluye'} orden y aseo (ambiental)`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.chemicals ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'chemicals' } }, index)}
+                                                name="chemicals" />}
+                                            label={`${cmms.chemicals ? 'Incluye' : 'No incluye'} sustancias quimicas`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.risk_work ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'risk_work' } }, index)}
+                                                name="risk_work" />}
+                                            label={`${cmms.risk_work ? 'Incluye' : 'No incluye'} trabajos de alto riesgo`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <FormControlLabel
+                                            disabled={cmms?.approved ? true : false}
+                                            sx={{ ml: 2 }}
+                                            control={<Switch
+                                                checked={cmms.emergency_item ? true : false}
+                                                onChange={(event) => changeInputInspection({ target: { value: event.target.checked, name: 'emergency_item' } }, index)}
+                                                name="emergency_item" />}
+                                            label={`${cmms.emergency_item ? 'Incluye' : 'No incluye'} elementos de emergencia`}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <TextField
+                                            disabled={cmms?.approved ? true : false}
+                                            variant="standard"
+                                            size="small"
+                                            label="Otro, ¿Cual?"
+                                            type="text"
+                                            fullWidth
+                                            name="other"
+                                            value={cmms?.other ?? ''}
+                                            onChange={(event) => changeInputInspection(event, index)}
+                                            error={false}
+                                            helperText={''}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                        <TextField
+                                            disabled={cmms?.approved ? true : false}
+                                            variant="standard"
+                                            size="small"
+                                            label="Obra/Frente/Area*"
+                                            type="text"
+                                            fullWidth
+                                            name="work"
+                                            value={cmms?.work ?? ''}
+                                            onChange={(event) => changeInputInspection(event, index)}
+                                            error={cmms?.work === ''}
+                                            helperText={cmms?.workTouched && !cmms?.work ? 'Este campo es requerido' : ''}
+                                        // helperText={!cmms?.work ? 'Este campo es requerido' : ''}
+                                        />
+                                    </Grid>
 
                                 </Grid>
                                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
+                                    <Tooltip title="Eliminar Registro" placement="top">
+                                        <span>
+                                            <IconButton
+                                                disabled={cmms?.approved ? true : false}
+                                                onClick={() => handleDeleteInspectionReport(cmms)}                                            >
+                                                <HighlightOffIcon
+                                                    sx={{
+                                                        color: palette.text.disabled,
+                                                        "&:hover": {
+                                                            // color: `${palette.text.primary}`,
+                                                            cursor: "pointer"
+                                                        }
+                                                    }}></HighlightOffIcon>
+                                            </IconButton>
+                                        </span>
+                                    </Tooltip>
 
+                                    <Tooltip title="Guardar Cambios" placement="top">
+                                        <span>
+                                            <IconButton
+                                                disabled={inspectionSavevalidator(cmms) || cmms?.approved ? true : false}
+                                                onClick={() => handleSaveInspection(cmms)}                                            >
+                                                <SaveIcon></SaveIcon>
+                                            </IconButton>
+                                        </span>
+                                    </Tooltip>
+
+                                    {
+                                        cmms?.id &&
+                                        <>
+
+                                            <Tooltip title="Evidencias" placement="top">
+                                                <span>
+                                                    <IconButton
+                                                        disableFocusRipple={cmms?.approved ? true : false}
+                                                        onClick={() => handleEvidenceOpen(cmms)}
+                                                    ><AttachFileIcon></AttachFileIcon></IconButton>
+                                                </span>
+                                            </Tooltip>
+
+                                            <Tooltip title={`${cmms?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                                                <span>
+                                                    <PrivateAgentRoute>
+                                                        <IconButton
+                                                            onClick={() => handleSaveInspection({ ...cmms, approved: !cmms?.approved })}>
+                                                            {!!cmms?.approved &&
+                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                            }
+                                                            {!cmms?.approved &&
+                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                            }
+                                                        </IconButton>
+                                                    </PrivateAgentRoute>
+
+                                                    <PrivateCustomerRoute>
+                                                        <IconButton disabled>
+                                                            {cmms?.approved &&
+                                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                            }
+                                                            {!cmms?.approved &&
+                                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                            }
+                                                        </IconButton>
+                                                    </PrivateCustomerRoute>
+                                                </span>
+                                            </Tooltip>
+                                        </>
+                                    }
                                 </Grid>
                             </Grid>
 
@@ -286,7 +481,9 @@ export const ReportInspectionRSSTComponent = ({
             }
 
             <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
-                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}></Grid>
+                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+
+                </Grid>
                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                     <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                         <Button onClick={() => {
@@ -316,6 +513,41 @@ export const ReportInspectionRSSTComponent = ({
                     </Grid>
                 </Grid>
             </Grid>
+
+            {
+                openEvidences.open && <EvidenceGenericComponent
+                    open={openEvidences.open}
+                    dialogtitle={openEvidences.dialogtitle}
+                    dialogcontenttext={openEvidences.dialogcontenttext}
+                    object={openEvidences.object}
+                    report_id={report_id}
+                    commerce_id={commerce_id}
+                    approved={openEvidences.approved}
+                    handleClose={() => {
+                        setFiles([]);
+                        setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
+                    }}
+                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/inspectionsrsst/${openEvidences?.object?.id ?? null}`}
+                    files={files}
+                    setFiles={setFiles}
+                    getEvidencesById={getEvidencesById}
+                    evidenceStore={storeInspectionEvidence}
+                    handleRemove={handleRemoveInspectionEvidence}
+                    handleFileItemUpload={handleFileItemUpload}
+                ></EvidenceGenericComponent>
+            }
+
+            {
+                handleAlert.openAlert && <DialogAlertComponent
+                    open={handleAlert.openAlert}
+                    handleClose={() => handleAlert.functionAlertClose()}
+                    handleAgree={() => handleAlert.functionAlertAgree()}
+                    props={{
+                        tittle: handleAlert.alertTittle,
+                        message: handleAlert.alertMessage
+                    }}
+                ></DialogAlertComponent>
+            }
         </Grid>
     )
 

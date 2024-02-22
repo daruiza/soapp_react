@@ -479,7 +479,6 @@ export const ReportCompromiseRSSTComponent = ({
                                             </Tooltip>
                                         </>
                                     }
-
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -516,7 +515,6 @@ export const ReportCompromiseRSSTComponent = ({
                     </Grid>
                 </Grid>
             </Grid>
-
             {
                 openEvidences.open && <EvidenceGenericComponent
                     open={openEvidences.open}

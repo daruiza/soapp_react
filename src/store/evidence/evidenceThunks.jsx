@@ -226,7 +226,7 @@ export const ShowByInspectionRSSTEvidenceId = ({ form = {} }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form && form.id) {
-            return soappLaravelApi.get(`api/compromisersstevidence/showbycompromiseevidenceid/${form.id}`, { params: { ...form } });
+            return soappLaravelApi.get(`api/inspectionrsstevidence/showbyinspectionevidenceid/${form.id}`, { params: { ...form } });
         }
     }
 }
@@ -236,7 +236,7 @@ export const inspectionRSSTEvidenceStore = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form) {
-            return soappLaravelApi.post(`api/compromisersstevidence/store`, form);
+            return soappLaravelApi.post(`api/inspectionrsstevidence/store`, form);
         }
     }
 }
