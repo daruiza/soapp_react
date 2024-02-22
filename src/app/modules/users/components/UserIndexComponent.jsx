@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useQuery, useMutation } from 'react-query';
 import { CommerceComponent } from '../../commerce';
 import { DialogAlertComponent } from '../../../components';
 import { UserStoreComponent } from './UserStoreComponent';
 import { commerceInitialState, commerceUpdate, getAllRols, getCommerceByCommerce, getCommerceByUser, messagePush, reportIndex, userDelete, userIndex } from '../../../../store';
 import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Tooltip, IconButton, Switch, TableFooter, TablePagination, Pagination } from '@mui/material';
-import { useForm } from '../../../../hooks';
+import { useForm, useUser, useRol } from '../../../../hooks';
 import { useTheme } from '@emotion/react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RolTypes } from '../../../types';
@@ -14,7 +15,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { Work } from '@mui/icons-material';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
-import { useQuery, useMutation } from 'react-query';
 
 const forminit = { name: '', lastname: '', phone: '', email: '', rol_id: '' };
 export const UserIndexComponent = ({ navBarWidth = 58 }) => {
@@ -47,21 +47,8 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const [openCommerce, setOpenCommerce] = useState(false);
 
   const [user, setUser] = useState({});
-
-  const { data: rolArray } = useQuery({
-    queryKey: ['roles'],
-    queryFn: () => dispatch(getAllRols()).then(({ data: { data } }) => (data)),
-    enabled: true,
-    staleTime: Infinity,
-    cacheTime: Infinity
-  })
-
-  const mutationUser = useMutation({
-    mutationFn: (attr = {}, form = formState) => dispatch(
-      userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => (users)),
-    onSuccess: (data) => { }
-  })
-
+  const { data: rolArray } = useRol();  
+  const usersQuery = useUser();
 
   const getUsers = (attr = {}, form = formState) => {
     dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => {
@@ -74,7 +61,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   // EVENTOS
   const onClearForm = () => {
     onResetForm({ initialForm: forminit });
-    mutationUser.mutate({ page: 1 }, forminit);
+    usersQuery.setDataQuery({ ...forminit, page: 1 })
   }
 
   const handleUserStoreOpen = () => {
@@ -126,8 +113,6 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
         }));
       }
     });
-
-
   }
 
   const navegateReports = ({ commerce, id }) => {
@@ -160,13 +145,13 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const handleUserDelete = () => {
     dispatch(userDelete({ form: { ...user } })).then(() => {
       handleUserDeleteClose();
-      mutationUser.mutate({ page: 1 });
+      usersQuery.setDataQuery({ page: 1 })
 
     });
   }
 
   const handlePaginationChange = (event, page) => {
-    mutationUser.mutate({ page: page });
+    usersQuery.setDataQuery({ page: page, ...formState })
   }
 
   // COMPORTAMIENTO
@@ -175,20 +160,19 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   }
 
   const onSubmit = () => {
-    mutationUser.mutate();
+    usersQuery.setData({ ...formState })
   }
 
   useEffect(() => {
-    mutationUser.mutate();
     dispatch(commerceInitialState());
   }, []);
 
   useEffect(() => {
     // Llega la orden de creación del negocio
-    if (mutationUser.data?.data && mutationUser.data?.data.length && searchParams.get('workopen') && searchParams.get('userid')) {
-      handleCommeceOpen(mutationUser.data?.data.find(user => user.id === +searchParams.get('userid')));
+    if (usersQuery.data?.data && usersQuery.data?.data.length && searchParams.get('workopen') && searchParams.get('userid')) {
+      handleCommeceOpen(usersQuery.data?.data.find(user => user.id === +searchParams.get('userid')));
     }
-  }, [mutationUser]);
+  }, [usersQuery]);
 
   return (
     <Grid container
@@ -363,7 +347,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {mutationUser.isSuccess && mutationUser.data.data.map((user) => (
+                  {usersQuery.isSuccess && usersQuery.data.data.map((user) => (
                     <TableRow
                       key={user.id}
                       sx={{
@@ -472,14 +456,14 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                 color: `${palette.text.secondary}`,
               }} >
                 {
-                  mutationUser.data?.data &&
+                  usersQuery.data?.data &&
                   <Pagination
                     showFirstButton showLastButton
                     size="large"
                     sx={{ mr: 5, color: `${palette.text.secondary}`, }}
-                    count={Math.ceil(mutationUser.data.total / mutationUser.data.per_page)}
+                    count={Math.ceil(usersQuery.data.total / usersQuery.data.per_page)}
                     // defaultPage={userTable.current_page}
-                    page={mutationUser.data.current_page}
+                    page={usersQuery.data.current_page}
                     onChange={handlePaginationChange}
                     color="secondary"
                   />
@@ -494,7 +478,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
         handleClose={handleUserStoreClose}
         user={user}
         rolArray={rolArray}
-        getUsers={mutationUser.mutate}
+        getUsers={usersQuery.refetch}
       ></UserStoreComponent>
       }
       {openUserDelete && <DialogAlertComponent
@@ -512,7 +496,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
           handleClose={handleCommeceClose}
           user={user}
           commerce={commerce}
-          getUsers={mutationUser.mutate}
+          getUsers={usersQuery.refetch}
         >
         </CommerceComponent>
       }
