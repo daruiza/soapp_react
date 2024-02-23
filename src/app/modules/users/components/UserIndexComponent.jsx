@@ -47,7 +47,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   const [openCommerce, setOpenCommerce] = useState(false);
 
   const [user, setUser] = useState({});
-  const { data: rolArray } = useRol();  
+  const { data: rolArray } = useRol();
   const usersQuery = useUser();
 
   const getUsers = (attr = {}, form = formState) => {

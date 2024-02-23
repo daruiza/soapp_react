@@ -14,6 +14,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Work } from '@mui/icons-material';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 import { RolTypes } from '../../../types';
+import { useProyectType } from '../../../../hooks/query/useProyectType';
 
 const formValidations = {
   progress: [(value) => (RegExp('^[0-9]+$').test(value) && value < 101) || !value, 'El Progrespo es un número de 0 a 100.'],
@@ -66,13 +67,13 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   const [report, setReport] = useState({});
   const [reportTable, setReportTable] = useState({});
   const [reportArray, setReportArray] = useState([]);
-  const [responsibleArray, setResponsibleArray] = useState([])
-  const [projectArray, setProjectArray] = useState([])
+  const [responsibleArray, setResponsibleArray] = useState([]);
+  const { data: projecTypetArray } = useProyectType();
   const [monthArray, setMontArray] = useState([]);
 
   // LLAMADO DE SERVICIOS
   const getReports = (attr = {}, form = formState) => {
-    const commerce_id = form?.commerce_id ? form.commerce_id : commerce?.id ?? param_commerce_id;    
+    const commerce_id = form?.commerce_id ? form.commerce_id : commerce?.id ?? param_commerce_id;
     if (commerce_id) {
       dispatch(reportIndex({
         form: {
@@ -85,13 +86,6 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
         setReportArray(report.data);
       });
     }
-  }
-
-  const getProject = () => {
-    dispatch(genericListGetByName({ name: 'project' }))
-      .then(({ data: { data: { generallist }}}) => {
-        setProjectArray(generallist ?? []);
-      });
   }
 
   const getResponsibles = (attr = {}, form = formState) => {
@@ -164,7 +158,6 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   useEffect(() => {
     if (commerce || param_commerce_id) {
       getReports();
-      getProject();
       getResponsibles();
       getMonth();
       setInput('commerce_id', commerce?.id ?? param_commerce_id);
@@ -312,9 +305,9 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
                         onChange={e => { onInputChange(e) }}>
                         <MenuItem value=''><em></em></MenuItem>
                         {
-                          projectArray &&
-                          projectArray.length &&
-                          projectArray.map((el, index) => (
+                          projecTypetArray &&
+                          projecTypetArray.length &&
+                          projecTypetArray.map((el, index) => (
                             <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
                           ))
                         }
@@ -447,7 +440,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
         commerce={commerce}
         getReports={getReports}
         monthArray={monthArray}
-        projectArray={projectArray}
+        projecTypetArray={projecTypetArray}
         responsibleArray={responsibleArray}
         handleClose={handleReportStoreClose}
       ></ReportStoreComponent>}
