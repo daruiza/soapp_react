@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useQuery, useMutation } from 'react-query';
 import { CommerceComponent } from '../../commerce';
 import { DialogAlertComponent } from '../../../components';
 import { UserStoreComponent } from './UserStoreComponent';
-import { commerceInitialState, commerceUpdate, getAllRols, getCommerceByCommerce, getCommerceByUser, messagePush, reportIndex, userDelete, userIndex } from '../../../../store';
+import { commerceInitialState, commerceUpdate, getCommerceByCommerce, getCommerceByUser, messagePush, reportIndex, userDelete, userIndex } from '../../../../store';
 import { Grid, TextField, Typography, FormControl, InputLabel, Select, MenuItem, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Tooltip, IconButton, Switch, TableFooter, TablePagination, Pagination } from '@mui/material';
 import { useForm, useUser, useRol } from '../../../../hooks';
 import { useTheme } from '@emotion/react';
@@ -48,15 +47,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
 
   const [user, setUser] = useState({});
   const { data: rolArray } = useRol();
-  const usersQuery = useUser();
-
-  const getUsers = (attr = {}, form = formState) => {
-    dispatch(userIndex({ form: { ...form, ...attr } })).then(({ data: { data: { users } } }) => {
-      setUserTable(users);
-      setUSerArray(users.data);
-    });
-  }
-
+  const usersQuery = useUser();  
 
   // EVENTOS
   const onClearForm = () => {
@@ -146,7 +137,6 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
     dispatch(userDelete({ form: { ...user } })).then(() => {
       handleUserDeleteClose();
       usersQuery.setDataQuery({ page: 1 })
-
     });
   }
 
