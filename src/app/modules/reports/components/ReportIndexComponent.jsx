@@ -64,10 +64,9 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   const [openReportStore, setOpenStoreReport] = useState(false);
   const [openAlert, setOpenAlert] = useState(true);
 
-  const [report, setReport] = useState({});
-  const [reportTable, setReportTable] = useState({});
-  const [reportArray, setReportArray] = useState([]);  
-  
+  const [report, setReport] = useState({});  
+
+  // Query  
   const reportsQuery = useReport(); 
   const { data: projecTypetArray } = useProyectType();
   const { data: monthArray } = useGeneralList('month');

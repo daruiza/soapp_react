@@ -1,9 +1,9 @@
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 import { useDispatch } from 'react-redux';
 import { useState } from 'react';
-import { genericListGetByName } from '../../store/genericlist/genericlistThunks';
+import { genericListGetByName, genericListGetByNamelist } from '../../store/genericlist/genericlistThunks';
 
-export const useGeneralList = (name = '', dataQueryinit = {}) => {
+const useGeneralList = (name = '', dataQueryinit = {}) => {
 
     const dispatch = useDispatch();
 
@@ -19,3 +19,17 @@ export const useGeneralList = (name = '', dataQueryinit = {}) => {
 
     return { data: query.data, setDataQuery }
 }
+
+const useGeneraNamelList = (name = '') => {
+
+    const dispatch = useDispatch();
+    const query = useMutation({
+        mutationKey: [name, name],
+        mutationFn: (name)=>dispatch(genericListGetByNamelist({name})).then(({ data: { data: { generallist } } }) => (generallist)),
+        onSuccess: (response) => { }
+        
+    });    
+
+    return { data: query.data, mutate: query.mutate }}
+
+export { useGeneralList, useGeneraNamelList }

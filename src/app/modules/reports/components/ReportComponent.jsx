@@ -5,13 +5,14 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { commerceUpdate, compromiseRSSTShowByReportId, compromiseSSTShowByReportId, compromiseShowByReportId, employeeIndex, employeeReportDelete, employeeReportStore, employeeReportUpdate, genericListGetByName, genericListGetByNamelist, reportByreportId } from '../../../../store';
 import { Grid, ImageListItem, Typography, Button, TextField, IconButton, Switch, FormControl, FormControlLabel, FormGroup, Divider, InputLabel, Select, FormLabel, SpeedDial, SpeedDialAction, SpeedDialIcon, FormHelperText } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
 import { ReportCardComponent } from './ReportCardComponent';
+import { useGeneraNamelList} from '../../../../hooks';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import es from 'dayjs/locale/es';
 import { useTheme } from '@emotion/react';
+import MenuItem from '@mui/material/MenuItem';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import InfoIcon from '@mui/icons-material/Info';
 import SaveIcon from '@mui/icons-material/Save';
@@ -67,6 +68,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     const [workEventArray, setWorkEventArray] = useState([]);
     const [medicalAttentionArray, setMedicalAttentionArray] = useState([]);
     const [topicSSTArray, setTopicSSTArray] = useState([]);
+
+    // Query
+    const {data: listsQuery, mutate: listQueryMutate} = useGeneraNamelList('exam,type_exam,event,medical_attention,topic_sst');    
 
 
     const { commerce_id: param_commerce_id } = useParams();
@@ -141,15 +145,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         }
     }
 
-    const getLists = () => {
-        dispatch(genericListGetByNamelist({ name: 'exam,type_exam,event,medical_attention,topic_sst' }))
-            .then(({ data: { data: { generallist } } }) => {
-                setWorkEventArray(generallist?.filter(el => el.name === 'event') ?? []);
-                setExamArray(generallist?.filter(el => el.name === 'exam') ?? []);
-                setExamTypeArray(generallist?.filter(el => el.name === 'type_exam') ?? []);
-                setMedicalAttentionArray(generallist?.filter(el => el.name === 'medical_attention') ?? []);
-                setTopicSSTArray(generallist?.filter(el => el.name === 'topic_sst') ?? []);
-            });
+    const getLists = () => {        
+        listQueryMutate('exam,type_exam,event,medical_attention,topic_sst');        
     }
 
     const getCompromiseByReportId = () => {
@@ -191,8 +188,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
             })
         }
     }
-
-
 
     const setEmployeeReportStore = (collaborator, employee_state) => {
         // se debe llamar al back para que guarde el cambio
@@ -367,6 +362,17 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
     }, [trainingsst])
 
+     // Mutación QUERY para todas las listas 
+     useEffect(()=>{
+        if(!!listsQuery && listsQuery.length) {
+            setWorkEventArray(listsQuery?.filter(el => el.name === 'event') ?? []);
+            setExamArray(listsQuery?.filter(el => el.name === 'exam') ?? []);
+            setExamTypeArray(listsQuery?.filter(el => el.name === 'type_exam') ?? []);
+            setMedicalAttentionArray(listsQuery?.filter(el => el.name === 'medical_attention') ?? []);
+            setTopicSSTArray(listsQuery?.filter(el => el.name === 'topic_sst') ?? []);
+        }
+    },[listsQuery])
+
     useEffect(() => {
         getEmployees();
         getReportById(param_report_id);
@@ -375,7 +381,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         getCompromiseRSSTByReportId();
         getInspectionRSSTByReportId();
         getLists();
-    }, [])
+    }, []);   
 
     return (
         <Grid container
