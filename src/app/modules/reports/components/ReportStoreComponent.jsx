@@ -68,7 +68,7 @@ export const ReportStoreComponent = ({
   open = false,
   commerce = {},
   monthArray = [],
-  projectArray = [],
+  projecTypetArray = [],
   responsibleArray = [],
   getReports = () => { },
   handleClose = () => { } }) => {
@@ -314,9 +314,9 @@ export const ReportStoreComponent = ({
                       onChange={e => { onInputChange(e) }}>
                       <MenuItem value=''><em></em></MenuItem>
                       {
-                        projectArray &&
-                        projectArray.length &&
-                        projectArray.map((el, index) => (
+                        projecTypetArray &&
+                        projecTypetArray.length &&
+                        projecTypetArray.map((el, index) => (
                           <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
                         ))
                       }
@@ -332,9 +332,9 @@ export const ReportStoreComponent = ({
                       onChange={e => { onInputChange(e) }} disabled>
                       <MenuItem value=''><em></em></MenuItem>
                       {
-                        projectArray &&
-                        projectArray.length &&
-                        projectArray.map((el, index) => (
+                        projecTypetArray &&
+                        projecTypetArray.length &&
+                        projecTypetArray.map((el, index) => (
                           <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
                         ))
                       }

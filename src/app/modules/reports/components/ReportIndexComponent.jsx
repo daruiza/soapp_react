@@ -1,19 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { commerceUpdate, getCommerceByCommerce, reportIndex, userByRolId, userIndex } from '../../../../store';
+import { commerceUpdate, getCommerceByCommerce, reportIndex } from '../../../../store';
 import { ReportItemComponent } from './ReportItemComponent';
 import { ReportStoreComponent } from './ReportStoreComponent';
 import { useForm } from '../../../../hooks';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PrivateAgentRoute } from '../../../middleware';
 import { Button, Grid, Switch, TextField, Typography, FormControl, FormHelperText, InputLabel, Select, MenuItem, Card, Collapse, Alert, IconButton, Box, Pagination, Tooltip } from '@mui/material';
-import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 import { useTheme } from '@emotion/react';
+import { useGeneralList, useResponsibles, useReport } from '../../../../hooks';
 import dayjs from 'dayjs';
 import CloseIcon from '@mui/icons-material/Close';
 import { Work } from '@mui/icons-material';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 import { RolTypes } from '../../../types';
+import { useProyectType } from '../../../../hooks/query/useProyectType';
 
 const formValidations = {
   progress: [(value) => (RegExp('^[0-9]+$').test(value) && value < 101) || !value, 'El Progrespo es un número de 0 a 100.'],
@@ -63,51 +64,28 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   const [openReportStore, setOpenStoreReport] = useState(false);
   const [openAlert, setOpenAlert] = useState(true);
 
-  const [report, setReport] = useState({});
-  const [reportTable, setReportTable] = useState({});
-  const [reportArray, setReportArray] = useState([]);
-  const [responsibleArray, setResponsibleArray] = useState([])
-  const [projectArray, setProjectArray] = useState([])
-  const [monthArray, setMontArray] = useState([]);
+  const [report, setReport] = useState({});  
+
+  // Query  
+  const reportsQuery = useReport(); 
+  const { data: projecTypetArray } = useProyectType();
+  const { data: monthArray } = useGeneralList('month');
+  const { data: responsibleArray } = useResponsibles({rol_id: RolTypes.agente});
+
+  // console.log('reportsQuery', reportsQuery);
 
   // LLAMADO DE SERVICIOS
   const getReports = (attr = {}, form = formState) => {
-    const commerce_id = form?.commerce_id ? form.commerce_id : commerce?.id ?? param_commerce_id;    
+    const commerce_id = form?.commerce_id ? form.commerce_id : commerce?.id ?? param_commerce_id;
     if (commerce_id) {
-      dispatch(reportIndex({
-        form: {
-          ...form,
-          ...attr,
-          commerce_id: commerce_id
-        }
-      })).then(({ data: { data: { report } } }) => {
-        setReportTable(report);
-        setReportArray(report.data);
-      });
+      return reportsQuery.setDataQuery({
+        ...form,
+        ...attr,
+        commerce_id: commerce_id
+      });      
     }
-  }
-
-  const getProject = () => {
-    dispatch(genericListGetByName({ name: 'project' }))
-      .then(({ data: { data: { generallist }}}) => {
-        setProjectArray(generallist ?? []);
-      });
-  }
-
-  const getResponsibles = (attr = {}, form = formState) => {
-    dispatch(userByRolId({ form: { ...form, ...attr, rol_id: RolTypes.agente } }))
-      .then(({ data: { data: { users } } }) => {
-        setResponsibleArray(users);
-      });
-  }
-
-  const getMonth = () => {
-    dispatch(genericListGetByName({ name: 'month' }))
-      .then(({ data: { data: { generallist } } }) => {
-        setMontArray(generallist ?? []);
-      });
-  }
-
+  }  
+  
   // COMPORTAMIENTO
   const changeFilterToggle = (event) => {
     setFilterToggle(event.target.checked);
@@ -163,10 +141,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
 
   useEffect(() => {
     if (commerce || param_commerce_id) {
-      getReports();
-      getProject();
-      getResponsibles();
-      getMonth();
+      getReports(); 
       setInput('commerce_id', commerce?.id ?? param_commerce_id);
       setTimeout(() => onResetForm({ initialForm: formState, formState }), 100);
     }
@@ -312,9 +287,9 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
                         onChange={e => { onInputChange(e) }}>
                         <MenuItem value=''><em></em></MenuItem>
                         {
-                          projectArray &&
-                          projectArray.length &&
-                          projectArray.map((el, index) => (
+                          projecTypetArray &&
+                          projecTypetArray.length &&
+                          projecTypetArray.map((el, index) => (
                             <MenuItem key={index} value={el.value}>{el.value}</MenuItem>
                           ))
                         }
@@ -407,7 +382,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
           </Grid>
           <Grid item xs={12} md={12}>
             <Grid container>
-              {(monthArray && reportArray) && reportArray.map((report) => (
+              {(monthArray && reportsQuery.data?.data) && reportsQuery.data?.data.map((report) => (
                 <ReportItemComponent
                   key={report.id}
                   report={report}
@@ -425,14 +400,14 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
             // color: `${palette.text.secondary}`,
           }} >
             {
-              reportTable?.data &&
+              reportsQuery.data?.data &&
               <Pagination
                 showFirstButton showLastButton
                 size="large"
                 sx={{ mr: 5, color: `${palette.text.secondary}`, }}
-                count={Math.ceil(reportTable.total / reportTable.per_page)}
+                count={Math.ceil(reportsQuery.data.total / reportsQuery.data.per_page)}
                 // defaultPage={userTable.current_page}
-                page={reportTable.current_page}
+                page={reportsQuery.data.current_page}
                 onChange={handlePaginationChange}
                 color="secondary"
               />
@@ -447,7 +422,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
         commerce={commerce}
         getReports={getReports}
         monthArray={monthArray}
-        projectArray={projectArray}
+        projecTypetArray={projecTypetArray}
         responsibleArray={responsibleArray}
         handleClose={handleReportStoreClose}
       ></ReportStoreComponent>}
