@@ -5,4 +5,6 @@ export * from './query/useRols';
 export * from './query/useGeneralList';
 export * from './query/useResponsibles';
 export * from './query/useReport';
+export * from './query/useCompromise';
+
 
