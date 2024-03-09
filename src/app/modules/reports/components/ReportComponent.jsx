@@ -149,6 +149,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     isSuccess: correctiveRSSTQueryisSuccess,
   } = useCorrectiveRSSTByReportId({ id: param_report_id });
 
+  // TODO: ASIGNAR VARIABLEAS AL RECIEN CREADO CORRECTIVE
   console.log('correctiveRSSTQuery', correctiveRSSTQuery);
 
   // reportByreportId
