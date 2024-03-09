@@ -31,7 +31,7 @@ import {
 } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import { ReportCardComponent } from "./ReportCardComponent";
-import { useGeneraNamelList, useCompromiseByReportId } from "../../../../hooks";
+import { useGeneraNamelList, useCompromiseByReportId, useCorrectiveRSSTByReportId } from "../../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
@@ -88,6 +88,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const [compromisesSST, setCompromisesSST] = useState(null);
   const [compromisesRSST, setCompromisesRSST] = useState(null);
   const [inspectionsRSST, setInspectionsRSST] = useState(null);
+  const [correctiveRSST, setCorrectiveRSST] = useState(null);
   const [activities, setActivities] = useState([]);
 
   const [employeeArray, setEmployeeArray] = useState([]);
@@ -141,6 +142,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     refetch: compromiseQueryRefetch,
     isSuccess: compromiseQueryisSuccess,
   } = useCompromiseByReportId({ id: param_report_id });
+
+  const {
+    data: correctiveRSSTQuery,
+    refetch: correctiveRSSTQueryRefetch,
+    isSuccess: correctiveRSSTQueryisSuccess,
+  } = useCorrectiveRSSTByReportId({ id: param_report_id });
+
+  console.log('correctiveRSSTQuery', correctiveRSSTQuery);
 
   // reportByreportId
   const getReportById = (id) => {
@@ -202,19 +211,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         }
       );
     }
-  };
-
-  const getCompromiseByReportId = () => {
-    if (param_report_id) {
-      dispatch(
-        compromiseShowByReportId({
-          form: { id: param_report_id },
-        })
-      ).then(({ data: { data } }) => {
-        setCompromises(data);
-      });
-    }
-  };
+  };  
 
   const getCompromiseSSTByReportId = () => {
     if (param_report_id) {
@@ -493,6 +490,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       setCompromises(compromiseQuery);
     }
   }, [compromiseQueryisSuccess]);
+
+
+  useEffect(() => {
+    if (!!correctiveRSSTQuery && correctiveRSSTQuery.length) {
+      setCorrectiveRSST(correctiveRSSTQuery);
+    }
+  }, [correctiveRSSTQueryisSuccess]);
 
   useEffect(() => {
     getEmployees();

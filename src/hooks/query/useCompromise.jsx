@@ -11,7 +11,7 @@ const useCompromiseByReportId = (dataQueryinit = {}) => {
     const [dataQuery, setDataQuery] = useState(dataQueryinit);
 
     const query = useQuery({
-        queryKey: ['users', dataQuery],
+        queryKey: ['compromises', dataQuery],
         queryFn: () => {    
             if(!('id' in dataQuery)){return ()=>([])}
             return dispatch(compromiseShowByReportId({ form: { ...dataQuery } })).then(({ data: { data } }) => (data))

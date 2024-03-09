@@ -12,3 +12,4 @@ export * from './trainingsst/trainingsstThunks';
 export * from './compromise/compromiseThunks';
 export * from './compromise/compromiseSSTThunks';
 export * from './compromise/compromiseRSSTThunks';
+export * from './corrective/correctiveRSSTThunks.jsx';
