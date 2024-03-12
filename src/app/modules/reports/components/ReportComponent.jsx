@@ -31,7 +31,11 @@ import {
 } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import { ReportCardComponent } from "./ReportCardComponent";
-import { useGeneraNamelList, useCompromiseByReportId, useCorrectiveRSSTByReportId } from "../../../../hooks";
+import {
+  useGeneraNamelList,
+  useCompromiseByReportId,
+  useCorrectiveRSSTByReportId,
+} from "../../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
@@ -122,8 +126,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
   const [handleAlert, setHandleAlert] = useState({
     openAlert: false,
-    functionAlertClose: () => {},
-    functionAlertAgree: () => {},
+    functionAlertClose: () => { },
+    functionAlertAgree: () => { },
     alertTittle: "",
     alertMessage: "",
   });
@@ -140,17 +144,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const {
     data: compromiseQuery,
     refetch: compromiseQueryRefetch,
-    isSuccess: compromiseQueryisSuccess,
   } = useCompromiseByReportId({ id: param_report_id });
 
   const {
     data: correctiveRSSTQuery,
     refetch: correctiveRSSTQueryRefetch,
-    isSuccess: correctiveRSSTQueryisSuccess,
   } = useCorrectiveRSSTByReportId({ id: param_report_id });
 
   // TODO: ASIGNAR VARIABLEAS AL RECIEN CREADO CORRECTIVE
-  console.log('correctiveRSSTQuery', correctiveRSSTQuery);
 
   // reportByreportId
   const getReportById = (id) => {
@@ -212,7 +213,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         }
       );
     }
-  };  
+  };
 
   const getCompromiseSSTByReportId = () => {
     if (param_report_id) {
@@ -343,6 +344,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     // collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: EmployeeState.NUEVOINGRESO }], name: 'state', index })
   };
 
+  // Calculos
+  const getPending = (array) => {
+    100 - (array?.filter((el) => !el?.approved)?.length * 100) / array?.length;
+  };
+
   // Manejador de apertura de PopUp de Evidencias
   const handleEvidenceOpen = (
     collaborator,
@@ -377,9 +383,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       )
       ?.filter((el) => !el[attibute]).length *
       100) /
-      collaborators?.collaborators?.filter((cll) =>
-        cll.state.find((el) => el.employee_state === EmployeeState)
-      ).length;
+    collaborators?.collaborators?.filter((cll) =>
+      cll.state.find((el) => el.employee_state === EmployeeState)
+    ).length;
 
   //Validaciones
   const validatorSaveEmployeeInsetDisabled = (cl) => {
@@ -486,18 +492,18 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
   }, [listsQuery]);
 
+  // TODO: Revisar que se cambio el: compromiseQueryisSuccess para que funcionara y funciono
   useEffect(() => {
     if (!!compromiseQuery && compromiseQuery.length) {
       setCompromises(compromiseQuery);
     }
-  }, [compromiseQueryisSuccess]);
-
+  }, [compromiseQuery]);
 
   useEffect(() => {
     if (!!correctiveRSSTQuery && correctiveRSSTQuery.length) {
       setCorrectiveRSST(correctiveRSSTQuery);
     }
-  }, [correctiveRSSTQueryisSuccess]);
+  }, [correctiveRSSTQuery]);
 
   useEffect(() => {
     getEmployees();
@@ -998,11 +1004,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                   <Grid item>
                                     Edad: {getAge(cl?.birth_date)} Años
                                   </Grid>
-                                  <Grid item>{`${
-                                    cl?.is_employee
-                                      ? "Es Contratado"
-                                      : "ES Subcontratado"
-                                  }`}</Grid>
+                                  <Grid item>{`${cl?.is_employee
+                                    ? "Es Contratado"
+                                    : "ES Subcontratado"
+                                    }`}</Grid>
                                 </Grid>
                               }
                               placement="top"
@@ -1025,15 +1030,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                               >
                                 <AddCircleIcon
                                   sx={{
-                                    color: `${
-                                      cl.state.find(
-                                        (el) =>
-                                          el.employee_state ===
-                                          EmployeeState.NUEVOINGRESO
-                                      )
-                                        ? palette.primary.main
-                                        : palette.text.disabled
-                                    }`,
+                                    color: `${cl.state.find(
+                                      (el) =>
+                                        el.employee_state ===
+                                        EmployeeState.NUEVOINGRESO
+                                    )
+                                      ? palette.primary.main
+                                      : palette.text.disabled
+                                      }`,
                                     "&:hover": {
                                       // color: `${palette.text.primary}`,
                                       cursor: "pointer",
@@ -1051,15 +1055,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                               >
                                 <RemoveCircleIcon
                                   sx={{
-                                    color: `${
-                                      cl.state.find(
-                                        (el) =>
-                                          el.employee_state ===
-                                          EmployeeState.RETIRED
-                                      )
-                                        ? palette.primary.main
-                                        : palette.text.disabled
-                                    }`,
+                                    color: `${cl.state.find(
+                                      (el) =>
+                                        el.employee_state ===
+                                        EmployeeState.RETIRED
+                                    )
+                                      ? palette.primary.main
+                                      : palette.text.disabled
+                                      }`,
                                     "&:hover": {
                                       // color: `${palette.text.primary}`,
                                       cursor: "pointer",
@@ -1083,15 +1086,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                               >
                                 <HealthAndSafetyIcon
                                   sx={{
-                                    color: `${
-                                      cl.state.find(
-                                        (el) =>
-                                          el.employee_state ===
-                                          EmployeeState.EXAMENESMEDICOS
-                                      )
-                                        ? palette.primary.main
-                                        : palette.text.disabled
-                                    }`,
+                                    color: `${cl.state.find(
+                                      (el) =>
+                                        el.employee_state ===
+                                        EmployeeState.EXAMENESMEDICOS
+                                    )
+                                      ? palette.primary.main
+                                      : palette.text.disabled
+                                      }`,
                                     "&:hover": {
                                       // color: `${palette.text.primary}`,
                                       cursor: "pointer",
@@ -1112,15 +1114,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                               >
                                 <HealingIcon
                                   sx={{
-                                    color: `${
-                                      cl.state.find(
-                                        (el) =>
-                                          el.employee_state ===
-                                          EmployeeState.WORKEVENT
-                                      )
-                                        ? palette.primary.main
-                                        : palette.text.disabled
-                                    }`,
+                                    color: `${cl.state.find(
+                                      (el) =>
+                                        el.employee_state ===
+                                        EmployeeState.WORKEVENT
+                                    )
+                                      ? palette.primary.main
+                                      : palette.text.disabled
+                                      }`,
                                     "&:hover": {
                                       // color: `${palette.text.primary}`,
                                       cursor: "pointer",
@@ -1168,7 +1169,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                             <Grid
                               container
                               key={cl.index}
-                              //sx={{ backgroundColor: ((index + 1) % 2) ? palette.secondary.support : '' }}
+                            //sx={{ backgroundColor: ((index + 1) % 2) ? palette.secondary.support : '' }}
                             >
                               <Grid
                                 item
@@ -1203,7 +1204,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     <TextField
                                       disabled={
                                         cl?.is_employee ||
-                                        cl?.approved_induction
+                                          cl?.approved_induction
                                           ? true
                                           : false
                                       }
@@ -1213,11 +1214,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                       type="text"
                                       fullWidth
                                       name="company"
-                                      value={`${
-                                        cl?.is_employee
-                                          ? report?.commerce?.name
-                                          : cl?.company ?? ""
-                                      }`}
+                                      value={`${cl?.is_employee
+                                        ? report?.commerce?.name
+                                        : cl?.company ?? ""
+                                        }`}
                                       onChange={(event) =>
                                         changeInputCollaborator(event, cl.index)
                                       }
@@ -1265,9 +1265,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                         className="birth-date-piker"
                                         sx={{ width: "100%" }}
                                         inputFormat="DD/MM/YYYY"
-                                        label={`${
-                                          cl?.inset_st_date ? "Fecha" : ""
-                                        } Inducción SST`}
+                                        label={`${cl?.inset_st_date ? "Fecha" : ""
+                                          } Inducción SST`}
                                         name="inset_st_date"
                                         value={cl?.inset_st_date ?? null}
                                         onChange={(value) =>
@@ -1285,7 +1284,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                             size="small"
                                             {...params}
                                             error={false}
-                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                          // sx={{ input: { color: `${palette.text.primary}` } }}
                                           />
                                         )}
                                       />
@@ -1310,11 +1309,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                         className="birth-date-piker"
                                         sx={{ width: "100%" }}
                                         inputFormat="DD/MM/YYYY"
-                                        label={`${
-                                          cl?.inset_induction_date
-                                            ? "Fecha"
-                                            : ""
-                                        } Inducción al Cargo`}
+                                        label={`${cl?.inset_induction_date
+                                          ? "Fecha"
+                                          : ""
+                                          } Inducción al Cargo`}
                                         name="inset_induction_date"
                                         value={cl?.inset_induction_date ?? null}
                                         onChange={(value) =>
@@ -1332,7 +1330,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                             size="small"
                                             {...params}
                                             error={false}
-                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                          // sx={{ input: { color: `${palette.text.primary}` } }}
                                           />
                                         )}
                                       />
@@ -1357,9 +1355,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                         className="birth-date-piker"
                                         sx={{ width: "100%" }}
                                         inputFormat="DD/MM/YYYY"
-                                        label={`${
-                                          cl?.inset_delivery_date ? "Fecha" : ""
-                                        }  Entrega Elementos`}
+                                        label={`${cl?.inset_delivery_date ? "Fecha" : ""
+                                          }  Entrega Elementos`}
                                         name="inset_delivery_date"
                                         value={cl?.inset_delivery_date ?? null}
                                         onChange={(value) =>
@@ -1377,7 +1374,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                             size="small"
                                             {...params}
                                             error={false}
-                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                          // sx={{ input: { color: `${palette.text.primary}` } }}
                                           />
                                         )}
                                       />
@@ -1493,11 +1490,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 </Tooltip>
 
                                 <Tooltip
-                                  title={`${
-                                    cl?.approved_induction
-                                      ? "Aprobado"
-                                      : "Aprobar"
-                                  }`}
+                                  title={`${cl?.approved_induction
+                                    ? "Aprobado"
+                                    : "Aprobar"
+                                    }`}
                                   placement="top"
                                 >
                                   <span>
@@ -1686,11 +1682,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 </Tooltip>
 
                                 <Tooltip
-                                  title={`${
-                                    cl?.approved_retired
-                                      ? "Aprobado"
-                                      : "Aprobar"
-                                  }`}
+                                  title={`${cl?.approved_retired
+                                    ? "Aprobado"
+                                    : "Aprobar"
+                                    }`}
                                   placement="top"
                                 >
                                   <span>
@@ -1768,7 +1763,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                   pending={
                     100 -
                     (activities?.filter((el) => !el.approved)?.length * 100) /
-                      activities?.length
+                    activities?.length
                   }
                 >
                   <ReportActivityComponent
@@ -2081,9 +2076,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 </Tooltip>
 
                                 <Tooltip
-                                  title={`${
-                                    cl?.approved_exam ? "Aprobado" : "Aprobar"
-                                  }`}
+                                  title={`${cl?.approved_exam ? "Aprobado" : "Aprobar"
+                                    }`}
                                   placement="top"
                                 >
                                   <span>
@@ -2284,9 +2278,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                       pl: 0.5,
                                       pr: 0.5,
                                       display: "flex",
-                                      alignItems: `${
-                                        !cl?.work_event ? "center" : "end"
-                                      }`,
+                                      alignItems: `${!cl?.work_event ? "center" : "end"
+                                        }`,
                                     }}
                                   >
                                     <LocalizationProvider
@@ -2303,9 +2296,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                         className="birth-date-piker"
                                         sx={{ width: "100%" }}
                                         inputFormat="DD/MM/YYYY"
-                                        label={`Fecha ${
-                                          cl?.delivery_date ?? "Novedad"
-                                        }`}
+                                        label={`Fecha ${cl?.delivery_date ?? "Novedad"
+                                          }`}
                                         name="delivery_date"
                                         value={cl?.delivery_date ?? null}
                                         onChange={(value) =>
@@ -2323,7 +2315,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                             size="small"
                                             {...params}
                                             error={false}
-                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                          // sx={{ input: { color: `${palette.text.primary}` } }}
                                           />
                                         )}
                                       />
@@ -2372,12 +2364,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                               name="was_report"
                                             />
                                           }
-                                          label={`${
-                                            cl?.was_report === "on"
-                                              ? "Se reportó " + cl?.work_event
-                                              : "No se reportó " +
-                                                cl?.work_event
-                                          }`}
+                                          label={`${cl?.was_report === "on"
+                                            ? "Se reportó " + cl?.work_event
+                                            : "No se reportó " +
+                                            cl?.work_event
+                                            }`}
                                         />
                                       </Grid>
 
@@ -2411,7 +2402,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                       name: "was_investigated",
                                                       value:
                                                         cl?.was_investigated ===
-                                                        "on"
+                                                          "on"
                                                           ? "off"
                                                           : "on",
                                                     },
@@ -2422,12 +2413,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                               name="was_investigated"
                                             />
                                           }
-                                          label={`${
-                                            cl?.was_investigated === "on"
-                                              ? "Se investigó " + cl?.work_event
-                                              : "No se investigó " +
-                                                cl?.work_event
-                                          }`}
+                                          label={`${cl?.was_investigated === "on"
+                                            ? "Se investigó " + cl?.work_event
+                                            : "No se investigó " +
+                                            cl?.work_event
+                                            }`}
                                         />
                                       </Grid>
 
@@ -2452,8 +2442,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                               cl?.was_report === "on"
                                                 ? false
                                                 : true || cl?.approved_work
-                                                ? true
-                                                : false
+                                                  ? true
+                                                  : false
                                             }
                                             size="small"
                                             className="birth-date-piker"
@@ -2504,8 +2494,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                               cl?.was_investigated === "on"
                                                 ? false
                                                 : true || cl?.approved_work
-                                                ? true
-                                                : false
+                                                  ? true
+                                                  : false
                                             }
                                             size="small"
                                             className="birth-date-piker"
@@ -2615,7 +2605,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                               fullWidth
                                               className="FormControlExamType"
                                               sx={{ marginTop: "0px" }}
-                                              // error={!cl?.medical_attention}
+                                            // error={!cl?.medical_attention}
                                             >
                                               <InputLabel
                                                 variant="standard"
@@ -2835,9 +2825,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 </Tooltip>
 
                                 <Tooltip
-                                  title={`${
-                                    cl?.approved_work ? "Aprobado" : "Aprobar"
-                                  }`}
+                                  title={`${cl?.approved_work ? "Aprobado" : "Aprobar"
+                                    }`}
                                   placement="top"
                                 >
                                   <span>
@@ -2914,7 +2903,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                   pending={
                     100 -
                     (trainingsst?.filter((el) => !el.approved)?.length * 100) /
-                      trainingsst?.length
+                    trainingsst?.length
                   }
                 >
                   {trainingsst && report && (
@@ -2951,18 +2940,17 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                   pending={
                     100 -
                     (compromises?.filter((el) => !el.approved)?.length * 100) /
-                      compromises?.length
+                    compromises?.length
                   }
                 >
+                  {/* TODO: revisar el compromiseQueryRefetch, que si funcione sin necesidad del querClient */}
                   <ReportCompromiseComponent
                     report_id={param_report_id}
                     commerce_id={param_commerce_id}
                     compromises={compromises}
                     setCompromises={setCompromises}
                     getReportById={() => getReportById(param_report_id)}
-                    getCompromiseByReportIdReport={() =>
-                      compromiseQueryRefetch()
-                    }
+                    getCompromiseByReportIdReport={() => compromiseQueryRefetch()}
                   ></ReportCompromiseComponent>
                 </ReportCardComponent>
 
@@ -2973,7 +2961,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     100 -
                     (compromisesSST?.filter((el) => !el.approved)?.length *
                       100) /
-                      compromisesSST?.length
+                    compromisesSST?.length
                   }
                 >
                   <ReportCompromiseSSTComponent
@@ -2995,7 +2983,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     100 -
                     (compromisesRSST?.filter((el) => !el.approved)?.length *
                       100) /
-                      compromisesRSST?.length
+                    compromisesRSST?.length
                   }
                 >
                   <ReportCompromiseRSSTComponent
@@ -3017,7 +3005,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     100 -
                     (inspectionsRSST?.filter((el) => !el.approved)?.length *
                       100) /
-                      inspectionsRSST?.length
+                    inspectionsRSST?.length
                   }
                 >
                   <ReportInspectionRSSTComponent
@@ -3035,8 +3023,17 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="11.1 SEGUIMIENTE A MEDIDAS CORRECTIVAS PROPUESTAS POR EL RESPONSABLE DEL SST DE LA EMPRESA"
+                  pending={getPending(correctiveRSST)}
                 >
-                  <ReportCorrectiveMonitoringRSSTComponent></ReportCorrectiveMonitoringRSSTComponent>
+                  <ReportCorrectiveMonitoringRSSTComponent
+                    report_id={param_report_id}
+                    commerce_id={param_commerce_id}
+                    correctives={correctiveRSST}
+                    setCorrectives={setCorrectiveRSST}
+                    getReportById={() => getReportById(param_report_id)}
+                    correctiveRSSTQuery={correctiveRSSTQuery}
+                    getCorrectiveMotiroringByReportIdReport={() => correctiveRSSTQueryRefetch()}
+                  ></ReportCorrectiveMonitoringRSSTComponent>
                 </ReportCardComponent>
 
                 <ReportCardComponent

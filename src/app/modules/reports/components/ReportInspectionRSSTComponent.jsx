@@ -13,8 +13,6 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
 import { getSoappDownloadFile } from '../../../../api';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
-import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
-import { useQuery } from 'react-query';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
 import { DialogAlertComponent } from '../../../components';
 
@@ -48,16 +46,7 @@ export const ReportInspectionRSSTComponent = ({
         alertChildren: false
     });
 
-    // Llamado de Servicios
-
-    const { data: workArray } = useQuery({
-        queryKey: ['works'],
-        queryFn: () => dispatch(genericListGetByName({ name: 'inspection_work' })).then(({ data: { data: { generallist } } }) => (generallist)),
-        enabled: false,
-        staleTime: Infinity,
-        cacheTime: Infinity
-    })
-
+    // Llamado de Servicios   
     const getInspectionByReportId = () => {
         if (report_id) {
             dispatch(inspectionRSSTShowByReportId({

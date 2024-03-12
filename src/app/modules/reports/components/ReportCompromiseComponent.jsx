@@ -1,6 +1,7 @@
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
+// import { useQueryClient } from 'react-query';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { ShowByCompromiseEvidenceId, compromiseDeleteById, compromiseEvidenceStore, compromiseShowByReportId, compromiseStore, compromiseUpdate, deleteCompromiseEvidenceId } from '../../../../store';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
@@ -18,10 +19,18 @@ import { DialogAlertComponent } from '../../../components';
 import { getSoappDownloadFile } from '../../../../api';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
-export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null, compromises = null, setCompromises = () => { }, getReportById = () => { }, getCompromiseByReportIdReport = () => { } }) => {
+export const ReportCompromiseComponent = ({ 
+    report_id = null, 
+    commerce_id = null, 
+    compromises = null, 
+    setCompromises = () => { }, 
+    getReportById = () => { }, 
+    getCompromiseByReportIdReport = () => { } }) => {
 
     const dispatch = useDispatch();
     const { palette } = useTheme();
+
+    // const queryClient = useQueryClient();
 
     const [compormisesinit, setCompromisesInit] = useState([]);
     const [files, setFiles] = useState([]);
@@ -42,13 +51,12 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
         alertChildren: false
     });
 
-
-
+    // Retorna un ARRAY con todos los compromisos
     const getCompromiseByReportId = () => {
         if (report_id) {
             dispatch(compromiseShowByReportId({
                 form: { id: report_id }
-            })).then(({ data: { data } }) => {
+            })).then(({ data: { data }}) => {
                 setCompromises(data);
                 setCompromisesInit(data);
             })
@@ -92,6 +100,7 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
         dispatch(compromiseDeleteById({
             form: { ...cmms }
         })).then((data) => {
+            // queryClient.invalidateQueries({ queryKey: ['compromises'] })
             getCompromiseByReportIdReport();
             setHandleAlert({ openAlert: false })
         });
@@ -115,15 +124,14 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
                 // setCompromises(cmms => ([...cmms.filter(el => el.id !== compromise.id), compromise]));
                 setCompromisesInit(cmms => ([...cmms.filter(el => el.id !== compromise.id), compromise]));
                 getCompromiseByReportIdReport();
+                // queryClient.invalidateQueries({ queryKey: ['compromises'], refetchType: 'all' })
             });
         } else {
             dispatch(compromiseStore({
                 form: { ...cmms }
-            })).then(({ data: { data: { compromise } } }) => {
-                // setCompromises(cmms => ([...cmms.filter(el => el.id !== compromise.id), compromise]));
-                // setCompromisesInit(cmms => ([...cmms.filter(el => el.id !== compromise.id), compromise]));
-                // getCompromiseByReportIdReport();
+            })).then(({ data: { data: { compromise } } }) => {                
                 getCompromiseByReportId();
+                // queryClient.invalidateQueries({ queryKey: ['compromises'], refetchType: 'all' })
             });
         }
     }
@@ -220,7 +228,7 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
 
     useEffect(() => {
         setCompromisesInit(compromises);
-        // getCompromiseByReportId();
+
     }, [])
 
     useEffect(() => {
@@ -365,9 +373,6 @@ export const ReportCompromiseComponent = ({ report_id = null, commerce_id = null
                                         // error={cmms?.detail === ''}
                                         />
                                     </Grid>
-
-
-
                                 </Grid>
                                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
                                     <Tooltip title="Eliminar Registro" placement="top">

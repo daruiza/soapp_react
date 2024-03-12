@@ -21,7 +21,7 @@ const useCorrectiveRSSTByReportId = (dataQueryinit = {}) => {
         cacheTime: Infinity
     });
 
-    return { isSuccess: query.isSuccess, data: query.data, setDataQuery, refetch: query.refetch }
+    return { isSuccess: query.isSuccess, isRefetching: query.isRefetching, data: query.data, setDataQuery, refetch: query.refetch }
 }
 
 export { useCorrectiveRSSTByReportId }
