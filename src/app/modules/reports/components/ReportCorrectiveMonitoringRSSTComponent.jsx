@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
-import { correctiveRSSTShowByReportId } from '../../../../store';
+import { correctiveRSSTShowByReportId, correctiveRSSTDeleteById } from '../../../../store';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import es from 'dayjs/locale/es';
@@ -78,7 +78,7 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
   }
 
   const handleDeleteCorrective = (cmms) => {
-    dispatch(compromiseDeleteById({
+    dispatch(correctiveRSSTDeleteById({
       form: { ...cmms }
     })).then((data) => {
       // queryClient.invalidateQueries({ queryKey: ['compromises'] })
