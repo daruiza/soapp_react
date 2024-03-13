@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
-import { correctiveRSSTShowByReportId, correctiveRSSTDeleteById } from '../../../../store';
+import { correctiveRSSTShowByReportId, correctiveRSSTDeleteById, ShowByCorrectiveRSSTEvidenceId, inspectionRSSTCorrectiveStore, deleteCorrectiveRSSTEvidenceId, correctiveRSSTEvidenceUpdate } from '../../../../store';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -18,6 +18,8 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { DialogAlertComponent } from '../../../components';
 import { useCorectiveRSSTDeleteId, useCorectiveRSSTStore } from '../../../../hooks';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
+import { getSoappDownloadFile } from '../../../../api';
+import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 export const ReportCorrectiveMonitoringRSSTComponent = ({
   report_id = null,
@@ -117,7 +119,7 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
   // Evidences
   const getEvidencesById = (id) => {
     if (id) {
-      dispatch(ShowByInspectionRSSTEvidenceId({
+      dispatch(ShowByCorrectiveRSSTEvidenceId({
         form: {
           id: id ?? ''
         }
@@ -139,6 +141,60 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
       });
     }
   }
+
+  const storeCorrectiveEvidence = (data, file, object) => {
+        dispatch(inspectionRSSTCorrectiveStore({
+            form: {
+                name: file.name.split('.')[0],
+                type: file.type,
+                inspection_id: object.id,
+                file: data.storage_image_path,
+                approved: false
+            }
+        })).then(({ data: { data: { evidence } } }) => {
+            file.approved = evidence?.approved ? true : false;
+            file.evidence_id = evidence.id;
+            setFiles((files) => [...files, file]);
+        }, error => setMessageSnackbar({ dispatch, error }))
+    }
+
+    const handleRemoveCorrectiveEvidence = (file, object) => {
+        dispatch(deleteCorrectiveRSSTEvidenceId({
+            form: { id: file.evidence_id }
+        })).then((data) => {
+            setFiles((files) => [...files.filter(fl => fl !== file)]);
+            // Refrescamos el Report Component
+            getEvidencesById(openEvidences?.object?.id ?? null)
+        });
+
+    }
+
+    const handleFileItemUpload = (selectFile, setFormInit = () => { }, setSelectFile = () => { }) => {
+        dispatch(correctiveRSSTEvidenceUpdate({
+            form: {
+                ...selectFile?.evidence ?? {},
+                id: selectFile?.evidence?.evidence_id ?? null,
+                approved: selectFile?.evidence?.approved ? 1 : 0,
+
+            }
+        })).then(({ data: { data: { evidence } } }) => {
+
+            setFormInit(JSON.stringify({
+                name: evidence.name,
+                approved: evidence.approved ? true : false,
+            })
+            )
+
+            setSelectFile({
+                ...selectFile,
+                evidence: {
+                    ...selectFile.evidence,
+                    name: evidence.name,
+                    approved: evidence.approved ? true : false
+                }
+            });
+        }, error => setMessageSnackbar({ dispatch, error }))
+    }    
 
 
   // Validaciones
@@ -389,8 +445,8 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
           files={files}
           setFiles={setFiles}
           getEvidencesById={getEvidencesById}
-          evidenceStore={storeInspectionEvidence}
-          handleRemove={handleRemoveInspectionEvidence}
+          evidenceStore={storeCorrectiveEvidence}
+          handleRemove={handleRemoveCorrectiveEvidence}
           handleFileItemUpload={handleFileItemUpload}
         ></EvidenceGenericComponent>
       }

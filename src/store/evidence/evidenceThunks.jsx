@@ -259,9 +259,6 @@ export const inspectionRSSTEvidenceUpdate = ({ form }) => {
     }
 }
 
-
-// sadsadsa
-
 export const ShowByCorrectiveRSSTEvidenceId = ({ form = {} }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
