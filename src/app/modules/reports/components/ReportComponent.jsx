@@ -92,7 +92,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const [compromisesSST, setCompromisesSST] = useState(null);
   const [compromisesRSST, setCompromisesRSST] = useState(null);
   const [inspectionsRSST, setInspectionsRSST] = useState(null);
-  const [correctiveRSST, setCorrectiveRSST] = useState(null);
+  const [correctiveRSST, setCorrectiveRSST] = useState([]);
   const [activities, setActivities] = useState([]);
 
   const [employeeArray, setEmployeeArray] = useState([]);
@@ -136,20 +136,34 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
   // Query
 
+  // Funciones para querys
+
+  // Set de las listas genericas
+  const setGenericList = (arraydata) => {
+    if (!!arraydata && arraydata.length) {
+      setWorkEventArray(arraydata?.filter((el) => el.name === "event") ?? []);
+      setExamArray(arraydata?.filter((el) => el.name === "exam") ?? []);
+      setExamTypeArray(arraydata?.filter((el) => el.name === "type_exam") ?? []);
+      setMedicalAttentionArray(arraydata?.filter((el) => el.name === "medical_attention") ?? []);
+      setTopicSSTArray(arraydata?.filter((el) => el.name === "topic_sst") ?? []);
+    }
+  }
+
+
   // Listas genericas llamado
   const { data: listsQuery, mutate: listQueryMutate } = useGeneraNamelList(
-    "exam,type_exam,event,medical_attention,topic_sst"
+    "exam,type_exam,event,medical_attention,topic_sst", setGenericList
   );
 
   const {
     data: compromiseQuery,
     refetch: compromiseQueryRefetch,
-  } = useCompromiseByReportId({ id: param_report_id });
+  } = useCompromiseByReportId({ id: param_report_id }, setCompromises);
 
   const {
     data: correctiveRSSTQuery,
     refetch: correctiveRSSTQueryRefetch,
-  } = useCorrectiveRSSTByReportId({ id: param_report_id });
+  } = useCorrectiveRSSTByReportId({ id: param_report_id }, setCorrectiveRSST);
 
   // TODO: ASIGNAR VARIABLEAS AL RECIEN CREADO CORRECTIVE
 
@@ -346,7 +360,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
   // Calculos
   const getPending = (array) => {
-    100 - (array?.filter((el) => !el?.approved)?.length * 100) / array?.length;
+    return 100 - (array?.filter((el) => !el?.approved)?.length * 100) / array?.length;
   };
 
   // Manejador de apertura de PopUp de Evidencias
@@ -474,36 +488,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     //     setSelectCollaborator(collaborators?.collaborators.find(el => el.index === selectCollaborator.index));
     // }
   }, [trainingsst]);
-
-  // Mutación QUERY para todas las listas
-  useEffect(() => {
-    if (!!listsQuery && listsQuery.length) {
-      setWorkEventArray(listsQuery?.filter((el) => el.name === "event") ?? []);
-      setExamArray(listsQuery?.filter((el) => el.name === "exam") ?? []);
-      setExamTypeArray(
-        listsQuery?.filter((el) => el.name === "type_exam") ?? []
-      );
-      setMedicalAttentionArray(
-        listsQuery?.filter((el) => el.name === "medical_attention") ?? []
-      );
-      setTopicSSTArray(
-        listsQuery?.filter((el) => el.name === "topic_sst") ?? []
-      );
-    }
-  }, [listsQuery]);
-
-  // TODO: Revisar que se cambio el: compromiseQueryisSuccess para que funcionara y funciono
-  useEffect(() => {
-    if (!!compromiseQuery && compromiseQuery.length) {
-      setCompromises(compromiseQuery);
-    }
-  }, [compromiseQuery]);
-
-  useEffect(() => {
-    if (!!correctiveRSSTQuery && correctiveRSSTQuery.length) {
-      setCorrectiveRSST(correctiveRSSTQuery);
-    }
-  }, [correctiveRSSTQuery]);
 
   useEffect(() => {
     getEmployees();
@@ -2900,11 +2884,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="6. CAPACITACIÓN Y ENTRENAMIENTO SST"
-                  pending={
-                    100 -
-                    (trainingsst?.filter((el) => !el.approved)?.length * 100) /
-                    trainingsst?.length
-                  }
+                  pending={getPending(trainingsst)}
                 >
                   {trainingsst && report && (
                     <ReportTrainingSSTComponent
@@ -2937,11 +2917,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="8. COMPROMISOS DE ASISTIR EN SALUD Y RIESGOS LABORALES"
-                  pending={
-                    100 -
-                    (compromises?.filter((el) => !el.approved)?.length * 100) /
-                    compromises?.length
-                  }
+                  pending={getPending(compromises)}
                 >
                   {/* TODO: revisar el compromiseQueryRefetch, que si funcione sin necesidad del querClient */}
                   <ReportCompromiseComponent
@@ -2957,12 +2933,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="9. COMPROMISOS DEL RESPONSABLE DEL SST, CADA MES"
-                  pending={
-                    100 -
-                    (compromisesSST?.filter((el) => !el.approved)?.length *
-                      100) /
-                    compromisesSST?.length
-                  }
+                  pending={getPending(compromisesSST)}
                 >
                   <ReportCompromiseSSTComponent
                     report_id={param_report_id}
@@ -2979,12 +2950,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="10. TAREAS Y COMPROMISOS COMPROMISOS DEL RESPONSABLE DEL SST"
-                  pending={
-                    100 -
-                    (compromisesRSST?.filter((el) => !el.approved)?.length *
-                      100) /
-                    compromisesRSST?.length
-                  }
+                  pending={getPending(compromisesRSST)}
                 >
                   <ReportCompromiseRSSTComponent
                     report_id={param_report_id}
@@ -3001,12 +2967,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="11. INSPECCIONES REALIZADAS POR EL RESPONSABLE DEL SST"
-                  pending={
-                    100 -
-                    (inspectionsRSST?.filter((el) => !el.approved)?.length *
-                      100) /
-                    inspectionsRSST?.length
-                  }
+                  pending={getPending(inspectionsRSST)}
                 >
                   <ReportInspectionRSSTComponent
                     report_id={param_report_id}
@@ -3098,30 +3059,34 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
           </>
         )}
       </Grid>
-      {openEvidences.open && (
-        <EvidencesComponent
-          open={openEvidences.open}
-          dialogtitle={openEvidences.dialogtitle}
-          dialogcontenttext={openEvidences.dialogcontenttext}
-          collaborator={selectCollaborator}
-          employee_report={openEvidences.employee_report}
-          approved={openEvidences.approved}
-          setSelectCollaborator={setSelectCollaborator}
-          collaboratorsChangeInput={collaboratorsChangeInput}
-          handleClose={handleEvidenceClose}
-        ></EvidencesComponent>
-      )}
-      {handleAlert.openAlert && (
-        <DialogAlertComponent
-          open={handleAlert.openAlert}
-          handleClose={() => handleAlert.functionAlertClose()}
-          handleAgree={() => handleAlert.functionAlertAgree()}
-          props={{
-            tittle: handleAlert.alertTittle,
-            message: handleAlert.alertMessage,
-          }}
-        ></DialogAlertComponent>
-      )}
-    </Grid>
+      {
+        openEvidences.open && (
+          <EvidencesComponent
+            open={openEvidences.open}
+            dialogtitle={openEvidences.dialogtitle}
+            dialogcontenttext={openEvidences.dialogcontenttext}
+            collaborator={selectCollaborator}
+            employee_report={openEvidences.employee_report}
+            approved={openEvidences.approved}
+            setSelectCollaborator={setSelectCollaborator}
+            collaboratorsChangeInput={collaboratorsChangeInput}
+            handleClose={handleEvidenceClose}
+          ></EvidencesComponent>
+        )
+      }
+      {
+        handleAlert.openAlert && (
+          <DialogAlertComponent
+            open={handleAlert.openAlert}
+            handleClose={() => handleAlert.functionAlertClose()}
+            handleAgree={() => handleAlert.functionAlertAgree()}
+            props={{
+              tittle: handleAlert.alertTittle,
+              message: handleAlert.alertMessage,
+            }}
+          ></DialogAlertComponent>
+        )
+      }
+    </Grid >
   );
 };

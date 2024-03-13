@@ -106,7 +106,7 @@ export const ReportInspectionRSSTComponent = ({
         if (!cmms.work) {
             return;
         }
-
+        
         if ('id' in cmms && cmms.id) {
             dispatch(inspectionRSSTUpdate({
                 form: { ...cmms }

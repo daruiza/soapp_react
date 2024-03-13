@@ -232,7 +232,7 @@ export const ReportCompromiseComponent = ({
     }, [])
 
     useEffect(() => {
-        if (compormisesinit.length) {
+        if (compormisesinit && compormisesinit.length) {
             compromises.forEach(el => {
                 compromiseSavevalidator(el);
             })
