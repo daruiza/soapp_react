@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
 import { correctiveRSSTShowByReportId, correctiveRSSTDeleteById } from '../../../../store';
+import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import es from 'dayjs/locale/es';
@@ -12,8 +13,11 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 
 import SaveIcon from '@mui/icons-material/Save';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import { DialogAlertComponent } from '../../../components';
 import { useCorectiveRSSTDeleteId, useCorectiveRSSTStore } from '../../../../hooks';
+import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 
 export const ReportCorrectiveMonitoringRSSTComponent = ({
   report_id = null,
@@ -58,16 +62,16 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
     {}, getCorrectiveMotiroringByReportIdReport
   )
 
-  const getCorrectiveByReportId = () => {
-    if (report_id) {
-      dispatch(correctiveRSSTShowByReportId({
-        form: { id: report_id }
-      })).then(({ data: { data } }) => {
-        setCorrectives(data);
-        setCorrectivesInit(data);
-      })
-    }
-  }
+  // const getCorrectiveByReportId = () => {
+  //   if (report_id) {
+  //     dispatch(correctiveRSSTShowByReportId({
+  //       form: { id: report_id }
+  //     })).then(({ data: { data } }) => {
+  //       setCorrectives(data);
+  //       setCorrectivesInit(data);
+  //     })
+  //   }
+  // }
 
   // Eventos
 
@@ -97,6 +101,43 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
       return;
     }
     correctiveRSSTstore(cmms);
+  }
+
+  const handleEvidenceOpen = (cmms) => {
+    setOpenEvidences((openEvidences) => ({
+      ...openEvidences,
+      dialogtitle: `Evidencias Correcciónes RSST Item: ${cmms?.work}`,
+      dialogcontenttext: ``,
+      object: cmms,
+      approved: cmms.approved,
+      open: true
+    }))
+  }
+
+  // Evidences
+  const getEvidencesById = (id) => {
+    if (id) {
+      dispatch(ShowByInspectionRSSTEvidenceId({
+        form: {
+          id: id ?? ''
+        }
+      })).then(({ data: { data: { evidence: evidences } } }) => {
+        evidences.forEach(evidence => {
+          dispatch(getSoappDownloadFile({ path: evidence.file }))
+            .then((response) => {
+              const newfile = new Blob([response.data], { type: response.data.type });
+              newfile.name = evidence.name;
+              newfile.approved = evidence.approved;
+              newfile.evidence_id = evidence.id;
+              setFiles((files) => [
+                // filtra que ya no este el mismo archivo, 
+                ...files.filter(file => file.name !== newfile.name),
+                newfile
+              ])
+            })
+        });
+      });
+    }
   }
 
 
@@ -253,6 +294,48 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
                   </span>
                 </Tooltip>
 
+                {
+                  cmms?.id &&
+                  <>
+
+                    <Tooltip title="Evidencias" placement="top">
+                      <span>
+                        <IconButton
+                          disableFocusRipple={cmms?.approved ? true : false}
+                          onClick={() => handleEvidenceOpen(cmms)}
+                        ><AttachFileIcon></AttachFileIcon></IconButton>
+                      </span>
+                    </Tooltip>
+
+                    <Tooltip title={`${cmms?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                      <span>
+                        <PrivateAgentRoute>
+                          <IconButton
+                            onClick={() => handleSaveCorrective({ ...cmms, approved: !cmms?.approved })}>
+                            {!!cmms?.approved &&
+                              <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                            }
+                            {!cmms?.approved &&
+                              <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                            }
+                          </IconButton>
+                        </PrivateAgentRoute>
+
+                        <PrivateCustomerRoute>
+                          <IconButton disabled>
+                            {cmms?.approved &&
+                              <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                            }
+                            {!cmms?.approved &&
+                              <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                            }
+                          </IconButton>
+                        </PrivateCustomerRoute>
+                      </span>
+                    </Tooltip>
+                  </>
+                }
+
               </Grid>
             </Grid>
           </Grid>
@@ -288,6 +371,29 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
           </Grid>
         </Grid>
       </Grid>
+
+      {
+        openEvidences.open && <EvidenceGenericComponent
+          open={openEvidences.open}
+          dialogtitle={openEvidences.dialogtitle}
+          dialogcontenttext={openEvidences.dialogcontenttext}
+          object={openEvidences.object}
+          report_id={report_id}
+          commerce_id={commerce_id}
+          approved={openEvidences.approved}
+          handleClose={() => {
+            setFiles([]);
+            setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
+          }}
+          upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/correctiversst/${openEvidences?.object?.id ?? null}`}
+          files={files}
+          setFiles={setFiles}
+          getEvidencesById={getEvidencesById}
+          evidenceStore={storeInspectionEvidence}
+          handleRemove={handleRemoveInspectionEvidence}
+          handleFileItemUpload={handleFileItemUpload}
+        ></EvidenceGenericComponent>
+      }
 
       {
         handleAlert.openAlert && <DialogAlertComponent

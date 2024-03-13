@@ -260,6 +260,46 @@ export const inspectionRSSTEvidenceUpdate = ({ form }) => {
 }
 
 
+// sadsadsa
+
+export const ShowByCorrectiveRSSTEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/correctivemonitoringrsstevidence/showbycorrectivemonitoringevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+
+export const inspectionRSSTCorrectiveStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/correctivemonitoringrsstevidence/store`, form);
+        }
+    }
+}
+
+export const deleteCorrectiveRSSTEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/correctivemonitoringrsstevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const correctiveRSSTEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/correctivemonitoringrsstevidence/update/${form.id}`, form);
+        }
+    }
+}
+
+
 
 
 
