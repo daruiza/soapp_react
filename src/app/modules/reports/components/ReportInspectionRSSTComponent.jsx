@@ -71,7 +71,7 @@ export const ReportInspectionRSSTComponent = ({
         );
     }
 
-    const handleEvidenceOpen = (cmms) => {
+    const handleEvidenceOpen = (cmms) => {        
         setOpenEvidences((openEvidences) => ({
             ...openEvidences,
             dialogtitle: `Evidencias Inspección RSST Item: ${cmms?.work}`,
@@ -106,7 +106,7 @@ export const ReportInspectionRSSTComponent = ({
         if (!cmms.work) {
             return;
         }
-        
+
         if ('id' in cmms && cmms.id) {
             dispatch(inspectionRSSTUpdate({
                 form: { ...cmms }
@@ -201,14 +201,14 @@ export const ReportInspectionRSSTComponent = ({
                 }
             });
         }, error => setMessageSnackbar({ dispatch, error }))
-    }    
+    }
 
     const inspectionSavevalidator = (cmms) => {
         if (!cmms.work) {
             return true;
         }
         // Quitar todos los Touched 
-        const cmmsinspectionsinit = inspectionsinit?.find(el => el.id === cmms.id);       
+        const cmmsinspectionsinit = inspectionsinit?.find(el => el.id === cmms.id);
 
         return 'id' in cmms ?
             JSON.stringify({

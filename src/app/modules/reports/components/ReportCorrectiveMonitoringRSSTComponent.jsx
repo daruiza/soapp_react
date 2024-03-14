@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
-import { correctiveRSSTShowByReportId, correctiveRSSTDeleteById, ShowByCorrectiveRSSTEvidenceId, inspectionRSSTCorrectiveStore, deleteCorrectiveRSSTEvidenceId, correctiveRSSTEvidenceUpdate } from '../../../../store';
+import { ShowByCorrectiveRSSTEvidenceId, inspectionRSSTCorrectiveStore, deleteCorrectiveRSSTEvidenceId, correctiveRSSTEvidenceUpdate } from '../../../../store';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -15,6 +15,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckIcon from '@mui/icons-material/Check';
 import { DialogAlertComponent } from '../../../components';
 import { useCorectiveRSSTDeleteId, useCorectiveRSSTStore } from '../../../../hooks';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
@@ -99,16 +100,17 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
   }
 
   const handleSaveCorrective = (cmms) => {
+    
     if (!cmms.work) {
       return;
     }
     correctiveRSSTstore(cmms);
   }
 
-  const handleEvidenceOpen = (cmms) => {
+  const handleEvidenceOpen = (cmms) => {    
     setOpenEvidences((openEvidences) => ({
       ...openEvidences,
-      dialogtitle: `Evidencias Correcciónes RSST Item: ${cmms?.work}`,
+      dialogtitle: `Evidencias Correción RSST Item: ${cmms?.work}`,
       dialogcontenttext: ``,
       object: cmms,
       approved: cmms.approved,
@@ -147,7 +149,7 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
             form: {
                 name: file.name.split('.')[0],
                 type: file.type,
-                inspection_id: object.id,
+                corrective_id: object.id,
                 file: data.storage_image_path,
                 approved: false
             }
