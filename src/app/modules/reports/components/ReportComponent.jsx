@@ -6,7 +6,6 @@ import {
   commerceUpdate,
   compromiseRSSTShowByReportId,
   compromiseSSTShowByReportId,
-  compromiseShowByReportId,
   employeeIndex,
   employeeReportDelete,
   employeeReportStore,
@@ -35,6 +34,7 @@ import {
   useGeneraNamelList,
   useCompromiseByReportId,
   useCorrectiveRSSTByReportId,
+  useSupportGroupByReportId,
 } from "../../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -71,6 +71,7 @@ import { ReportCompromiseRSSTComponent } from "./ReportCompromiseRSSTComponent";
 import { ReportInspectionRSSTComponent } from "./ReportInspectionRSSTComponent";
 import { ReportCorrectiveMonitoringRSSTComponent } from "./ReportCorrectiveMonitoringRSSTComponent";
 import { inspectionRSSTShowByReportId } from "../../../../store/inspection/inspectionRSSTThunks";
+import { ReportSupportGroupActivityComponent } from "./ReportSupportGroupActivityComponent";
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
   const dispatch = useDispatch();
@@ -93,6 +94,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const [compromisesRSST, setCompromisesRSST] = useState(null);
   const [inspectionsRSST, setInspectionsRSST] = useState(null);
   const [correctiveRSST, setCorrectiveRSST] = useState([]);
+  const [supportGroupActions, setSupportGroupActions] = useState([]);
   const [activities, setActivities] = useState([]);
 
   const [employeeArray, setEmployeeArray] = useState([]);
@@ -154,7 +156,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const { data: listsQuery, mutate: listQueryMutate } = useGeneraNamelList(
     "exam,type_exam,event,medical_attention,topic_sst", setGenericList
   );
-
+  
   const {
     data: compromiseQuery,
     refetch: compromiseQueryRefetch,
@@ -165,7 +167,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     refetch: correctiveRSSTQueryRefetch,
   } = useCorrectiveRSSTByReportId({ id: param_report_id }, setCorrectiveRSST);
 
-  // TODO: ASIGNAR VARIABLEAS AL RECIEN CREADO CORRECTIVE
+  const {
+    data: supportGroupActionQuery,
+    refetch: supportGroupActionQueryRefetch,
+  } = useSupportGroupByReportId({ id: param_report_id }, setSupportGroupActions);
 
   // reportByreportId
   const getReportById = (id) => {
@@ -2991,7 +2996,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     commerce_id={param_commerce_id}
                     correctives={correctiveRSST}
                     setCorrectives={setCorrectiveRSST}
-                    getReportById={() => getReportById(param_report_id)}
                     correctiveRSSTQuery={correctiveRSSTQuery}
                     getCorrectiveMotiroringByReportIdReport={() => correctiveRSSTQueryRefetch()}
                   ></ReportCorrectiveMonitoringRSSTComponent>
@@ -3000,7 +3004,18 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="12. ACTIVIDADES GRUPOS DE APOYO"
-                ></ReportCardComponent>
+                >
+
+                  <ReportSupportGroupActivityComponent
+                    report_id={param_report_id}
+                    commerce_id={param_commerce_id}
+                    correctives={supportGroupActions}
+                    setCorrectives={setSupportGroupActions}
+                    supportGroupActionQuery={supportGroupActionQuery}
+                    getSupportGrpupByReportIdReport={() => supportGroupActionQueryRefetch()}
+                  ></ReportSupportGroupActivityComponent>
+
+                </ReportCardComponent>
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}

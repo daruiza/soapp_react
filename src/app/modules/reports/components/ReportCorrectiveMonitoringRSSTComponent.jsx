@@ -27,7 +27,6 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
   commerce_id = null,
   correctives = null,
   setCorrectives = () => { },
-  getReportById = () => { },
   correctiveRSSTQuery = [],
   getCorrectiveMotiroringByReportIdReport = () => { } }) => {
 
@@ -64,18 +63,7 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
   const { mutate: correctiveRSSTstore } = useCorectiveRSSTStore(
     {}, getCorrectiveMotiroringByReportIdReport
   )
-
-  // const getCorrectiveByReportId = () => {
-  //   if (report_id) {
-  //     dispatch(correctiveRSSTShowByReportId({
-  //       form: { id: report_id }
-  //     })).then(({ data: { data } }) => {
-  //       setCorrectives(data);
-  //       setCorrectivesInit(data);
-  //     })
-  //   }
-  // }
-
+  
   // Eventos
 
   // Cambios en los inputs del Array correctives
