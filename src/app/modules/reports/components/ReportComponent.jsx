@@ -3009,7 +3009,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                   <ReportSupportGroupActivityComponent
                     report_id={param_report_id}
                     commerce_id={param_commerce_id}
-                    correctives={supportGroupActions}
+                    supports={supportGroupActions}
                     setCorrectives={setSupportGroupActions}
                     supportGroupActionQuery={supportGroupActionQuery}
                     getSupportGrpupByReportIdReport={() => supportGroupActionQueryRefetch()}
