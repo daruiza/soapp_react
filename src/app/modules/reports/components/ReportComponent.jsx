@@ -72,6 +72,7 @@ import { ReportInspectionRSSTComponent } from "./ReportInspectionRSSTComponent";
 import { ReportCorrectiveMonitoringRSSTComponent } from "./ReportCorrectiveMonitoringRSSTComponent";
 import { inspectionRSSTShowByReportId } from "../../../../store/inspection/inspectionRSSTThunks";
 import { ReportSupportGroupActivityComponent } from "./ReportSupportGroupActivityComponent";
+import { ReportPhotographicRecordComponent } from "./ReportPhotographicRecordComponent";
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
   const dispatch = useDispatch();
@@ -156,7 +157,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const { data: listsQuery, mutate: listQueryMutate } = useGeneraNamelList(
     "exam,type_exam,event,medical_attention,topic_sst", setGenericList
   );
-  
+
   const {
     data: compromiseQuery,
     refetch: compromiseQueryRefetch,
@@ -3030,7 +3031,16 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="17. REGISTRO FOTOGRAFICO"
-                ></ReportCardComponent>
+                >
+                  <ReportPhotographicRecordComponent
+                    report_id={param_report_id}
+                    commerce_id={param_commerce_id}
+                    supports={supportGroupActions}
+                    setCorrectives={setSupportGroupActions}
+                    supportGroupActionQuery={supportGroupActionQuery}
+                    getSupportGrpupByReportIdReport={() => supportGroupActionQueryRefetch()}
+                  ></ReportPhotographicRecordComponent>
+                </ReportCardComponent>
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px 0px 4px 4px" }}
