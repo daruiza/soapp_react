@@ -18,6 +18,16 @@ export const evidenceUpdate = ({ form }) => {
     }
 }
 
+
+export const showByEmpoyeeEvidencetId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/employeeevidence/showbyemployeeevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
 export const showByEmpoyeeReportId = ({ form = {} }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
