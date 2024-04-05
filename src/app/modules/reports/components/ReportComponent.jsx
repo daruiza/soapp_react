@@ -35,6 +35,7 @@ import {
   useCompromiseByReportId,
   useCorrectiveRSSTByReportId,
   useSupportGroupByReportId,
+  useByReportId
 } from "../../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -72,7 +73,7 @@ import { ReportInspectionRSSTComponent } from "./ReportInspectionRSSTComponent";
 import { ReportCorrectiveMonitoringRSSTComponent } from "./ReportCorrectiveMonitoringRSSTComponent";
 import { inspectionRSSTShowByReportId } from "../../../../store/inspection/inspectionRSSTThunks";
 import { ReportSupportGroupActivityComponent } from "./ReportSupportGroupActivityComponent";
-import { ReportPhotographicRecordComponent } from "./ReportPhotographicRecordComponent";
+import { ReportEvidenceComponent } from "./ReportEvidenceComponent";
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
   const dispatch = useDispatch();
@@ -97,6 +98,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const [correctiveRSST, setCorrectiveRSST] = useState([]);
   const [supportGroupActions, setSupportGroupActions] = useState([]);
   const [activities, setActivities] = useState([]);
+  const [evidences, setEvidneces] = useState([]);
 
   const [employeeArray, setEmployeeArray] = useState([]);
   const [examTypeArray, setExamTypeArray] = useState([]);
@@ -152,6 +154,32 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
   }
 
+  // Set del reporte consultado por id
+  const reportSet = (report) => {
+    // Asignación de Attributes
+    setReport(report);
+    const employees = report.employee.map((em, index) => ({
+      ...em,
+      state: em.state.map((st) => ({
+        ...st,
+        attributes: JSON.parse(st.attributes),
+      })),
+      //objetualizamos los campos de el estado
+      ...em.state.reduce(
+        (a, b) => ({ ...a, ...JSON.parse(b.attributes) }),
+        {}
+      ),
+      index,
+    }));
+    
+    setCollaborators([...employees]);
+    setInitCollaborators([...employees]);
+    setTrainingsst([...report.trainingsst]);
+    setActivities([...report.activities]);
+    setEvidneces([...report.evidences]);
+    dispatch(commerceUpdate({ commerce: report.commerce }));
+ }
+
 
   // Listas genericas llamado
   const { data: listsQuery, mutate: listQueryMutate } = useGeneraNamelList(
@@ -171,47 +199,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const {
     data: supportGroupActionQuery,
     refetch: supportGroupActionQueryRefetch,
-  } = useSupportGroupByReportId({ id: param_report_id }, setSupportGroupActions);
+  } = useSupportGroupByReportId({ id: param_report_id }, setSupportGroupActions); 
 
-  // reportByreportId
-  const getReportById = (id) => {
-    dispatch(
-      reportByreportId({
-        form: {
-          id: id ?? "",
-        },
-      })
-    ).then(
-      ({
-        data: {
-          data: { report },
-        },
-      }) => {
-        // Asignación de Attributes
-        setReport(report);
-        const employees = report.employee.map((em, index) => ({
-          ...em,
-          state: em.state.map((st) => ({
-            ...st,
-            attributes: JSON.parse(st.attributes),
-          })),
-          //objetualizamos los campos de el estado
-          ...em.state.reduce(
-            (a, b) => ({ ...a, ...JSON.parse(b.attributes) }),
-            {}
-          ),
-          index,
-        }));
-
-        setCollaborators([...employees]);
-        setInitCollaborators([...employees]);
-        setTrainingsst([...report.trainingsst]);
-        setActivities([...report.activities]);
-        dispatch(commerceUpdate({ commerce: report.commerce }));
-      }
-    );
-  };
-
+  const {
+    data: reportid,
+    refetch: reportidQuerryReferch
+  } = useByReportId({ id: param_report_id }, reportSet)
+  
   // Obtener los colaboradores, en su último estado reportado
   const getEmployees = () => {
     const commerce_id = commerce?.id ?? param_commerce_id;
@@ -282,7 +276,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       })
     ).then((data) => {
       // Refrescamos el Report Component
-      getReportById(param_report_id);
+      reportidQuerryReferch;
     });
   };
 
@@ -296,7 +290,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       })
     ).then((data) => {
       // Refrescamos el Report Component
-      getReportById(param_report_id);
+      reportidQuerryReferch;
     });
   };
 
@@ -311,7 +305,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       })
     ).then((data) => {
       // Refrescamos el Report Component
-      getReportById(param_report_id);
+      reportidQuerryReferch;
       //cerramos el alert
       setHandleAlert({ openAlert: false });
     });
@@ -497,7 +491,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
   useEffect(() => {
     getEmployees();
-    getReportById(param_report_id);
+    reportidQuerryReferch;
     // getCompromiseByReportId();
     getCompromiseSSTByReportId();
     getCompromiseRSSTByReportId();
@@ -1760,7 +1754,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     activities={activities}
                     setActivities={setActivities}
                     report={report}
-                    getReportById={() => getReportById(param_report_id)}
+                    getReportById={() => reportidQuerryReferch}
                     commerce_id={commerce?.id ?? param_commerce_id}
                   ></ReportActivityComponent>
                 </ReportCardComponent>
@@ -2899,7 +2893,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                       setTrainingsst={setTrainingsst}
                       topicSSTArray={topicSSTArray}
                       commerce_id={commerce?.id ?? param_commerce_id}
-                      getReportById={() => getReportById(param_report_id)}
+                      getReportById={() => reportidQuerryReferch}
                     ></ReportTrainingSSTComponent>
                   )}
                 </ReportCardComponent>
@@ -2931,7 +2925,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     commerce_id={param_commerce_id}
                     compromises={compromises}
                     setCompromises={setCompromises}
-                    getReportById={() => getReportById(param_report_id)}
+                    getReportById={() => reportidQuerryReferch}
                     getCompromiseByReportIdReport={() => compromiseQueryRefetch()}
                   ></ReportCompromiseComponent>
                 </ReportCardComponent>
@@ -2946,7 +2940,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     commerce_id={param_commerce_id}
                     compromises={compromisesSST}
                     setCompromises={setCompromisesSST}
-                    getReportById={() => getReportById(param_report_id)}
+                    getReportById={() => reportidQuerryReferch}
                     getCompromiseByReportIdReport={() =>
                       getCompromiseSSTByReportId()
                     }
@@ -2963,7 +2957,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     commerce_id={param_commerce_id}
                     compromises={compromisesRSST}
                     setCompromises={setCompromisesRSST}
-                    getReportById={() => getReportById(param_report_id)}
+                    getReportById={() => reportidQuerryReferch}
                     getCompromiseByReportIdReport={() =>
                       getCompromiseRSSTByReportId()
                     }
@@ -2980,7 +2974,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     commerce_id={param_commerce_id}
                     inspections={inspectionsRSST}
                     setInspections={setInspectionsRSST}
-                    getReportById={() => getReportById(param_report_id)}
+                    getReportById={() => reportidQuerryReferch}
                     getInspectionByReportIdReport={() =>
                       getInspectionRSSTByReportId()
                     }
@@ -3006,7 +3000,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                   sx={{ borderRadius: "0px" }}
                   title="12. ACTIVIDADES GRUPOS DE APOYO"
                 >
-
                   <ReportSupportGroupActivityComponent
                     report_id={param_report_id}
                     commerce_id={param_commerce_id}
@@ -3032,14 +3025,13 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                   sx={{ borderRadius: "0px" }}
                   title="17. REGISTRO FOTOGRAFICO"
                 >
-                  <ReportPhotographicRecordComponent
+                  <ReportEvidenceComponent
                     report_id={param_report_id}
                     commerce_id={param_commerce_id}
-                    supports={supportGroupActions}
-                    setCorrectives={setSupportGroupActions}
-                    supportGroupActionQuery={supportGroupActionQuery}
-                    getSupportGrpupByReportIdReport={() => supportGroupActionQueryRefetch()}
-                  ></ReportPhotographicRecordComponent>
+                    evidences={evidences}
+                    setEvidences={setEvidneces}
+                    getReportById={() => reportidQuerryReferch}
+                  ></ReportEvidenceComponent>
                 </ReportCardComponent>
 
                 <ReportCardComponent
