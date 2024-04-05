@@ -1,5 +1,15 @@
 import { useAppSoappLaravel } from "../../api";
 
+
+export const evidenceByReportId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/reportevidence/showbyevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
 export const evidenceStore = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
@@ -305,11 +315,3 @@ export const correctiveRSSTEvidenceUpdate = ({ form }) => {
         }
     }
 }
-
-
-
-
-
-
-
-
