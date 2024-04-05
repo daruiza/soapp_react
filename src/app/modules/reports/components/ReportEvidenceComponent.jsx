@@ -3,13 +3,16 @@ import { Divider, Grid, Button } from "@mui/material";
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { ActivityEvidenceItemComponent } from '../../../components';
-import { getSoappDownloadFile } from '../../../../api';
+import { getSoappDownloadFile, uploadEvidenceFileName } from '../../../../api';
+import { evidenceReportStore } from '../../../../store';
+import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 export const ReportEvidenceComponent = ({
   report_id = null,
   commerce_id = null,
   approved = false,
   evidences = [],
+  upload_evidence_url = null,
   setEvidences = () => { },
   getReportById = () => { }
 }) => {
@@ -76,6 +79,22 @@ export const ReportEvidenceComponent = ({
           })
       });
     }
+  }
+
+  const evidenceStore = (data, file, object) => {
+    dispatch(evidenceReportStore({
+      form: {
+        name: file.name.split('.')[0],
+        type: file.type,
+        corrective_id: object.id,
+        file: data.storage_image_path,
+        approved: false
+      }
+    })).then(({ data: { data: { evidence } } }) => {
+      file.approved = evidence?.approved ? true : false;
+      file.evidence_id = evidence.id;
+      setFiles((files) => [...files, file]);
+    }, error => setMessageSnackbar({ dispatch, error }))
   }
 
   useEffect(() => {

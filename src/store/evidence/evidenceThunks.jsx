@@ -10,6 +10,15 @@ export const evidenceByReportId = ({ form = {} }) => {
     }
 }
 
+export const evidenceReportStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/reportevidence/store`, form);
+        }
+    }
+}
+
 export const evidenceStore = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
