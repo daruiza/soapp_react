@@ -14,7 +14,11 @@ const useCorrectiveRSSTByReportId = (dataQueryinit = {}, fnSuccess = ()=> {}) =>
         queryKey: ['correctives', {dataQuery, fnSuccess}],
         queryFn: () => {    
             if(!('id' in dataQuery)){return ()=>([])}
-            return dispatch(correctiveRSSTShowByReportId({ form: { ...dataQuery } })).then(({ data: { data } }) => (data))
+            return dispatch(correctiveRSSTShowByReportId({ form: { ...dataQuery } })).then(({ 
+                data: { data } }
+            ) => {
+                return data;
+            })
         },
         enabled: true,
         staleTime: Infinity,
