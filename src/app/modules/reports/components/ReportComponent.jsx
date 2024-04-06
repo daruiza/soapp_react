@@ -3006,7 +3006,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                   sx={{ borderRadius: "0px" }}
                   title="12. ACTIVIDADES GRUPOS DE APOYO"
                 >
-
                   <ReportSupportGroupActivityComponent
                     report_id={param_report_id}
                     commerce_id={param_commerce_id}
