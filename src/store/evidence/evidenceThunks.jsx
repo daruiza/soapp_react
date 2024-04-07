@@ -19,6 +19,27 @@ export const evidenceReportStore = ({ form }) => {
     }
 }
 
+export const deleteReportEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/reportevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const reportEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/reportevidence/update/${form.id}`, form);
+        }
+    }
+}
+
+
+// EmployeeEvidence
+
 export const evidenceStore = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
@@ -321,6 +342,45 @@ export const correctiveRSSTEvidenceUpdate = ({ form }) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form && form.id) {
             return soappLaravelApi.put(`api/correctivemonitoringrsstevidence/update/${form.id}`, form);
+        }
+    }
+}
+
+// Support
+
+export const ShowBySupportGActivityEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/supportgroupactivitiyevidence/showbysupportgroupactivityevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+
+export const supportGActivityEvidenceStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/supportgroupactivitiyevidence/store`, form);
+        }
+    }
+}
+
+export const deleteSupportGActivityEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/supportgroupactivitiyevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const supportGActivityEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/supportgroupactivitiyevidence/update/${form.id}`, form);
         }
     }
 }

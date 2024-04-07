@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
 import { ShowByCorrectiveRSSTEvidenceId, inspectionRSSTCorrectiveStore, deleteCorrectiveRSSTEvidenceId, correctiveRSSTEvidenceUpdate } from '../../../../store';
@@ -156,7 +156,6 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
             // Refrescamos el Report Component
             getEvidencesById(openEvidences?.object?.id ?? null)
         });
-
     }
 
     const handleFileItemUpload = (selectFile, setFormInit = () => { }, setSelectFile = () => { }) => {
@@ -172,8 +171,7 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
             setFormInit(JSON.stringify({
                 name: evidence.name,
                 approved: evidence.approved ? true : false,
-            })
-            )
+            }));
 
             setSelectFile({
                 ...selectFile,
@@ -200,8 +198,8 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
         id: cmmcorrectiveinit?.id,
         work: cmmcorrectiveinit?.work,
         date: cmmcorrectiveinit?.date,
-        corrective_action: cmmcorrectiveinit?.vehicles ? true : false,
-        executed: cmmcorrectiveinit?.tools ? true : false,
+        corrective_action: cmmcorrectiveinit?.corrective_action ? true : false,
+        executed: cmmcorrectiveinit?.executed ? true : false,
         observations: cmmcorrectiveinit?.observations,
         report_id: cmmcorrectiveinit?.report_id,
         created_at: cmmcorrectiveinit?.created_at,
@@ -211,8 +209,8 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
         id: cmms?.id,
         work: cmms?.work,
         date: cmms?.date,
-        corrective_action: cmms?.vehicles ? true : false,
-        executed: cmms?.tools ? true : false,
+        corrective_action: cmms?.corrective_action ? true : false,
+        executed: cmms?.executed ? true : false,
         observations: cmms?.observations,
         report_id: cmms?.report_id,
         created_at: cmms?.created_at,

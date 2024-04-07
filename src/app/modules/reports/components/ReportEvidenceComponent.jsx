@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { ActivityEvidenceItemComponent } from '../../../components';
 import { getSoappDownloadFile, uploadEvidenceFileName } from '../../../../api';
-import { evidenceReportStore } from '../../../../store';
+import { evidenceReportStore, deleteReportEvidenceId, reportEvidenceUpdate } from '../../../../store';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 export const ReportEvidenceComponent = ({
@@ -36,7 +36,7 @@ export const ReportEvidenceComponent = ({
     dispatch(uploadEvidenceFileName(file, upload_evidence_url))
       .then(({ data }) => {
         // Guardamos la evidencia
-        evidenceStore(data, file, object);
+        evidenceStore(data, file);
       }, error => setMessageSnackbar({ dispatch, error }));
   }
 
@@ -55,11 +55,18 @@ export const ReportEvidenceComponent = ({
 
   const handleEvidenceViewerOpen = () => {
     setOpenEvidencesViewer(true)
-  }
+  } 
 
-  const handleEvidenceViewerClose = () => {
-    setOpenEvidencesViewer(false)
-  }
+  const handleRemove = (file) => {
+    dispatch(deleteReportEvidenceId({
+        form: { id: file.evidence_id }
+    })).then((data) => {
+        setFiles((files) => [...files.filter(fl => fl !== file)]);
+        // Refrescamos el Report Component
+        getReportById(report_id ?? null);
+    });
+
+}
 
   // Evidences
   const getEvidencesByReportId = (id) => {
@@ -81,12 +88,12 @@ export const ReportEvidenceComponent = ({
     }
   }
 
-  const evidenceStore = (data, file, object) => {
+  const evidenceStore = (data, file) => {
     dispatch(evidenceReportStore({
       form: {
         name: file.name.split('.')[0],
         type: file.type,
-        corrective_id: object.id,
+        report_id: report_id,
         file: data.storage_image_path,
         approved: false
       }
@@ -96,6 +103,34 @@ export const ReportEvidenceComponent = ({
       setFiles((files) => [...files, file]);
     }, error => setMessageSnackbar({ dispatch, error }))
   }
+
+
+  const handleFileItemUpload = (selectFile, setFormInit = () => { }, setSelectFile = () => { }) => {
+    dispatch(reportEvidenceUpdate({
+        form: {
+            ...selectFile?.evidence ?? {},
+            id: selectFile?.evidence?.evidence_id ?? null,
+            approved: selectFile?.evidence?.approved ? 1 : 0,
+
+        }
+    })).then(({ data: { data: { evidence } } }) => {
+
+        setFormInit(JSON.stringify({
+            name: evidence.name,
+            approved: evidence.approved ? true : false,
+        })
+        )
+
+        setSelectFile({
+            ...selectFile,
+            evidence: {
+                ...selectFile.evidence,
+                name: evidence.name,
+                approved: evidence.approved ? true : false
+            }
+        });
+    }, error => setMessageSnackbar({ dispatch, error }))
+}
 
   useEffect(() => {
     getEvidencesByReportId(report_id ?? null);
