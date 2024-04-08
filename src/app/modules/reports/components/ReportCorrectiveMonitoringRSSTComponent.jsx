@@ -309,6 +309,7 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
                 </Grid>
 
               </Grid>
+
               <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
                 <Tooltip title="Eliminar Registro" placement="top">
                   <span>
@@ -332,7 +333,7 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
                   <span>
                     <IconButton
                       disabled={correctiveSavevalidator(cmms) || cmms?.approved ? true : false}
-                      onClick={() => handleSaveCorrective(cmms)}                                            >
+                      onClick={() => handleSaveCorrective(cmms)}>
                       <SaveIcon></SaveIcon>
                     </IconButton>
                   </span>
@@ -384,8 +385,7 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
             </Grid>
           </Grid>
         )
-      })
-    }
+      })}
 
       <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
         <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>

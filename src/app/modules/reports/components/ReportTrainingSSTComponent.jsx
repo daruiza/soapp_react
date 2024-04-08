@@ -47,9 +47,7 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
         alertTittle: '',
         alertMessage: '',
         alertChildren: false
-    });
-
-    
+    });    
 
     // Eventos
 

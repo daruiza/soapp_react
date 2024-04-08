@@ -1,12 +1,25 @@
 
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { Divider, Grid } from "@mui/material";
+import { Divider, Grid, FormControl, TextField, Select, InputLabel, MenuItem, FormHelperText, IconButton, Tooltip, Button } from "@mui/material";
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import es from 'dayjs/locale/es';
 import { useTheme } from '@emotion/react';
 
 import { useGeneralList, useSupportGroupDeleteId, useSupportGroupStore } from '../../../../hooks';
 import { ShowBySupportGActivityEvidenceId, supportGActivityEvidenceStore, deleteSupportGActivityEvidenceId, supportGActivityEvidenceUpdate } from '../../../../store';
 import { getSoappDownloadFile } from '../../../../api';
+
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import SaveIcon from '@mui/icons-material/Save';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckIcon from '@mui/icons-material/Check';
+import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
+import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
+
 
 
 export const ReportSupportGroupActivityComponent = ({
@@ -222,14 +235,168 @@ export const ReportSupportGroupActivityComponent = ({
                         <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
                             <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
 
-                            </Grid>
-                            <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
+                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                                    <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                        disabled={cmms?.approved ? true : false}
+                                        size="small"
+                                        className='birth-date-piker'
+                                        sx={{ width: '100%' }}
+                                        inputFormat="DD/MM/YYYY"
+                                        label="Fecha Reunión"
+                                        name="date_meet"
+                                        value={cmms?.date_meet ?? null}
+                                        onChange={(value) => changeInputSupport({ target: { name: 'date_meet', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
+                                        renderInput={(params) => <TextField size="small" {...params} />}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
 
+                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                                    {
+                                        supportGroupArray &&
+                                        supportGroupArray.length &&
+                                        <FormControl
+                                            fullWidth
+                                            className='FormControlExamType'
+                                            error={cmms?.support_group === '' || cmms?.support_group === null}
+                                            required={true}
+                                            sx={{ marginTop: '0px' }}>
+                                            <InputLabel
+                                                variant="standard"
+                                                id="demo-simple-select-label"
+                                                sx={{
+                                                    color: `${palette.text.primary}`
+                                                }}
+                                            >Tema</InputLabel>
+                                            <Select
+                                                disabled={cmms?.approved ? true : false}
+                                                variant="standard"
+                                                labelId="demo-simple-select-label"
+                                                id="demo-simple-select"
+                                                name="support_group"
+                                                value={cmms?.support_group ?? ''}
+                                                label="Grupo de soporte"
+                                                onChange={(event) => changeInputSupport(event, index)}>
+                                                <MenuItem value={null}><em></em></MenuItem>
+                                                {
+                                                    supportGroupArray.map((el, index) => (
+                                                        <MenuItem key={index} value={el?.value}>{el?.value}</MenuItem>
+                                                    ))
+                                                }
+                                            </Select>
+                                            {
+                                                cmms?.support_group === '' || cmms?.support_group === null &&
+                                                <FormHelperText>Gupo de Soporte es un campo es requerido</FormHelperText>
+                                            }
+                                        </FormControl>
+                                    }
+                                </Grid>
+                            </Grid>
+
+                            <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
+                                <Tooltip title="Eliminar Registro" placement="top">
+                                    <span>
+                                        <IconButton
+                                        disabled={cmms?.approved ? true : false}
+                                        onClick={() => handleDeleteSupportReport(cmms)}
+                                        >
+                                        <HighlightOffIcon
+                                            sx={{
+                                            color: palette.text.disabled,
+                                            "&:hover": {
+                                                // color: `${palette.text.primary}`,
+                                                cursor: "pointer"
+                                            }
+                                            }}></HighlightOffIcon>
+                                        </IconButton>
+                                    </span>
+                                </Tooltip>
+
+                                <Tooltip title="Guardar Cambios" placement="top">
+                                    <span>
+                                        <IconButton
+                                        disabled={supportGActivitySavevalidator(cmms) || cmms?.approved ? true : false}
+                                        onClick={() => handleSaveSupport(cmms)}>
+                                        <SaveIcon></SaveIcon>
+                                        </IconButton>
+                                    </span>
+                                </Tooltip>
+
+                                {
+                                cmms?.id &&
+                                <>
+
+                                    <Tooltip title="Evidencias" placement="top">
+                                        <span>
+                                            <IconButton
+                                            disableFocusRipple={cmms?.approved ? true : false}
+                                            onClick={() => handleEvidenceOpen(cmms)}
+                                            ><AttachFileIcon></AttachFileIcon></IconButton>
+                                        </span>
+                                    </Tooltip>
+
+                                    <Tooltip title={`${cmms?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                                        <span>
+                                            <PrivateAgentRoute>
+                                            <IconButton
+                                                onClick={() => handleSaveSupport({ ...cmms, approved: !cmms?.approved })}>
+                                                {!!cmms?.approved &&
+                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                }
+                                                {!cmms?.approved &&
+                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                }
+                                            </IconButton>
+                                            </PrivateAgentRoute>
+
+                                            <PrivateCustomerRoute>
+                                            <IconButton disabled>
+                                                {cmms?.approved &&
+                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                }
+                                                {!cmms?.approved &&
+                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                }
+                                            </IconButton>
+                                            </PrivateCustomerRoute>
+                                        </span>
+                                    </Tooltip>
+                                </>
+                                }
                             </Grid>
                         </Grid>
                     </Grid>
                 )
             })}
+
+        <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
+                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+
+                </Grid>
+                <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                    <Button onClick={() => {
+                    setSupports(cmms => [...cmms, {
+                        support_group: null,
+                        date_meet: null,
+                        responsible: false,
+                        tasks_copasst: false,
+                        report_id: report_id,
+                        save: false
+                    }])
+                    }}
+                    variant="contained"
+                    disabled={!!supports?.find(el => el.save === false)}
+                    sx={{
+                        height: '100%',
+                        color: `${palette.text.custom}`,
+                        // border: '1px solid'
+                    }}>AGREGAR CORRECCIÓN
+                    </Button>
+                </Grid>
+                </Grid>
+            </Grid>
         </Grid>
     )
 }
