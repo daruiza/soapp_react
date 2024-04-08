@@ -276,7 +276,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       })
     ).then((data) => {
       // Refrescamos el Report Component
-      reportidQuerryReferch;
+      reportidQuerryReferch();
     });
   };
 
@@ -290,7 +290,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       })
     ).then((data) => {
       // Refrescamos el Report Component
-      reportidQuerryReferch;
+      reportidQuerryReferch();
     });
   };
 
