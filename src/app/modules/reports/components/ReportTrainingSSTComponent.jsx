@@ -202,7 +202,7 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
                                                 {
                                                     tsst?.topic === '' || tsst?.topic === null &&
                                                     <FormHelperText>Tema es un campo es requerido</FormHelperText>
-                                                }
+                                                }                                                
                                             </FormControl>
                                         }
                                     </Grid>

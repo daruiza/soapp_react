@@ -234,23 +234,7 @@ export const ReportSupportGroupActivityComponent = ({
                         <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                         <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
                             <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
-
-                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
-                                    <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
-                                        <DatePicker
-                                        disabled={cmms?.approved ? true : false}
-                                        size="small"
-                                        className='birth-date-piker'
-                                        sx={{ width: '100%' }}
-                                        inputFormat="DD/MM/YYYY"
-                                        label="Fecha Reunión"
-                                        name="date_meet"
-                                        value={cmms?.date_meet ?? null}
-                                        onChange={(value) => changeInputSupport({ target: { name: 'date_meet', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
-                                        renderInput={(params) => <TextField size="small" {...params} />}
-                                        />
-                                    </LocalizationProvider>
-                                </Grid>
+                               
 
                                 <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
                                     {
@@ -259,7 +243,7 @@ export const ReportSupportGroupActivityComponent = ({
                                         <FormControl
                                             fullWidth
                                             className='FormControlExamType'
-                                            error={cmms?.support_group === '' || cmms?.support_group === null}
+                                            error={cmms?.support_groupTouched && !cmms?.support_group}
                                             required={true}
                                             sx={{ marginTop: '0px' }}>
                                             <InputLabel
@@ -268,7 +252,7 @@ export const ReportSupportGroupActivityComponent = ({
                                                 sx={{
                                                     color: `${palette.text.primary}`
                                                 }}
-                                            >Tema</InputLabel>
+                                            >Grupo de Soporte</InputLabel>
                                             <Select
                                                 disabled={cmms?.approved ? true : false}
                                                 variant="standard"
@@ -286,12 +270,31 @@ export const ReportSupportGroupActivityComponent = ({
                                                 }
                                             </Select>
                                             {
-                                                cmms?.support_group === '' || cmms?.support_group === null &&
-                                                <FormHelperText>Gupo de Soporte es un campo es requerido</FormHelperText>
+                                                (cmms?.support_groupTouched && !cmms?.support_group) &&
+                                                <FormHelperText>Grupo de Soporte es un campo es requerido</FormHelperText>
                                             }
+
                                         </FormControl>
                                     }
                                 </Grid>
+
+                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                                    <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                        disabled={cmms?.approved ? true : false}
+                                        size="small"
+                                        className='birth-date-piker'
+                                        sx={{ width: '100%' }}
+                                        inputFormat="DD/MM/YYYY"
+                                        label="Fecha Reunión"
+                                        name="date_meet"
+                                        value={cmms?.date_meet ?? null}
+                                        onChange={(value) => changeInputSupport({ target: { name: 'date_meet', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
+                                        renderInput={(params) => <TextField size="small" {...params} />}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
+                                
                             </Grid>
 
                             <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
