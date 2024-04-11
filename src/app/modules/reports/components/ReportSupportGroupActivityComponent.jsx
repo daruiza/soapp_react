@@ -1,9 +1,12 @@
 
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { Divider, Grid, FormControl, TextField, TextareaField, Select, InputLabel, MenuItem, FormHelperText, IconButton, Tooltip, Button } from "@mui/material";
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { Divider, Grid, FormControl, TextField, Select, InputLabel, MenuItem, FormHelperText, IconButton, Tooltip, Button } from "@mui/material";
+import { TextareaField } from '../../../components/textarea/TextareaField';
+import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
+import { DialogAlertComponent } from '../../../components';
 
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import es from 'dayjs/locale/es';
 import { useTheme } from '@emotion/react';
@@ -92,7 +95,7 @@ export const ReportSupportGroupActivityComponent = ({
     }
 
     const handleSaveSupport = (cmms) => {    
-        if (!cmms.work) {
+        if ( !cmms.support_group || !cmms.responsible ) {
           return;
         }
         supporGActivitystore(cmms);
@@ -187,9 +190,11 @@ export const ReportSupportGroupActivityComponent = ({
 
     // Validaciones
     const supportGActivitySavevalidator = (cmms) => {
-        if (!cmms.work) {
-        return true;
-        }
+        if (
+            !cmms.support_group ||
+            !cmms.responsible 
+        ) { return true; }
+
         const cmmsupporstinit = supporstsinit?.find(el => el.id === cmms.id);
 
         // Quitar todos los Touched 
@@ -214,7 +219,7 @@ export const ReportSupportGroupActivityComponent = ({
             created_at: cmms?.created_at,
             updated_at: cmms?.updated_at,
         }) :
-        !!(!cmms.work)
+        !!((!cmms.support_group)||(!cmms.responsible))
     }
 
 
@@ -236,7 +241,7 @@ export const ReportSupportGroupActivityComponent = ({
                             <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
                                
 
-                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                                <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
                                     {
                                         supportGroupArray &&
                                         supportGroupArray.length &&
@@ -278,7 +283,7 @@ export const ReportSupportGroupActivityComponent = ({
                                     }
                                 </Grid>
 
-                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                                <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
                                     <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                         <DatePicker
                                         disabled={cmms?.approved ? true : false}
@@ -295,9 +300,9 @@ export const ReportSupportGroupActivityComponent = ({
                                     </LocalizationProvider>
                                 </Grid>
 
-                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                <Grid item xs={12} md={4} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                     <TextField
-                                        disabled={cmms?.responsible ? true : false}
+                                        disabled={cmms?.approved ? true : false}
                                         variant="standard"
                                         size="small"
                                         label="Responsable*"
@@ -305,7 +310,7 @@ export const ReportSupportGroupActivityComponent = ({
                                         fullWidth
                                         name="responsible"
                                         value={cmms?.responsible ?? ''}
-                                        onChange={(event) => changeInputCorrective(event, index)}
+                                        onChange={(event) => changeInputSupport(event, index)}
                                         error={cmms?.responsible === ''}
                                         helperText={cmms?.responsibleTouched && !cmms?.responsible ? 'Este campo es requerido' : ''}
                                     />
@@ -313,11 +318,11 @@ export const ReportSupportGroupActivityComponent = ({
 
                                 <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                     <TextareaField
-                                        disabled={cmms?.tasks_copasst ? true : false}
+                                        disabled={cmms?.approved ? true : false}
                                         label="Tareas del Copasst"
                                         name="tasks_copasst"
                                         value={cmms?.tasks_copasst ?? ''}
-                                        onChange={(event) => changeInputCompromise(event, index)}
+                                        onChange={(event) => changeInputSupport(event, index)}
                                         placeholder=""
                                         minRows={2}
                                         sx={{ minwidth: '100%' }}
@@ -412,8 +417,8 @@ export const ReportSupportGroupActivityComponent = ({
                     setSupports(cmms => [...cmms, {
                         support_group: null,
                         date_meet: null,
-                        responsible: false,
-                        tasks_copasst: false,
+                        responsible: null,
+                        tasks_copasst: null,
                         report_id: report_id,
                         save: false
                     }])
@@ -429,6 +434,42 @@ export const ReportSupportGroupActivityComponent = ({
                 </Grid>
                 </Grid>
             </Grid>
+
+            {
+                openEvidences.open && <EvidenceGenericComponent
+                open={openEvidences.open}
+                dialogtitle={openEvidences.dialogtitle}
+                dialogcontenttext={openEvidences.dialogcontenttext}
+                object={openEvidences.object}
+                report_id={report_id}
+                commerce_id={commerce_id}
+                approved={openEvidences.approved}
+                handleClose={() => {
+                    setFiles([]);
+                    setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
+                }}
+                upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/supportgroup/${openEvidences?.object?.id ?? null}`}
+                files={files}
+                setFiles={setFiles}
+                getEvidencesById={getEvidencesById}
+                evidenceStore={storeCorrectiveEvidence}
+                handleRemove={handleRemoveCorrectiveEvidence}
+                handleFileItemUpload={handleFileItemUpload}
+                ></EvidenceGenericComponent>
+            }
+
+            {
+                handleAlert.openAlert && <DialogAlertComponent
+                open={handleAlert.openAlert}
+                handleClose={() => handleAlert.functionAlertClose()}
+                handleAgree={() => handleAlert.functionAlertAgree()}
+                props={{
+                    tittle: handleAlert.alertTittle,
+                    message: handleAlert.alertMessage
+                }}
+                ></DialogAlertComponent>
+            }
+
         </Grid>
     )
 }

@@ -2999,6 +2999,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="12. ACTIVIDADES GRUPOS DE APOYO"
+                  pending={getPending(supportGroupActions)}
                 >
                   <ReportSupportGroupActivityComponent
                     report_id={param_report_id}
