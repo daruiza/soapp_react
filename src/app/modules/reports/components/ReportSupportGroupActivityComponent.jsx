@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { Divider, Grid, FormControl, TextField, Select, InputLabel, MenuItem, FormHelperText, IconButton, Tooltip, Button } from "@mui/material";
+import { Divider, Grid, FormControl, TextField, TextareaField, Select, InputLabel, MenuItem, FormHelperText, IconButton, Tooltip, Button } from "@mui/material";
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -271,7 +271,7 @@ export const ReportSupportGroupActivityComponent = ({
                                             </Select>
                                             {
                                                 (cmms?.support_groupTouched && !cmms?.support_group) &&
-                                                <FormHelperText>Grupo de Soporte es un campo es requerido</FormHelperText>
+                                                <FormHelperText>Este campo es requerido</FormHelperText>
                                             }
 
                                         </FormControl>
@@ -294,7 +294,36 @@ export const ReportSupportGroupActivityComponent = ({
                                         />
                                     </LocalizationProvider>
                                 </Grid>
-                                
+
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <TextField
+                                        disabled={cmms?.responsible ? true : false}
+                                        variant="standard"
+                                        size="small"
+                                        label="Responsable*"
+                                        type="text"
+                                        fullWidth
+                                        name="responsible"
+                                        value={cmms?.responsible ?? ''}
+                                        onChange={(event) => changeInputCorrective(event, index)}
+                                        error={cmms?.responsible === ''}
+                                        helperText={cmms?.responsibleTouched && !cmms?.responsible ? 'Este campo es requerido' : ''}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <TextareaField
+                                        disabled={cmms?.tasks_copasst ? true : false}
+                                        label="Tareas del Copasst"
+                                        name="tasks_copasst"
+                                        value={cmms?.tasks_copasst ?? ''}
+                                        onChange={(event) => changeInputCompromise(event, index)}
+                                        placeholder=""
+                                        minRows={2}
+                                        sx={{ minwidth: '100%' }}
+                                    ></TextareaField>
+                                </Grid>
+
                             </Grid>
 
                             <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
