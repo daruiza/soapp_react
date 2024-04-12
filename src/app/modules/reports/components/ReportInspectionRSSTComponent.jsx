@@ -5,7 +5,7 @@ import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { Grid, Divider, Button, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, Switch, MenuItem, Tooltip } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTStore, inspectionRSSTUpdate } from '../../../../store/inspection/inspectionRSSTThunks';
-import { ShowByInspectionRSSTEvidenceId, inspectionRSSTEvidenceStore, compromiseRSSTEvidenceUpdate } from '../../../../store';
+import { ShowByInspectionRSSTId, inspectionRSSTEvidenceStore, compromiseRSSTEvidenceUpdate } from '../../../../store';
 import SaveIcon from '@mui/icons-material/Save';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -125,7 +125,7 @@ export const ReportInspectionRSSTComponent = ({
 
     const getEvidencesById = (id) => {
         if (id) {
-            dispatch(ShowByInspectionRSSTEvidenceId({
+            dispatch(ShowByInspectionRSSTId({
                 form: {
                     id: id ?? ''
                 }

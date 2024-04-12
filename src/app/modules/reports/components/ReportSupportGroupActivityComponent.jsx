@@ -12,7 +12,7 @@ import es from 'dayjs/locale/es';
 import { useTheme } from '@emotion/react';
 
 import { useGeneralList, useSupportGroupDeleteId, useSupportGroupStore } from '../../../../hooks';
-import { ShowBySupportGActivityEvidenceId, supportGActivityEvidenceStore, deleteSupportGActivityEvidenceId, supportGActivityEvidenceUpdate } from '../../../../store';
+import { ShowBySupportGActivityId, supportGActivityEvidenceStore, deleteSupportGActivityEvidenceId, supportGActivityEvidenceUpdate } from '../../../../store';
 import { getSoappDownloadFile } from '../../../../api';
 
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -22,8 +22,6 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
-
-
 
 export const ReportSupportGroupActivityComponent = ({
     report_id = null,
@@ -115,11 +113,11 @@ export const ReportSupportGroupActivityComponent = ({
     // Evidences
     const getEvidencesById = (id) => {
         if (id) {
-        dispatch(ShowBySupportGActivityEvidenceId({
+        dispatch(ShowBySupportGActivityId({
             form: {
             id: id ?? ''
             }
-        })).then(({ data: { data: { evidence: evidences } } }) => {
+        })).then(({ data: { data: { evidence: evidences } } }) => {            
             evidences.forEach(evidence => {
             dispatch(getSoappDownloadFile({ path: evidence.file }))
                 .then((response) => {
@@ -452,8 +450,8 @@ export const ReportSupportGroupActivityComponent = ({
                 files={files}
                 setFiles={setFiles}
                 getEvidencesById={getEvidencesById}
-                evidenceStore={storeCorrectiveEvidence}
-                handleRemove={handleRemoveCorrectiveEvidence}
+                evidenceStore={storeSupportGActivityEvidence}
+                handleRemove={handleRemoveSupportGActivityEvidence}
                 handleFileItemUpload={handleFileItemUpload}
                 ></EvidenceGenericComponent>
             }

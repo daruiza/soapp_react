@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
-import { ShowByCorrectiveRSSTEvidenceId, inspectionRSSTCorrectiveStore, deleteCorrectiveRSSTEvidenceId, correctiveRSSTEvidenceUpdate } from '../../../../store';
+import { ShowByCorrectiveRSSTId, inspectionRSSTCorrectiveStore, deleteCorrectiveRSSTEvidenceId, correctiveRSSTEvidenceUpdate } from '../../../../store';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
 import { useCorectiveRSSTDeleteId, useCorectiveRSSTStore } from '../../../../hooks';
 
@@ -109,7 +109,7 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
   // Evidences
   const getEvidencesById = (id) => {
     if (id) {
-      dispatch(ShowByCorrectiveRSSTEvidenceId({
+      dispatch(ShowByCorrectiveRSSTId({
         form: {
           id: id ?? ''
         }
