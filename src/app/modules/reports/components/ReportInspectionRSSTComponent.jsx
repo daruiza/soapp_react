@@ -46,6 +46,8 @@ export const ReportInspectionRSSTComponent = ({
         alertChildren: false
     });
 
+    
+
     // Llamado de Servicios   
     const getInspectionByReportId = () => {
         if (report_id) {
@@ -248,6 +250,7 @@ export const ReportInspectionRSSTComponent = ({
             !!(!cmms.work)
     }
    
+    // Se necesita para el setInspectionsInit
     useEffect(() => {
         if (!!inspectionRSSTQuery && inspectionRSSTQuery.length) {
           setInspections(inspectionRSSTQuery)

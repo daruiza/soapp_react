@@ -10,7 +10,6 @@ import {
   employeeReportDelete,
   employeeReportStore,
   employeeReportUpdate,
-  reportByreportId,
 } from "../../../../store";
 import {
   Grid,
@@ -22,7 +21,6 @@ import {
   Switch,
   FormControl,
   FormControlLabel,
-  FormGroup,
   Divider,
   InputLabel,
   Select,
@@ -53,10 +51,6 @@ import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import HealingIcon from "@mui/icons-material/Healing";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckIcon from "@mui/icons-material/Check";
-import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-import EditIcon from "@mui/icons-material/Edit";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import SupportIcon from "@mui/icons-material/Support";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { EvidencesComponent } from "../../../components/evidences/EvidencesComponent";
 import { EmployeeState } from "../../../types/EmployeeState";
@@ -72,7 +66,6 @@ import { ReportCompromiseSSTComponent } from "./ReportCompromiseSSTComponent";
 import { ReportCompromiseRSSTComponent } from "./ReportCompromiseRSSTComponent";
 import { ReportInspectionRSSTComponent } from "./ReportInspectionRSSTComponent";
 import { ReportCorrectiveMonitoringRSSTComponent } from "./ReportCorrectiveMonitoringRSSTComponent";
-import { inspectionRSSTShowByReportId } from "../../../../store/inspection/inspectionRSSTThunks";
 import { ReportSupportGroupActivityComponent } from "./ReportSupportGroupActivityComponent";
 import { ReportEvidenceComponent } from "./ReportEvidenceComponent";
 
@@ -91,11 +84,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
   const [report, setReport] = useState(null);
   // trainingsst se inicializa en null y la consulta lo modifica
-  const [trainingsst, setTrainingsst] = useState(null);
-  const [compromises, setCompromises] = useState(null);
-  const [compromisesSST, setCompromisesSST] = useState(null);
-  const [compromisesRSST, setCompromisesRSST] = useState(null);
-  const [inspectionsRSST, setInspectionsRSST] = useState(null);
+  const [trainingsst, setTrainingsst] = useState([]);
+  const [compromises, setCompromises] = useState([]);
+  const [compromisesSST, setCompromisesSST] = useState([]);
+  const [compromisesRSST, setCompromisesRSST] = useState([]);
+  const [inspectionsRSST, setInspectionsRSST] = useState([]);
   const [correctiveRSST, setCorrectiveRSST] = useState([]);
   const [supportGroupActions, setSupportGroupActions] = useState([]);
   const [activities, setActivities] = useState([]);
@@ -123,13 +116,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     approved: false,
   });
   const [selectCollaborator, setSelectCollaborator] = useState({});
-
-  const [interval_test, setIntervalTest] = useState({
-    income: false,
-    periodical: false,
-    retirement: false,
-  });
-
+  
   const [handleAlert, setHandleAlert] = useState({
     openAlert: false,
     functionAlertClose: () => { },
@@ -211,10 +198,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const {
     data: inspectionRSSTQuery,
     refetch: inspectionRSSTQueryRefetch,
-  } = useInspectionByReportId({ id: param_report_id }, setInspectionsRSST); 
+  } = useInspectionByReportId({ id: param_report_id }, setInspectionsRSST);   
 
-  console.log('inspectionRSSTQuery', inspectionRSSTQuery);
-  
   // Obtener los colaboradores, en su último estado reportado
   const getEmployees = () => {
     const commerce_id = commerce?.id ?? param_commerce_id;
@@ -485,19 +470,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     //     setSelectCollaborator(collaborators?.collaborators.find(el => el.index === selectCollaborator.index));
     // }
   }, [collaborators]);
-
-  useEffect(() => {
-    // console.log('trainingsst', trainingsst);
-    // console.log('trainingsstlength', trainingsst?.length);
-    // console.log('trainingsstUnApproved', trainingsst?.filter(el => !el.approved)?.length);
-    // console.log('porcentage', 100 - parseInt(trainingsst?.filter(el => !el.approved)?.length * 100 / trainingsst?.length));
-    // console.log('selectCollaborator', selectCollaborator);
-    // refrescamos el selectCollaborator
-    // if (selectCollaborator && (selectCollaborator?.index || selectCollaborator?.index === 0 || selectCollaborator?.index === '0')) {
-    //     setSelectCollaborator(collaborators?.collaborators.find(el => el.index === selectCollaborator.index));
-    // }
-  }, [trainingsst]);
-
+ 
   useEffect(() => {
     getEmployees();
     reportidQuerryReferch;
@@ -2934,7 +2907,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     commerce_id={param_commerce_id}
                     compromises={compromises}
                     setCompromises={setCompromises}
-                    getReportById={() => reportidQuerryReferch}
                     getCompromiseByReportIdReport={() => compromiseQueryRefetch()}
                   ></ReportCompromiseComponent>
                 </ReportCardComponent>
@@ -3113,6 +3085,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
           ></DialogAlertComponent>
         )
       }
-    </Grid >
-  );
+    </Grid>
+  )
 };

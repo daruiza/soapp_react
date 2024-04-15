@@ -24,7 +24,6 @@ export const ReportCompromiseComponent = ({
     commerce_id = null, 
     compromises = null, 
     setCompromises = () => { }, 
-    getReportById = () => { }, 
     getCompromiseByReportIdReport = () => { } }) => {
 
     const dispatch = useDispatch();
@@ -226,9 +225,9 @@ export const ReportCompromiseComponent = ({
 
     }
 
+    // TODO: Que pasa ente una actualización
     useEffect(() => {
         setCompromisesInit(compromises);
-
     }, [])
 
     useEffect(() => {
@@ -238,7 +237,6 @@ export const ReportCompromiseComponent = ({
             })
         }
     }, [compormisesinit]);
-
 
 
     return (
@@ -459,7 +457,7 @@ export const ReportCompromiseComponent = ({
                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                     <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                         <Button onClick={() => {
-                            setCompromises(cmps => [...cmps, {
+                            setCompromises(cmms => [...cmms, {
                                 item: null,
                                 rule: null,
                                 name: null,

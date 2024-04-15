@@ -228,6 +228,8 @@ export const ReportSupportGroupActivityComponent = ({
     }
   }, [supportGroupActionQuery]);
 
+  
+
     return (
         <Grid container> {
             supports?.length !== 0 &&
