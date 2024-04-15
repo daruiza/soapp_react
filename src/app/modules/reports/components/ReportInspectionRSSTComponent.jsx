@@ -20,8 +20,8 @@ export const ReportInspectionRSSTComponent = ({
     report_id = null,
     commerce_id = null,
     inspections = null,
-    setInspections = () => { },
-    getReportById = () => { },
+    setInspections = () => { },    
+    inspectionRSSTQuery = [],
     getInspectionByReportIdReport = () => { } }) => {
 
     const dispatch = useDispatch();
@@ -247,11 +247,13 @@ export const ReportInspectionRSSTComponent = ({
             }) :
             !!(!cmms.work)
     }
-
+   
     useEffect(() => {
-        // getWork();
-        setInspectionsInit(inspections);
-    }, [])
+        if (!!inspectionRSSTQuery && inspectionRSSTQuery.length) {
+          setInspections(inspectionRSSTQuery)
+          setInspectionsInit(inspectionRSSTQuery);
+        }
+      }, [inspectionRSSTQuery]);
 
     useEffect(() => {
         if (inspectionsinit.length) {

@@ -35,6 +35,7 @@ import {
   useCompromiseByReportId,
   useCorrectiveRSSTByReportId,
   useSupportGroupByReportId,
+  useInspectionByReportId,
   useByReportId
 } from "../../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -187,6 +188,12 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   );
 
   const {
+    data: reportid,
+    refetch: reportidQuerryReferch
+  } = useByReportId({ id: param_report_id }, reportSet)
+  
+
+  const {
     data: compromiseQuery,
     refetch: compromiseQueryRefetch,
   } = useCompromiseByReportId({ id: param_report_id }, setCompromises);
@@ -202,9 +209,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   } = useSupportGroupByReportId({ id: param_report_id }, setSupportGroupActions); 
 
   const {
-    data: reportid,
-    refetch: reportidQuerryReferch
-  } = useByReportId({ id: param_report_id }, reportSet)
+    data: inspectionRSSTQuery,
+    refetch: inspectionRSSTQueryRefetch,
+  } = useInspectionByReportId({ id: param_report_id }, setInspectionsRSST); 
+
+  console.log('inspectionRSSTQuery', inspectionRSSTQuery);
   
   // Obtener los colaboradores, en su último estado reportado
   const getEmployees = () => {
@@ -253,17 +262,17 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
   };
 
-  const getInspectionRSSTByReportId = () => {
-    if (param_report_id) {
-      dispatch(
-        inspectionRSSTShowByReportId({
-          form: { id: param_report_id },
-        })
-      ).then(({ data: { data } }) => {
-        setInspectionsRSST(data);
-      });
-    }
-  };
+  // const getInspectionRSSTByReportId = () => {
+  //   if (param_report_id) {
+  //     dispatch(
+  //       inspectionRSSTShowByReportId({
+  //         form: { id: param_report_id },
+  //       })
+  //     ).then(({ data: { data } }) => {
+  //       setInspectionsRSST(data);
+  //     });
+  //   }
+  // };
 
   const setEmployeeReportStore = (collaborator, employee_state) => {
     // se debe llamar al back para que guarde el cambio
@@ -495,7 +504,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     // getCompromiseByReportId();
     getCompromiseSSTByReportId();
     getCompromiseRSSTByReportId();
-    getInspectionRSSTByReportId();
+    // getInspectionRSSTByReportId();
     listQueryMutate("exam,type_exam,event,medical_attention,topic_sst");
   }, []);
 
@@ -2974,10 +2983,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     commerce_id={param_commerce_id}
                     inspections={inspectionsRSST}
                     setInspections={setInspectionsRSST}
-                    getReportById={() => reportidQuerryReferch}
-                    getInspectionByReportIdReport={() =>
-                      getInspectionRSSTByReportId()
-                    }
+                    inspectionRSSTQuery={inspectionRSSTQuery}
+                    getInspectionByReportIdReport={inspectionRSSTQueryRefetch}
                   ></ReportInspectionRSSTComponent>
                 </ReportCardComponent>
 
