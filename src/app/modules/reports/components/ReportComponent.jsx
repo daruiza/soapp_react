@@ -68,6 +68,7 @@ import { ReportInspectionRSSTComponent } from "./ReportInspectionRSSTComponent";
 import { ReportCorrectiveMonitoringRSSTComponent } from "./ReportCorrectiveMonitoringRSSTComponent";
 import { ReportSupportGroupActivityComponent } from "./ReportSupportGroupActivityComponent";
 import { ReportEvidenceComponent } from "./ReportEvidenceComponent";
+import { ReportWorkManagementComponent } from "./ReportWorkManagementComponent";
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
   const dispatch = useDispatch();
@@ -91,6 +92,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const [inspectionsRSST, setInspectionsRSST] = useState([]);
   const [correctiveRSST, setCorrectiveRSST] = useState([]);
   const [supportGroupActions, setSupportGroupActions] = useState([]);
+  const [worksManagement, setWorksManagement] = useState([]);  
   const [activities, setActivities] = useState([]);
   const [evidences, setEvidneces] = useState([]);
 
@@ -199,6 +201,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     data: inspectionRSSTQuery,
     refetch: inspectionRSSTQueryRefetch,
   } = useInspectionByReportId({ id: param_report_id }, setInspectionsRSST);   
+
+  const {
+    data: workManagementQuery,
+    refetch: getworkManagementQueryRefetch,
+  } = useInspectionByReportId({ id: param_report_id }, setWorksManagement);   
 
   // Obtener los colaboradores, en su último estado reportado
   const getEmployees = () => {
@@ -2994,7 +3001,16 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="15. GESTIÓN DE TRABAJOS DE ALTO RIESGO"
-                ></ReportCardComponent>
+                >
+                  <ReportWorkManagementComponent
+                    report_id={param_report_id}
+                    commerce_id={param_commerce_id}
+                    worksManagement={worksManagement}
+                    setWorksManagement={setWorksManagement}
+                    workManagementQuery={workManagementQuery}
+                    getWorkManagementByReportIdReport={getworkManagementQueryRefetch}
+                  ></ReportWorkManagementComponent>
+                </ReportCardComponent>
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
