@@ -69,7 +69,7 @@ export const ReportSupportGroupActivityComponent = ({
         {}, getSupportGrpupByReportIdReport
     );
 
-     // Eventos
+    // Eventos
 
     // Cambios en los inputs del Array support
     const changeInputSupport = ({ target: { value, name } }, index) => {
@@ -102,7 +102,7 @@ export const ReportSupportGroupActivityComponent = ({
     const handleEvidenceOpen = (cmms) => {    
         setOpenEvidences((openEvidences) => ({
           ...openEvidences,
-          dialogtitle: `Evidencias Support Activity Item: ${cmms?.work}`,
+          dialogtitle: `Evidencias Actividades Grupo Apoyo Item: ${cmms?.work}`,
           dialogcontenttext: ``,
           object: cmms,
           approved: cmms.approved,
@@ -220,15 +220,12 @@ export const ReportSupportGroupActivityComponent = ({
         !!((!cmms.support_group)||(!cmms.responsible))
     }
 
-
   useEffect(() => {
     if (!!supportGroupActionQuery && supportGroupActionQuery.length) {
         setSupports(supportGroupActionQuery);
         setSupporstsInit(supportGroupActionQuery);
     }
-  }, [supportGroupActionQuery]);
-
-  
+  }, [supportGroupActionQuery]);  
 
     return (
         <Grid container> {
