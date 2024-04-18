@@ -236,8 +236,6 @@ export const ReportSupportGroupActivityComponent = ({
                         <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                         <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
                             <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
-                               
-
                                 <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
                                     {
                                         supportGroupArray &&

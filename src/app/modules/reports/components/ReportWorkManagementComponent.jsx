@@ -189,35 +189,39 @@ export const ReportWorkManagementComponent = ({
   // Validaciones
   const workManagementSavevalidator = (cmms) => {
     if (
-      !cmms.support_group ||
-      !cmms.responsible
+      !cmms.activity ||
+      !cmms.work_type
     ) { return true; }
 
-    const cmmsupporstinit = supporstsinit?.find(el => el.id === cmms.id);
+    const cmmworkmanagementinit = worksManagementinit?.find(el => el.id === cmms.id);
 
     // Quitar todos los Touched 
     return 'id' in cmms ?
       JSON.stringify({
-        id: cmmsupporstinit?.id,
-        support_group: cmmsupporstinit?.support_group,
-        date_meet: cmmsupporstinit?.date_meet,
-        responsible: cmmsupporstinit?.responsible,
-        tasks_copasst: cmmsupporstinit?.tasks_copasst,
-        report_id: cmmsupporstinit?.report_id,
-        created_at: cmmsupporstinit?.created_at,
-        updated_at: cmmsupporstinit?.updated_at,
+        id: cmmworkmanagementinit?.id,
+        activity: cmmworkmanagementinit?.activity,
+        work_type: cmmworkmanagementinit?.work_type,
+        workers_activity: cmmworkmanagementinit?.workers_activity,
+        workers_trained: cmmworkmanagementinit?.workers_trained,
+        permissions: cmmworkmanagementinit?.permissions,
+        observations: cmmworkmanagementinit?.observations,
+        report_id: cmmworkmanagementinit?.report_id,
+        created_at: cmmworkmanagementinit?.created_at,
+        updated_at: cmmworkmanagementinit?.updated_at,
       }) ==
       JSON.stringify({
         id: cmms?.id,
-        support_group: cmms?.support_group,
-        date_meet: cmms?.date_meet,
-        responsible: cmms?.responsible,
-        tasks_copasst: cmms?.tasks_copasst,
+        activity: cmms?.activity,
+        work_type: cmms?.work_type,
+        workers_activity: cmms?.workers_activity,
+        workers_trained: cmms?.workers_trained,
+        permissions: cmms?.permissions,
+        observations: cmms?.observations,
         report_id: cmms?.report_id,
         created_at: cmms?.created_at,
         updated_at: cmms?.updated_at,
       }) :
-      !!((!cmms.support_group) || (!cmms.responsible))
+      !!((!cmms.activity) || (!cmms.work_type))
   }
 
   useEffect(() => {
@@ -236,8 +240,21 @@ export const ReportWorkManagementComponent = ({
       worksManagement?.map((cmms, index) => {
         return (
           <Grid container key={index} >
-          </Grid>)
+            <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
+            <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
 
+              <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
+
+              
+
+              </Grid>
+
+              <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
+
+              </Grid>
+            </Grid>
+          </Grid>
+        )
       })}
     </Grid>
   )
