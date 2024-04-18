@@ -6,5 +6,7 @@ export * from './query/useGeneralList';
 export * from './query/useResponsibles';
 export * from './query/useReport';
 export * from './query/useCompromise';
-
+export * from './query/useCorrective';
+export * from './query/useSupportGroup';
+export * from './query/useInspection';
 

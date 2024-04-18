@@ -20,14 +20,13 @@ const useGeneralList = (name = '', dataQueryinit = {}) => {
     return { data: query.data, setDataQuery }
 }
 
-const useGeneraNamelList = (name = '') => {
+const useGeneraNamelList = (name = '', fnSuccess=()=>{} ) => {
 
     const dispatch = useDispatch();
     const query = useMutation({
-        mutationKey: [name, name],
+        mutationKey: [name, {name, fnSuccess}],
         mutationFn: (name)=>dispatch(genericListGetByNamelist({name})).then(({ data: { data: { generallist } } }) => (generallist)),
-        onSuccess: (response) => { }
-        
+        onSuccess: (response) => fnSuccess(response)        
     });    
 
     return { data: query.data, mutate: query.mutate }}

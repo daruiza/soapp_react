@@ -5,7 +5,7 @@ import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { Grid, Divider, Button, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, Switch, MenuItem, Tooltip } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTStore, inspectionRSSTUpdate } from '../../../../store/inspection/inspectionRSSTThunks';
-import { ShowByInspectionRSSTEvidenceId, inspectionRSSTEvidenceStore } from '../../../../store';
+import { ShowByInspectionRSSTId, inspectionRSSTEvidenceStore, compromiseRSSTEvidenceUpdate } from '../../../../store';
 import SaveIcon from '@mui/icons-material/Save';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -13,8 +13,6 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
 import { getSoappDownloadFile } from '../../../../api';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
-import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
-import { useQuery } from 'react-query';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
 import { DialogAlertComponent } from '../../../components';
 
@@ -22,8 +20,8 @@ export const ReportInspectionRSSTComponent = ({
     report_id = null,
     commerce_id = null,
     inspections = null,
-    setInspections = () => { },
-    getReportById = () => { },
+    setInspections = () => { },    
+    inspectionRSSTQuery = [],
     getInspectionByReportIdReport = () => { } }) => {
 
     const dispatch = useDispatch();
@@ -48,16 +46,9 @@ export const ReportInspectionRSSTComponent = ({
         alertChildren: false
     });
 
-    // Llamado de Servicios
+    
 
-    const { data: workArray } = useQuery({
-        queryKey: ['works'],
-        queryFn: () => dispatch(genericListGetByName({ name: 'inspection_work' })).then(({ data: { data: { generallist } } }) => (generallist)),
-        enabled: false,
-        staleTime: Infinity,
-        cacheTime: Infinity
-    })
-
+    // Llamado de Servicios   
     const getInspectionByReportId = () => {
         if (report_id) {
             dispatch(inspectionRSSTShowByReportId({
@@ -82,7 +73,7 @@ export const ReportInspectionRSSTComponent = ({
         );
     }
 
-    const handleEvidenceOpen = (cmms) => {
+    const handleEvidenceOpen = (cmms) => {        
         setOpenEvidences((openEvidences) => ({
             ...openEvidences,
             dialogtitle: `Evidencias Inspección RSST Item: ${cmms?.work}`,
@@ -136,7 +127,7 @@ export const ReportInspectionRSSTComponent = ({
 
     const getEvidencesById = (id) => {
         if (id) {
-            dispatch(ShowByInspectionRSSTEvidenceId({
+            dispatch(ShowByInspectionRSSTId({
                 form: {
                     id: id ?? ''
                 }
@@ -212,14 +203,14 @@ export const ReportInspectionRSSTComponent = ({
                 }
             });
         }, error => setMessageSnackbar({ dispatch, error }))
-    }    
+    }
 
     const inspectionSavevalidator = (cmms) => {
         if (!cmms.work) {
             return true;
         }
         // Quitar todos los Touched 
-        const cmmsinspectionsinit = inspectionsinit?.find(el => el.id === cmms.id);       
+        const cmmsinspectionsinit = inspectionsinit?.find(el => el.id === cmms.id);
 
         return 'id' in cmms ?
             JSON.stringify({
@@ -258,11 +249,14 @@ export const ReportInspectionRSSTComponent = ({
             }) :
             !!(!cmms.work)
     }
-
+   
+    // Se necesita para el setInspectionsInit
     useEffect(() => {
-        // getWork();
-        setInspectionsInit(inspections);
-    }, [])
+        if (!!inspectionRSSTQuery && inspectionRSSTQuery.length) {
+          setInspections(inspectionRSSTQuery)
+          setInspectionsInit(inspectionRSSTQuery);
+        }
+      }, [inspectionRSSTQuery]);
 
     useEffect(() => {
         if (inspectionsinit.length) {

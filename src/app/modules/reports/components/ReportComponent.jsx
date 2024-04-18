@@ -6,12 +6,10 @@ import {
   commerceUpdate,
   compromiseRSSTShowByReportId,
   compromiseSSTShowByReportId,
-  compromiseShowByReportId,
   employeeIndex,
   employeeReportDelete,
   employeeReportStore,
   employeeReportUpdate,
-  reportByreportId,
 } from "../../../../store";
 import {
   Grid,
@@ -23,7 +21,6 @@ import {
   Switch,
   FormControl,
   FormControlLabel,
-  FormGroup,
   Divider,
   InputLabel,
   Select,
@@ -31,7 +28,14 @@ import {
 } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
 import { ReportCardComponent } from "./ReportCardComponent";
-import { useGeneraNamelList, useCompromiseByReportId } from "../../../../hooks";
+import {
+  useGeneraNamelList,
+  useCompromiseByReportId,
+  useCorrectiveRSSTByReportId,
+  useSupportGroupByReportId,
+  useInspectionByReportId,
+  useByReportId
+} from "../../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
@@ -47,10 +51,6 @@ import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import HealingIcon from "@mui/icons-material/Healing";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckIcon from "@mui/icons-material/Check";
-import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-import EditIcon from "@mui/icons-material/Edit";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import SupportIcon from "@mui/icons-material/Support";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { EvidencesComponent } from "../../../components/evidences/EvidencesComponent";
 import { EmployeeState } from "../../../types/EmployeeState";
@@ -66,7 +66,9 @@ import { ReportCompromiseSSTComponent } from "./ReportCompromiseSSTComponent";
 import { ReportCompromiseRSSTComponent } from "./ReportCompromiseRSSTComponent";
 import { ReportInspectionRSSTComponent } from "./ReportInspectionRSSTComponent";
 import { ReportCorrectiveMonitoringRSSTComponent } from "./ReportCorrectiveMonitoringRSSTComponent";
-import { inspectionRSSTShowByReportId } from "../../../../store/inspection/inspectionRSSTThunks";
+import { ReportSupportGroupActivityComponent } from "./ReportSupportGroupActivityComponent";
+import { ReportEvidenceComponent } from "./ReportEvidenceComponent";
+import { ReportWorkManagementComponent } from "./ReportWorkManagementComponent";
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
   const dispatch = useDispatch();
@@ -83,12 +85,16 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
   const [report, setReport] = useState(null);
   // trainingsst se inicializa en null y la consulta lo modifica
-  const [trainingsst, setTrainingsst] = useState(null);
-  const [compromises, setCompromises] = useState(null);
-  const [compromisesSST, setCompromisesSST] = useState(null);
-  const [compromisesRSST, setCompromisesRSST] = useState(null);
-  const [inspectionsRSST, setInspectionsRSST] = useState(null);
+  const [trainingsst, setTrainingsst] = useState([]);
+  const [compromises, setCompromises] = useState([]);
+  const [compromisesSST, setCompromisesSST] = useState([]);
+  const [compromisesRSST, setCompromisesRSST] = useState([]);
+  const [inspectionsRSST, setInspectionsRSST] = useState([]);
+  const [correctiveRSST, setCorrectiveRSST] = useState([]);
+  const [supportGroupActions, setSupportGroupActions] = useState([]);
+  const [worksManagement, setWorksManagement] = useState([]);  
   const [activities, setActivities] = useState([]);
+  const [evidences, setEvidneces] = useState([]);
 
   const [employeeArray, setEmployeeArray] = useState([]);
   const [examTypeArray, setExamTypeArray] = useState([]);
@@ -112,17 +118,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     approved: false,
   });
   const [selectCollaborator, setSelectCollaborator] = useState({});
-
-  const [interval_test, setIntervalTest] = useState({
-    income: false,
-    periodical: false,
-    retirement: false,
-  });
-
+  
   const [handleAlert, setHandleAlert] = useState({
     openAlert: false,
-    functionAlertClose: () => {},
-    functionAlertAgree: () => {},
+    functionAlertClose: () => { },
+    functionAlertAgree: () => { },
     alertTittle: "",
     alertMessage: "",
   });
@@ -131,55 +131,81 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
   // Query
 
+  // Funciones para querys
+
+  // Set de las listas genericas
+  const setGenericList = (arraydata) => {
+    if (!!arraydata && arraydata.length) {
+      setWorkEventArray(arraydata?.filter((el) => el.name === "event") ?? []);
+      setExamArray(arraydata?.filter((el) => el.name === "exam") ?? []);
+      setExamTypeArray(arraydata?.filter((el) => el.name === "type_exam") ?? []);
+      setMedicalAttentionArray(arraydata?.filter((el) => el.name === "medical_attention") ?? []);
+      setTopicSSTArray(arraydata?.filter((el) => el.name === "topic_sst") ?? []);
+    }
+  }
+
+  // Set del reporte consultado por id
+  const reportSet = (report) => {
+    // Asignación de Attributes
+    setReport(report);
+    const employees = report.employee.map((em, index) => ({
+      ...em,
+      state: em.state.map((st) => ({
+        ...st,
+        attributes: JSON.parse(st.attributes),
+      })),
+      //objetualizamos los campos de el estado
+      ...em.state.reduce(
+        (a, b) => ({ ...a, ...JSON.parse(b.attributes) }),
+        {}
+      ),
+      index,
+    }));
+    
+    setCollaborators([...employees]);
+    setInitCollaborators([...employees]);
+    setTrainingsst([...report.trainingsst]);
+    setActivities([...report.activities]);
+    setEvidneces([...report.evidences]);
+    dispatch(commerceUpdate({ commerce: report.commerce }));
+ }
+
+
   // Listas genericas llamado
   const { data: listsQuery, mutate: listQueryMutate } = useGeneraNamelList(
-    "exam,type_exam,event,medical_attention,topic_sst"
+    "exam,type_exam,event,medical_attention,topic_sst", setGenericList
   );
+
+  const {
+    data: reportid,
+    refetch: reportidQuerryReferch
+  } = useByReportId({ id: param_report_id }, reportSet)
+  
 
   const {
     data: compromiseQuery,
     refetch: compromiseQueryRefetch,
-    isSuccess: compromiseQueryisSuccess,
-  } = useCompromiseByReportId({ id: param_report_id });
+  } = useCompromiseByReportId({ id: param_report_id }, setCompromises);
 
-  // reportByreportId
-  const getReportById = (id) => {
-    dispatch(
-      reportByreportId({
-        form: {
-          id: id ?? "",
-        },
-      })
-    ).then(
-      ({
-        data: {
-          data: { report },
-        },
-      }) => {
-        // Asignación de Attributes
-        setReport(report);
-        const employees = report.employee.map((em, index) => ({
-          ...em,
-          state: em.state.map((st) => ({
-            ...st,
-            attributes: JSON.parse(st.attributes),
-          })),
-          //objetualizamos los campos de el estado
-          ...em.state.reduce(
-            (a, b) => ({ ...a, ...JSON.parse(b.attributes) }),
-            {}
-          ),
-          index,
-        }));
+  const {
+    data: correctiveRSSTQuery,
+    refetch: correctiveRSSTQueryRefetch,
+  } = useCorrectiveRSSTByReportId({ id: param_report_id }, setCorrectiveRSST);
 
-        setCollaborators([...employees]);
-        setInitCollaborators([...employees]);
-        setTrainingsst([...report.trainingsst]);
-        setActivities([...report.activities]);
-        dispatch(commerceUpdate({ commerce: report.commerce }));
-      }
-    );
-  };
+  const {
+    data: supportGroupActionQuery,
+    refetch: supportGroupActionQueryRefetch,
+  } = useSupportGroupByReportId({ id: param_report_id }, setSupportGroupActions); 
+
+  const {
+    data: inspectionRSSTQuery,
+    refetch: inspectionRSSTQueryRefetch,
+  } = useInspectionByReportId({ id: param_report_id }, setInspectionsRSST);   
+
+  const {
+    data: workManagementQuery,
+    refetch: getworkManagementQueryRefetch,
+  } = useInspectionByReportId({ id: param_report_id }, setWorksManagement);   
 
   // Obtener los colaboradores, en su último estado reportado
   const getEmployees = () => {
@@ -201,18 +227,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
           setEmployeeArray(employee.data);
         }
       );
-    }
-  };
-
-  const getCompromiseByReportId = () => {
-    if (param_report_id) {
-      dispatch(
-        compromiseShowByReportId({
-          form: { id: param_report_id },
-        })
-      ).then(({ data: { data } }) => {
-        setCompromises(data);
-      });
     }
   };
 
@@ -240,17 +254,17 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     }
   };
 
-  const getInspectionRSSTByReportId = () => {
-    if (param_report_id) {
-      dispatch(
-        inspectionRSSTShowByReportId({
-          form: { id: param_report_id },
-        })
-      ).then(({ data: { data } }) => {
-        setInspectionsRSST(data);
-      });
-    }
-  };
+  // const getInspectionRSSTByReportId = () => {
+  //   if (param_report_id) {
+  //     dispatch(
+  //       inspectionRSSTShowByReportId({
+  //         form: { id: param_report_id },
+  //       })
+  //     ).then(({ data: { data } }) => {
+  //       setInspectionsRSST(data);
+  //     });
+  //   }
+  // };
 
   const setEmployeeReportStore = (collaborator, employee_state) => {
     // se debe llamar al back para que guarde el cambio
@@ -263,7 +277,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       })
     ).then((data) => {
       // Refrescamos el Report Component
-      getReportById(param_report_id);
+      reportidQuerryReferch();
     });
   };
 
@@ -277,7 +291,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       })
     ).then((data) => {
       // Refrescamos el Report Component
-      getReportById(param_report_id);
+      reportidQuerryReferch();
     });
   };
 
@@ -292,7 +306,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       })
     ).then((data) => {
       // Refrescamos el Report Component
-      getReportById(param_report_id);
+      reportidQuerryReferch;
       //cerramos el alert
       setHandleAlert({ openAlert: false });
     });
@@ -345,6 +359,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     // collaboratorsChangeInput({ value: [...collaborator.state, { id: null, employee_state: EmployeeState.NUEVOINGRESO }], name: 'state', index })
   };
 
+  // Calculos
+  const getPending = (array) => {
+    return 100 - (array?.filter((el) => !el?.approved)?.length * 100) / array?.length;
+  };
+
   // Manejador de apertura de PopUp de Evidencias
   const handleEvidenceOpen = (
     collaborator,
@@ -379,9 +398,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       )
       ?.filter((el) => !el[attibute]).length *
       100) /
-      collaborators?.collaborators?.filter((cll) =>
-        cll.state.find((el) => el.employee_state === EmployeeState)
-      ).length;
+    collaborators?.collaborators?.filter((cll) =>
+      cll.state.find((el) => el.employee_state === EmployeeState)
+    ).length;
 
   //Validaciones
   const validatorSaveEmployeeInsetDisabled = (cl) => {
@@ -458,49 +477,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     //     setSelectCollaborator(collaborators?.collaborators.find(el => el.index === selectCollaborator.index));
     // }
   }, [collaborators]);
-
-  useEffect(() => {
-    // console.log('trainingsst', trainingsst);
-    // console.log('trainingsstlength', trainingsst?.length);
-    // console.log('trainingsstUnApproved', trainingsst?.filter(el => !el.approved)?.length);
-    // console.log('porcentage', 100 - parseInt(trainingsst?.filter(el => !el.approved)?.length * 100 / trainingsst?.length));
-    // console.log('selectCollaborator', selectCollaborator);
-    // refrescamos el selectCollaborator
-    // if (selectCollaborator && (selectCollaborator?.index || selectCollaborator?.index === 0 || selectCollaborator?.index === '0')) {
-    //     setSelectCollaborator(collaborators?.collaborators.find(el => el.index === selectCollaborator.index));
-    // }
-  }, [trainingsst]);
-
-  // Mutación QUERY para todas las listas
-  useEffect(() => {
-    if (!!listsQuery && listsQuery.length) {
-      setWorkEventArray(listsQuery?.filter((el) => el.name === "event") ?? []);
-      setExamArray(listsQuery?.filter((el) => el.name === "exam") ?? []);
-      setExamTypeArray(
-        listsQuery?.filter((el) => el.name === "type_exam") ?? []
-      );
-      setMedicalAttentionArray(
-        listsQuery?.filter((el) => el.name === "medical_attention") ?? []
-      );
-      setTopicSSTArray(
-        listsQuery?.filter((el) => el.name === "topic_sst") ?? []
-      );
-    }
-  }, [listsQuery]);
-
-  useEffect(() => {
-    if (!!compromiseQuery && compromiseQuery.length) {
-      setCompromises(compromiseQuery);
-    }
-  }, [compromiseQueryisSuccess]);
-
+ 
   useEffect(() => {
     getEmployees();
-    getReportById(param_report_id);
+    reportidQuerryReferch;
     // getCompromiseByReportId();
     getCompromiseSSTByReportId();
     getCompromiseRSSTByReportId();
-    getInspectionRSSTByReportId();
+    // getInspectionRSSTByReportId();
     listQueryMutate("exam,type_exam,event,medical_attention,topic_sst");
   }, []);
 
@@ -993,11 +977,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                   <Grid item>
                                     Edad: {getAge(cl?.birth_date)} Años
                                   </Grid>
-                                  <Grid item>{`${
-                                    cl?.is_employee
-                                      ? "Es Contratado"
-                                      : "ES Subcontratado"
-                                  }`}</Grid>
+                                  <Grid item>{`${cl?.is_employee
+                                    ? "Es Contratado"
+                                    : "ES Subcontratado"
+                                    }`}</Grid>
                                 </Grid>
                               }
                               placement="top"
@@ -1020,15 +1003,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                               >
                                 <AddCircleIcon
                                   sx={{
-                                    color: `${
-                                      cl.state.find(
-                                        (el) =>
-                                          el.employee_state ===
-                                          EmployeeState.NUEVOINGRESO
-                                      )
-                                        ? palette.primary.main
-                                        : palette.text.disabled
-                                    }`,
+                                    color: `${cl.state.find(
+                                      (el) =>
+                                        el.employee_state ===
+                                        EmployeeState.NUEVOINGRESO
+                                    )
+                                      ? palette.primary.main
+                                      : palette.text.disabled
+                                      }`,
                                     "&:hover": {
                                       // color: `${palette.text.primary}`,
                                       cursor: "pointer",
@@ -1046,15 +1028,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                               >
                                 <RemoveCircleIcon
                                   sx={{
-                                    color: `${
-                                      cl.state.find(
-                                        (el) =>
-                                          el.employee_state ===
-                                          EmployeeState.RETIRED
-                                      )
-                                        ? palette.primary.main
-                                        : palette.text.disabled
-                                    }`,
+                                    color: `${cl.state.find(
+                                      (el) =>
+                                        el.employee_state ===
+                                        EmployeeState.RETIRED
+                                    )
+                                      ? palette.primary.main
+                                      : palette.text.disabled
+                                      }`,
                                     "&:hover": {
                                       // color: `${palette.text.primary}`,
                                       cursor: "pointer",
@@ -1078,15 +1059,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                               >
                                 <HealthAndSafetyIcon
                                   sx={{
-                                    color: `${
-                                      cl.state.find(
-                                        (el) =>
-                                          el.employee_state ===
-                                          EmployeeState.EXAMENESMEDICOS
-                                      )
-                                        ? palette.primary.main
-                                        : palette.text.disabled
-                                    }`,
+                                    color: `${cl.state.find(
+                                      (el) =>
+                                        el.employee_state ===
+                                        EmployeeState.EXAMENESMEDICOS
+                                    )
+                                      ? palette.primary.main
+                                      : palette.text.disabled
+                                      }`,
                                     "&:hover": {
                                       // color: `${palette.text.primary}`,
                                       cursor: "pointer",
@@ -1107,15 +1087,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                               >
                                 <HealingIcon
                                   sx={{
-                                    color: `${
-                                      cl.state.find(
-                                        (el) =>
-                                          el.employee_state ===
-                                          EmployeeState.WORKEVENT
-                                      )
-                                        ? palette.primary.main
-                                        : palette.text.disabled
-                                    }`,
+                                    color: `${cl.state.find(
+                                      (el) =>
+                                        el.employee_state ===
+                                        EmployeeState.WORKEVENT
+                                    )
+                                      ? palette.primary.main
+                                      : palette.text.disabled
+                                      }`,
                                     "&:hover": {
                                       // color: `${palette.text.primary}`,
                                       cursor: "pointer",
@@ -1163,7 +1142,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                             <Grid
                               container
                               key={cl.index}
-                              //sx={{ backgroundColor: ((index + 1) % 2) ? palette.secondary.support : '' }}
+                            //sx={{ backgroundColor: ((index + 1) % 2) ? palette.secondary.support : '' }}
                             >
                               <Grid
                                 item
@@ -1198,7 +1177,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                     <TextField
                                       disabled={
                                         cl?.is_employee ||
-                                        cl?.approved_induction
+                                          cl?.approved_induction
                                           ? true
                                           : false
                                       }
@@ -1208,11 +1187,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                       type="text"
                                       fullWidth
                                       name="company"
-                                      value={`${
-                                        cl?.is_employee
-                                          ? report?.commerce?.name
-                                          : cl?.company ?? ""
-                                      }`}
+                                      value={`${cl?.is_employee
+                                        ? report?.commerce?.name
+                                        : cl?.company ?? ""
+                                        }`}
                                       onChange={(event) =>
                                         changeInputCollaborator(event, cl.index)
                                       }
@@ -1260,9 +1238,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                         className="birth-date-piker"
                                         sx={{ width: "100%" }}
                                         inputFormat="DD/MM/YYYY"
-                                        label={`${
-                                          cl?.inset_st_date ? "Fecha" : ""
-                                        } Inducción SST`}
+                                        label={`${cl?.inset_st_date ? "Fecha" : ""
+                                          } Inducción SST`}
                                         name="inset_st_date"
                                         value={cl?.inset_st_date ?? null}
                                         onChange={(value) =>
@@ -1280,7 +1257,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                             size="small"
                                             {...params}
                                             error={false}
-                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                          // sx={{ input: { color: `${palette.text.primary}` } }}
                                           />
                                         )}
                                       />
@@ -1305,11 +1282,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                         className="birth-date-piker"
                                         sx={{ width: "100%" }}
                                         inputFormat="DD/MM/YYYY"
-                                        label={`${
-                                          cl?.inset_induction_date
-                                            ? "Fecha"
-                                            : ""
-                                        } Inducción al Cargo`}
+                                        label={`${cl?.inset_induction_date
+                                          ? "Fecha"
+                                          : ""
+                                          } Inducción al Cargo`}
                                         name="inset_induction_date"
                                         value={cl?.inset_induction_date ?? null}
                                         onChange={(value) =>
@@ -1327,7 +1303,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                             size="small"
                                             {...params}
                                             error={false}
-                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                          // sx={{ input: { color: `${palette.text.primary}` } }}
                                           />
                                         )}
                                       />
@@ -1352,9 +1328,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                         className="birth-date-piker"
                                         sx={{ width: "100%" }}
                                         inputFormat="DD/MM/YYYY"
-                                        label={`${
-                                          cl?.inset_delivery_date ? "Fecha" : ""
-                                        }  Entrega Elementos`}
+                                        label={`${cl?.inset_delivery_date ? "Fecha" : ""
+                                          }  Entrega Elementos`}
                                         name="inset_delivery_date"
                                         value={cl?.inset_delivery_date ?? null}
                                         onChange={(value) =>
@@ -1372,7 +1347,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                             size="small"
                                             {...params}
                                             error={false}
-                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                          // sx={{ input: { color: `${palette.text.primary}` } }}
                                           />
                                         )}
                                       />
@@ -1488,11 +1463,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 </Tooltip>
 
                                 <Tooltip
-                                  title={`${
-                                    cl?.approved_induction
-                                      ? "Aprobado"
-                                      : "Aprobar"
-                                  }`}
+                                  title={`${cl?.approved_induction
+                                    ? "Aprobado"
+                                    : "Aprobar"
+                                    }`}
                                   placement="top"
                                 >
                                   <span>
@@ -1681,11 +1655,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 </Tooltip>
 
                                 <Tooltip
-                                  title={`${
-                                    cl?.approved_retired
-                                      ? "Aprobado"
-                                      : "Aprobar"
-                                  }`}
+                                  title={`${cl?.approved_retired
+                                    ? "Aprobado"
+                                    : "Aprobar"
+                                    }`}
                                   placement="top"
                                 >
                                   <span>
@@ -1763,14 +1736,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                   pending={
                     100 -
                     (activities?.filter((el) => !el.approved)?.length * 100) /
-                      activities?.length
+                    activities?.length
                   }
                 >
                   <ReportActivityComponent
                     activities={activities}
                     setActivities={setActivities}
                     report={report}
-                    getReportById={() => getReportById(param_report_id)}
+                    getReportById={() => reportidQuerryReferch}
                     commerce_id={commerce?.id ?? param_commerce_id}
                   ></ReportActivityComponent>
                 </ReportCardComponent>
@@ -2076,9 +2049,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 </Tooltip>
 
                                 <Tooltip
-                                  title={`${
-                                    cl?.approved_exam ? "Aprobado" : "Aprobar"
-                                  }`}
+                                  title={`${cl?.approved_exam ? "Aprobado" : "Aprobar"
+                                    }`}
                                   placement="top"
                                 >
                                   <span>
@@ -2279,9 +2251,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                       pl: 0.5,
                                       pr: 0.5,
                                       display: "flex",
-                                      alignItems: `${
-                                        !cl?.work_event ? "center" : "end"
-                                      }`,
+                                      alignItems: `${!cl?.work_event ? "center" : "end"
+                                        }`,
                                     }}
                                   >
                                     <LocalizationProvider
@@ -2298,9 +2269,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                         className="birth-date-piker"
                                         sx={{ width: "100%" }}
                                         inputFormat="DD/MM/YYYY"
-                                        label={`Fecha ${
-                                          cl?.delivery_date ?? "Novedad"
-                                        }`}
+                                        label={`Fecha ${cl?.delivery_date ?? "Novedad"
+                                          }`}
                                         name="delivery_date"
                                         value={cl?.delivery_date ?? null}
                                         onChange={(value) =>
@@ -2318,7 +2288,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                             size="small"
                                             {...params}
                                             error={false}
-                                            // sx={{ input: { color: `${palette.text.primary}` } }}
+                                          // sx={{ input: { color: `${palette.text.primary}` } }}
                                           />
                                         )}
                                       />
@@ -2367,12 +2337,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                               name="was_report"
                                             />
                                           }
-                                          label={`${
-                                            cl?.was_report === "on"
-                                              ? "Se reportó " + cl?.work_event
-                                              : "No se reportó " +
-                                                cl?.work_event
-                                          }`}
+                                          label={`${cl?.was_report === "on"
+                                            ? "Se reportó " + cl?.work_event
+                                            : "No se reportó " +
+                                            cl?.work_event
+                                            }`}
                                         />
                                       </Grid>
 
@@ -2406,7 +2375,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                                       name: "was_investigated",
                                                       value:
                                                         cl?.was_investigated ===
-                                                        "on"
+                                                          "on"
                                                           ? "off"
                                                           : "on",
                                                     },
@@ -2417,12 +2386,11 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                               name="was_investigated"
                                             />
                                           }
-                                          label={`${
-                                            cl?.was_investigated === "on"
-                                              ? "Se investigó " + cl?.work_event
-                                              : "No se investigó " +
-                                                cl?.work_event
-                                          }`}
+                                          label={`${cl?.was_investigated === "on"
+                                            ? "Se investigó " + cl?.work_event
+                                            : "No se investigó " +
+                                            cl?.work_event
+                                            }`}
                                         />
                                       </Grid>
 
@@ -2447,8 +2415,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                               cl?.was_report === "on"
                                                 ? false
                                                 : true || cl?.approved_work
-                                                ? true
-                                                : false
+                                                  ? true
+                                                  : false
                                             }
                                             size="small"
                                             className="birth-date-piker"
@@ -2499,8 +2467,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                               cl?.was_investigated === "on"
                                                 ? false
                                                 : true || cl?.approved_work
-                                                ? true
-                                                : false
+                                                  ? true
+                                                  : false
                                             }
                                             size="small"
                                             className="birth-date-piker"
@@ -2610,7 +2578,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                               fullWidth
                                               className="FormControlExamType"
                                               sx={{ marginTop: "0px" }}
-                                              // error={!cl?.medical_attention}
+                                            // error={!cl?.medical_attention}
                                             >
                                               <InputLabel
                                                 variant="standard"
@@ -2830,9 +2798,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                                 </Tooltip>
 
                                 <Tooltip
-                                  title={`${
-                                    cl?.approved_work ? "Aprobado" : "Aprobar"
-                                  }`}
+                                  title={`${cl?.approved_work ? "Aprobado" : "Aprobar"
+                                    }`}
                                   placement="top"
                                 >
                                   <span>
@@ -2906,11 +2873,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="6. CAPACITACIÓN Y ENTRENAMIENTO SST"
-                  pending={
-                    100 -
-                    (trainingsst?.filter((el) => !el.approved)?.length * 100) /
-                      trainingsst?.length
-                  }
+                  pending={getPending(trainingsst)}
                 >
                   {trainingsst && report && (
                     <ReportTrainingSSTComponent
@@ -2919,7 +2882,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                       setTrainingsst={setTrainingsst}
                       topicSSTArray={topicSSTArray}
                       commerce_id={commerce?.id ?? param_commerce_id}
-                      getReportById={() => getReportById(param_report_id)}
+                      getReportById={() => reportidQuerryReferch}
                     ></ReportTrainingSSTComponent>
                   )}
                 </ReportCardComponent>
@@ -2943,40 +2906,29 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="8. COMPROMISOS DE ASISTIR EN SALUD Y RIESGOS LABORALES"
-                  pending={
-                    100 -
-                    (compromises?.filter((el) => !el.approved)?.length * 100) /
-                      compromises?.length
-                  }
+                  pending={getPending(compromises)}
                 >
+                  {/* TODO: revisar el compromiseQueryRefetch, que si funcione sin necesidad del querClient */}
                   <ReportCompromiseComponent
                     report_id={param_report_id}
                     commerce_id={param_commerce_id}
                     compromises={compromises}
                     setCompromises={setCompromises}
-                    getReportById={() => getReportById(param_report_id)}
-                    getCompromiseByReportIdReport={() =>
-                      compromiseQueryRefetch()
-                    }
+                    getCompromiseByReportIdReport={() => compromiseQueryRefetch()}
                   ></ReportCompromiseComponent>
                 </ReportCardComponent>
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="9. COMPROMISOS DEL RESPONSABLE DEL SST, CADA MES"
-                  pending={
-                    100 -
-                    (compromisesSST?.filter((el) => !el.approved)?.length *
-                      100) /
-                      compromisesSST?.length
-                  }
+                  pending={getPending(compromisesSST)}
                 >
                   <ReportCompromiseSSTComponent
                     report_id={param_report_id}
                     commerce_id={param_commerce_id}
                     compromises={compromisesSST}
                     setCompromises={setCompromisesSST}
-                    getReportById={() => getReportById(param_report_id)}
+                    getReportById={() => reportidQuerryReferch}
                     getCompromiseByReportIdReport={() =>
                       getCompromiseSSTByReportId()
                     }
@@ -2986,19 +2938,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="10. TAREAS Y COMPROMISOS COMPROMISOS DEL RESPONSABLE DEL SST"
-                  pending={
-                    100 -
-                    (compromisesRSST?.filter((el) => !el.approved)?.length *
-                      100) /
-                      compromisesRSST?.length
-                  }
+                  pending={getPending(compromisesRSST)}
                 >
                   <ReportCompromiseRSSTComponent
                     report_id={param_report_id}
                     commerce_id={param_commerce_id}
                     compromises={compromisesRSST}
                     setCompromises={setCompromisesRSST}
-                    getReportById={() => getReportById(param_report_id)}
+                    getReportById={() => reportidQuerryReferch}
                     getCompromiseByReportIdReport={() =>
                       getCompromiseRSSTByReportId()
                     }
@@ -3008,41 +2955,62 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="11. INSPECCIONES REALIZADAS POR EL RESPONSABLE DEL SST"
-                  pending={
-                    100 -
-                    (inspectionsRSST?.filter((el) => !el.approved)?.length *
-                      100) /
-                      inspectionsRSST?.length
-                  }
+                  pending={getPending(inspectionsRSST)}
                 >
                   <ReportInspectionRSSTComponent
                     report_id={param_report_id}
                     commerce_id={param_commerce_id}
                     inspections={inspectionsRSST}
                     setInspections={setInspectionsRSST}
-                    getReportById={() => getReportById(param_report_id)}
-                    getInspectionByReportIdReport={() =>
-                      getInspectionRSSTByReportId()
-                    }
+                    inspectionRSSTQuery={inspectionRSSTQuery}
+                    getInspectionByReportIdReport={inspectionRSSTQueryRefetch}
                   ></ReportInspectionRSSTComponent>
                 </ReportCardComponent>
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="11.1 SEGUIMIENTE A MEDIDAS CORRECTIVAS PROPUESTAS POR EL RESPONSABLE DEL SST DE LA EMPRESA"
+                  pending={getPending(correctiveRSST)}
                 >
-                  <ReportCorrectiveMonitoringRSSTComponent></ReportCorrectiveMonitoringRSSTComponent>
+                  <ReportCorrectiveMonitoringRSSTComponent
+                    report_id={param_report_id}
+                    commerce_id={param_commerce_id}
+                    correctives={correctiveRSST}
+                    setCorrectives={setCorrectiveRSST}
+                    correctiveRSSTQuery={correctiveRSSTQuery}
+                    getCorrectiveMotiroringByReportIdReport={() => correctiveRSSTQueryRefetch()}
+                  ></ReportCorrectiveMonitoringRSSTComponent>
                 </ReportCardComponent>
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="12. ACTIVIDADES GRUPOS DE APOYO"
-                ></ReportCardComponent>
+                  pending={getPending(supportGroupActions)}
+                >
+                  <ReportSupportGroupActivityComponent
+                    report_id={param_report_id}
+                    commerce_id={param_commerce_id}
+                    supports={supportGroupActions}
+                    setSupports={setSupportGroupActions}
+                    supportGroupActionQuery={supportGroupActionQuery}
+                    getSupportGrpupByReportIdReport={() => supportGroupActionQueryRefetch()}
+                  ></ReportSupportGroupActivityComponent>
+
+                </ReportCardComponent>
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="15. GESTIÓN DE TRABAJOS DE ALTO RIESGO"
-                ></ReportCardComponent>
+                >
+                  <ReportWorkManagementComponent
+                    report_id={param_report_id}
+                    commerce_id={param_commerce_id}
+                    worksManagement={worksManagement}
+                    setWorksManagement={setWorksManagement}
+                    workManagementQuery={workManagementQuery}
+                    getWorkManagementByReportIdReport={getworkManagementQueryRefetch}
+                  ></ReportWorkManagementComponent>
+                </ReportCardComponent>
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
@@ -3052,7 +3020,16 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="17. REGISTRO FOTOGRAFICO"
-                ></ReportCardComponent>
+                >
+                  <ReportEvidenceComponent
+                    report_id={param_report_id}
+                    commerce_id={param_commerce_id}
+                    evidences={evidences}
+                    setEvidences={setEvidneces}
+                    upload_evidence_url={`images/commerce/${param_commerce_id??null}/report/${param_report_id??null}/reportevidence`}
+                    getReportById={() => reportidQuerryReferch}
+                  ></ReportEvidenceComponent>
+                </ReportCardComponent>
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px 0px 4px 4px" }}
@@ -3096,30 +3073,34 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
           </>
         )}
       </Grid>
-      {openEvidences.open && (
-        <EvidencesComponent
-          open={openEvidences.open}
-          dialogtitle={openEvidences.dialogtitle}
-          dialogcontenttext={openEvidences.dialogcontenttext}
-          collaborator={selectCollaborator}
-          employee_report={openEvidences.employee_report}
-          approved={openEvidences.approved}
-          setSelectCollaborator={setSelectCollaborator}
-          collaboratorsChangeInput={collaboratorsChangeInput}
-          handleClose={handleEvidenceClose}
-        ></EvidencesComponent>
-      )}
-      {handleAlert.openAlert && (
-        <DialogAlertComponent
-          open={handleAlert.openAlert}
-          handleClose={() => handleAlert.functionAlertClose()}
-          handleAgree={() => handleAlert.functionAlertAgree()}
-          props={{
-            tittle: handleAlert.alertTittle,
-            message: handleAlert.alertMessage,
-          }}
-        ></DialogAlertComponent>
-      )}
+      {
+        openEvidences.open && (
+          <EvidencesComponent
+            open={openEvidences.open}
+            dialogtitle={openEvidences.dialogtitle}
+            dialogcontenttext={openEvidences.dialogcontenttext}
+            collaborator={selectCollaborator}
+            employee_report={openEvidences.employee_report}
+            approved={openEvidences.approved}
+            setSelectCollaborator={setSelectCollaborator}
+            collaboratorsChangeInput={collaboratorsChangeInput}
+            handleClose={handleEvidenceClose}
+          ></EvidencesComponent>
+        )
+      }
+      {
+        handleAlert.openAlert && (
+          <DialogAlertComponent
+            open={handleAlert.openAlert}
+            handleClose={() => handleAlert.functionAlertClose()}
+            handleAgree={() => handleAlert.functionAlertAgree()}
+            props={{
+              tittle: handleAlert.alertTittle,
+              message: handleAlert.alertMessage,
+            }}
+          ></DialogAlertComponent>
+        )
+      }
     </Grid>
-  );
+  )
 };

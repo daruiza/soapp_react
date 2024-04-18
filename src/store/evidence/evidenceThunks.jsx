@@ -1,10 +1,50 @@
 import { useAppSoappLaravel } from "../../api";
 
+
+export const evidenceByReportId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/reportevidence/showbyevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+export const evidenceReportStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/reportevidence/store`, form);
+        }
+    }
+}
+
+export const deleteReportEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/reportevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const reportEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/reportevidence/update/${form.id}`, form);
+        }
+    }
+}
+
+
+// EmployeeEvidence
+
 export const evidenceStore = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form) {
-            return soappLaravelApi.post(`api/evidence/store`, form);
+            return soappLaravelApi.post(`api/employeeevidence/store`, form);
         }
     }
 }
@@ -13,7 +53,17 @@ export const evidenceUpdate = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form && form.id) {
-            return soappLaravelApi.put(`api/evidence/update/${form.id}`, form);
+            return soappLaravelApi.put(`api/employeeevidence/update/${form.id}`, form);
+        }
+    }
+}
+
+
+export const showByEmpoyeeEvidencetId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/employeeevidence/showbyemployeeevidenceid/${form.id}`, { params: { ...form } });
         }
     }
 }
@@ -22,7 +72,7 @@ export const showByEmpoyeeReportId = ({ form = {} }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form && form.id) {
-            return soappLaravelApi.get(`api/evidence/showbyempoyeereportid/${form.id}`, { params: { ...form } });
+            return soappLaravelApi.get(`api/employeeevidence/showbyempoyeereportid/${form.id}`, { params: { ...form } });
         }
     }
 }
@@ -31,7 +81,7 @@ export const deleteEvidenceId = ({ form = {} }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form && form.id) {
-            return soappLaravelApi.delete(`api/evidence/destroy/${form.id}`);
+            return soappLaravelApi.delete(`api/employeeevidence/destroy/${form.id}`);
         }
     }
 }
@@ -72,6 +122,7 @@ export const trainingsstEvidenceUpdate = ({ form }) => {
     }
 }
 
+// Activity
 
 export const ShowByActivityEvidenceId = ({ form = {} }) => {
     return async (dispatch) => {
@@ -109,6 +160,7 @@ export const activityEvidenceUpdate = ({ form }) => {
     }
 }
 
+// Compromise
 
 export const ShowByCompromiseEvidenceId = ({ form = {} }) => {
     return async (dispatch) => {
@@ -147,6 +199,8 @@ export const compromiseEvidenceUpdate = ({ form }) => {
     }
 }
 
+// Compromise SST
+
 export const ShowByCompromiseSSTEvidenceId = ({ form = {} }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
@@ -183,6 +237,8 @@ export const compromiseSSTEvidenceUpdate = ({ form }) => {
         }
     }
 }
+
+// Compromise RSST
 
 export const ShowByCompromiseRSSTEvidenceId = ({ form = {} }) => {
     return async (dispatch) => {
@@ -221,6 +277,7 @@ export const compromiseRSSTEvidenceUpdate = ({ form }) => {
     }
 }
 
+// Monitoring
 
 export const ShowByInspectionRSSTEvidenceId = ({ form = {} }) => {
     return async (dispatch) => {
@@ -231,6 +288,14 @@ export const ShowByInspectionRSSTEvidenceId = ({ form = {} }) => {
     }
 }
 
+export const ShowByInspectionRSSTId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/inspectionrsstevidence/showbyinspectionid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
 
 export const inspectionRSSTEvidenceStore = ({ form }) => {
     return async (dispatch) => {
@@ -259,10 +324,97 @@ export const inspectionRSSTEvidenceUpdate = ({ form }) => {
     }
 }
 
+// Corrective 
+
+export const ShowByCorrectiveRSSTEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/correctivemonitoringrsstevidence/showbycorrectivemonitoringevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+export const ShowByCorrectiveRSSTId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/correctivemonitoringrsstevidence/showbycorrectivemonitoringid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+export const inspectionRSSTCorrectiveStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/correctivemonitoringrsstevidence/store`, form);
+        }
+    }
+}
+
+export const deleteCorrectiveRSSTEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/correctivemonitoringrsstevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const correctiveRSSTEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/correctivemonitoringrsstevidence/update/${form.id}`, form);
+        }
+    }
+}
+
+// Support
+
+export const ShowBySupportGActivityEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/supportgroupactivitiyevidence/showbysupportgroupactivityevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+export const ShowBySupportGActivityId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/supportgroupactivitiyevidence/showbysupportgroupactivityid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
 
 
+export const supportGActivityEvidenceStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/supportgroupactivitiyevidence/store`, form);
+        }
+    }
+}
 
+export const deleteSupportGActivityEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/supportgroupactivitiyevidence/destroy/${form.id}`);
+        }
+    }
+}
 
-
-
-
+export const supportGActivityEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/supportgroupactivitiyevidence/update/${form.id}`, form);
+        }
+    }
+}
