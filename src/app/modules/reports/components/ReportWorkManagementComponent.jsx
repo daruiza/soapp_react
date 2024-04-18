@@ -32,6 +32,10 @@ export const ReportWorkManagementComponent = ({
     getWorkManagementByReportIdReport = () => { } 
 }) => {
 
+
+  // General lsit name
+  // work_activity
+  // work_type
   console.log('worksManagement', worksManagement);
 
 
