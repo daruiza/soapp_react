@@ -15,4 +15,6 @@ export * from './compromise/compromiseRSSTThunks';
 export * from './corrective/correctiveRSSTThunks.jsx';
 export * from './supportgroup/supportGroupThunks.jsx';
 export * from './inspection/inspectionRSSTThunks.jsx';
+export * from './workmanagement/workManagementThunks.jsx';
+
 

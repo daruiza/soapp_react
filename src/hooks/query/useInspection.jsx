@@ -15,10 +15,7 @@ const useInspectionByReportId = (dataQueryinit = {}, fnSuccess = ()=> {}) => {
         queryFn: () => {    
             if(!('id' in dataQuery)){return ()=>([])}
             return dispatch(inspectionRSSTShowByReportId({ form: { ...dataQuery } }))
-            .then(({ data: { data } }) => {
-                console.log('pasa pro aqui', dataQuery);
-                return data
-            })
+            .then(({ data: { data } }) => (data))
         },
         enabled: true,
         staleTime: Infinity,

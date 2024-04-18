@@ -1,6 +1,6 @@
 import { useAppSoappLaravel } from "../../api";
 
-export const workManagementRSSTIndex = ({ form }) => {
+export const workManagementIndex = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form) {
@@ -9,7 +9,7 @@ export const workManagementRSSTIndex = ({ form }) => {
     }
 }
 
-export const workManagementRSSTStore = ({ form }) => {
+export const workManagementStore = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form) {
@@ -18,7 +18,7 @@ export const workManagementRSSTStore = ({ form }) => {
     }
 }
 
-export const workManagementRSSTUpdate = ({ form }) => {
+export const workManagementUpdate = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form && form.id) {            
@@ -27,7 +27,7 @@ export const workManagementRSSTUpdate = ({ form }) => {
     }
 }
 
-export const workManagementRSSTDeleteById = ({ form }) => {
+export const workManagementDeleteById = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form && form.id) {
@@ -36,7 +36,7 @@ export const workManagementRSSTDeleteById = ({ form }) => {
     }
 }
 
-export const workManagementRSSTShowByReportId = ({ form }) => {
+export const workManagementShowByReportId = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form && form.id) {

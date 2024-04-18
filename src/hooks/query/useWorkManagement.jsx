@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { useDispatch } from 'react-redux';
-import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTStore, inspectionRSSTUpdate } from '../../store';
+import { workManagementStore, workManagementUpdate, workManagementDeleteById, workManagementShowByReportId } from '../../store';
 
 // dataQueryinit, debe tener un parametro llamado id, con el id de reporte
 const useWorkManagementByReportId = (dataQueryinit = {}, fnSuccess = ()=> {}) => {
@@ -11,14 +11,11 @@ const useWorkManagementByReportId = (dataQueryinit = {}, fnSuccess = ()=> {}) =>
     const [dataQuery, setDataQuery] = useState(dataQueryinit);
 
     const query = useQuery({
-        queryKey: ['inspection', {dataQuery, fnSuccess}],
+        queryKey: ['workmanagement', {dataQuery, fnSuccess}],
         queryFn: () => {    
             if(!('id' in dataQuery)){return ()=>([])}
-            return dispatch(inspectionRSSTShowByReportId({ form: { ...dataQuery } }))
-            .then(({ data: { data } }) => {
-                console.log('pasa pro aqui', dataQuery);
-                return data
-            })
+            return dispatch(workManagementShowByReportId({ form: { ...dataQuery } }))
+            .then(({ data: { data } }) => (data))
         },
         enabled: true,
         staleTime: Infinity,
@@ -32,10 +29,10 @@ const useWorkManagementByReportId = (dataQueryinit = {}, fnSuccess = ()=> {}) =>
 const useWorkManagementDeleteId = (dataQuery = {}, fnSuccess=()=>{}) => {
     const dispatch = useDispatch();    
     const query = useMutation({
-        mutationKey: ['inspection_delete', { dataQuery, fnSuccess}],
+        mutationKey: ['workmanagement_delete', { dataQuery, fnSuccess}],
         mutationFn: (dataQuery) => {
             if(!('id' in dataQuery)){return ()=>({})}
-            return dispatch(inspectionRSSTDeleteById({form: { ...dataQuery }})).then((response) => (response))
+            return dispatch(workManagementDeleteById({form: { ...dataQuery }})).then((response) => (response))
         },
         onSuccess: (response) => fnSuccess(response)        
     });    
@@ -46,12 +43,12 @@ const useWorkManagementDeleteId = (dataQuery = {}, fnSuccess=()=>{}) => {
 const useWorkManagementStore = (dataQuery = {}, fnSuccess=()=>{}) => {
     const dispatch = useDispatch();    
     const query = useMutation({
-        mutationKey: ['inspection_store', { dataQuery, fnSuccess}],
+        mutationKey: ['workmanagement_store', { dataQuery, fnSuccess}],
         mutationFn: (dataQuery) => {
             if(('id' in dataQuery)){
-                return dispatch(inspectionRSSTUpdate({form: { ...dataQuery }})).then(({ data: { data: { corrective } } }) => (corrective))
+                return dispatch(workManagementUpdate({form: { ...dataQuery }})).then(({ data: { data: { corrective } } }) => (corrective))
             }
-            return dispatch(inspectionRSSTStore({form: { ...dataQuery }})).then(({ data: { data: { corrective } } }) => (corrective))
+            return dispatch(workManagementStore({form: { ...dataQuery }})).then(({ data: { data: { corrective } } }) => (corrective))
         },
         onSuccess: (response) => fnSuccess(response)        
     });    

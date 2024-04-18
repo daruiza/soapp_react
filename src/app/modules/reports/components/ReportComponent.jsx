@@ -29,12 +29,13 @@ import {
 import Tooltip from "@mui/material/Tooltip";
 import { ReportCardComponent } from "./ReportCardComponent";
 import {
+  useByReportId,
   useGeneraNamelList,
   useCompromiseByReportId,
   useCorrectiveRSSTByReportId,
   useSupportGroupByReportId,
   useInspectionByReportId,
-  useByReportId
+  useWorkManagementByReportId
 } from "../../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -205,7 +206,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const {
     data: workManagementQuery,
     refetch: getworkManagementQueryRefetch,
-  } = useInspectionByReportId({ id: param_report_id }, setWorksManagement);   
+  } = useWorkManagementByReportId({ id: param_report_id }, setWorksManagement);   
 
   // Obtener los colaboradores, en su último estado reportado
   const getEmployees = () => {
