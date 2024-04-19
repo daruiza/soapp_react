@@ -51,7 +51,7 @@ export const ReportSupportGroupActivityComponent = ({
         alertTittle: '',
         alertMessage: '',
         alertChildren: false
-    });  
+    });
 
 
     // Query  
@@ -64,7 +64,7 @@ export const ReportSupportGroupActivityComponent = ({
             setHandleAlert({ openAlert: false })
         }
     );
-    
+
     const { mutate: supporGActivitystore } = useSupportGroupStore(
         {}, getSupportGrpupByReportIdReport
     );
@@ -74,65 +74,65 @@ export const ReportSupportGroupActivityComponent = ({
     // Cambios en los inputs del Array support
     const changeInputSupport = ({ target: { value, name } }, index) => {
         setSupports((cmms) => cmms.toSpliced(index, 1,
-        {
-            ...supports[index],
-            [name]: value,
-            [`${name}Touched`]: true
-        })
+            {
+                ...supports[index],
+                [name]: value,
+                [`${name}Touched`]: true
+            })
         );
     }
 
     const handleDeleteSupportReport = (cmms) => {
         setHandleAlert({
-          openAlert: true,
-          functionAlertClose: () => setHandleAlert({ openAlert: false }),
-          functionAlertAgree: () => supportGActivityDelete(cmms),
-          alertTittle: 'Eliminar Registro',
-          alertMessage: `Estas seguro de borrar el registro ${cmms.name}.`
+            openAlert: true,
+            functionAlertClose: () => setHandleAlert({ openAlert: false }),
+            functionAlertAgree: () => supportGActivityDelete(cmms),
+            alertTittle: 'Eliminar Registro',
+            alertMessage: `Estas seguro de borrar el registro ${cmms.name}.`
         });
     }
 
-    const handleSaveSupport = (cmms) => {    
-        if ( !cmms.support_group || !cmms.responsible ) {
-          return;
+    const handleSaveSupport = (cmms) => {
+        if (!cmms.support_group || !cmms.responsible) {
+            return;
         }
         supporGActivitystore(cmms);
     }
 
-    const handleEvidenceOpen = (cmms) => {    
+    const handleEvidenceOpen = (cmms) => {
         setOpenEvidences((openEvidences) => ({
-          ...openEvidences,
-          dialogtitle: `Evidencias Actividades Grupo Apoyo Item: ${cmms?.work}`,
-          dialogcontenttext: ``,
-          object: cmms,
-          approved: cmms.approved,
-          open: true
+            ...openEvidences,
+            dialogtitle: `Evidencias Actividades Grupo Apoyo Item: ${cmms?.work}`,
+            dialogcontenttext: ``,
+            object: cmms,
+            approved: cmms.approved,
+            open: true
         }))
     }
 
     // Evidences
     const getEvidencesById = (id) => {
         if (id) {
-        dispatch(ShowBySupportGActivityId({
-            form: {
-            id: id ?? ''
-            }
-        })).then(({ data: { data: { evidence: evidences } } }) => {            
-            evidences.forEach(evidence => {
-            dispatch(getSoappDownloadFile({ path: evidence.file }))
-                .then((response) => {
-                const newfile = new Blob([response.data], { type: response.data.type });
-                newfile.name = evidence.name;
-                newfile.approved = evidence.approved;
-                newfile.evidence_id = evidence.id;
-                setFiles((files) => [
-                    // filtra que ya no este el mismo archivo, 
-                    ...files.filter(file => file.name !== newfile.name),
-                    newfile
-                ])
-                })
+            dispatch(ShowBySupportGActivityId({
+                form: {
+                    id: id ?? ''
+                }
+            })).then(({ data: { data: { evidence: evidences } } }) => {
+                evidences.forEach(evidence => {
+                    dispatch(getSoappDownloadFile({ path: evidence.file }))
+                        .then((response) => {
+                            const newfile = new Blob([response.data], { type: response.data.type });
+                            newfile.name = evidence.name;
+                            newfile.approved = evidence.approved;
+                            newfile.evidence_id = evidence.id;
+                            setFiles((files) => [
+                                // filtra que ya no este el mismo archivo, 
+                                ...files.filter(file => file.name !== newfile.name),
+                                newfile
+                            ])
+                        })
+                });
             });
-        });
         }
     }
 
@@ -190,42 +190,42 @@ export const ReportSupportGroupActivityComponent = ({
     const supportGActivitySavevalidator = (cmms) => {
         if (
             !cmms.support_group ||
-            !cmms.responsible 
+            !cmms.responsible
         ) { return true; }
 
         const cmmsupporstinit = supporstsinit?.find(el => el.id === cmms.id);
 
         // Quitar todos los Touched 
         return 'id' in cmms ?
-        JSON.stringify({
-            id: cmmsupporstinit?.id,
-            support_group: cmmsupporstinit?.support_group,
-            date_meet: cmmsupporstinit?.date_meet,
-            responsible: cmmsupporstinit?.responsible,
-            tasks_copasst: cmmsupporstinit?.tasks_copasst,
-            report_id: cmmsupporstinit?.report_id,
-            created_at: cmmsupporstinit?.created_at,
-            updated_at: cmmsupporstinit?.updated_at,
-        }) ==
-        JSON.stringify({
-            id: cmms?.id,
-            support_group: cmms?.support_group,
-            date_meet: cmms?.date_meet,
-            responsible: cmms?.responsible,
-            tasks_copasst: cmms?.tasks_copasst,
-            report_id: cmms?.report_id,
-            created_at: cmms?.created_at,
-            updated_at: cmms?.updated_at,
-        }) :
-        !!((!cmms.support_group)||(!cmms.responsible))
+            JSON.stringify({
+                id: cmmsupporstinit?.id,
+                support_group: cmmsupporstinit?.support_group,
+                date_meet: cmmsupporstinit?.date_meet,
+                responsible: cmmsupporstinit?.responsible,
+                tasks_copasst: cmmsupporstinit?.tasks_copasst,
+                report_id: cmmsupporstinit?.report_id,
+                created_at: cmmsupporstinit?.created_at,
+                updated_at: cmmsupporstinit?.updated_at,
+            }) ==
+            JSON.stringify({
+                id: cmms?.id,
+                support_group: cmms?.support_group,
+                date_meet: cmms?.date_meet,
+                responsible: cmms?.responsible,
+                tasks_copasst: cmms?.tasks_copasst,
+                report_id: cmms?.report_id,
+                created_at: cmms?.created_at,
+                updated_at: cmms?.updated_at,
+            }) :
+            !!((!cmms.support_group) || (!cmms.responsible))
     }
 
-  useEffect(() => {
-    if (!!supportGroupActionQuery && supportGroupActionQuery.length) {
-        setSupports(supportGroupActionQuery);
-        setSupporstsInit(supportGroupActionQuery);
-    }
-  }, [supportGroupActionQuery]);  
+    useEffect(() => {
+        if (!!supportGroupActionQuery && supportGroupActionQuery.length) {
+            setSupports(supportGroupActionQuery);
+            setSupporstsInit(supportGroupActionQuery);
+        }
+    }, [supportGroupActionQuery]);
 
     return (
         <Grid container> {
@@ -281,16 +281,16 @@ export const ReportSupportGroupActivityComponent = ({
                                 <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
                                     <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                         <DatePicker
-                                        disabled={cmms?.approved ? true : false}
-                                        size="small"
-                                        className='birth-date-piker'
-                                        sx={{ width: '100%' }}
-                                        inputFormat="DD/MM/YYYY"
-                                        label="Fecha Reunión"
-                                        name="date_meet"
-                                        value={cmms?.date_meet ?? null}
-                                        onChange={(value) => changeInputSupport({ target: { name: 'date_meet', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
-                                        renderInput={(params) => <TextField size="small" {...params} />}
+                                            disabled={cmms?.approved ? true : false}
+                                            size="small"
+                                            className='birth-date-piker'
+                                            sx={{ width: '100%' }}
+                                            inputFormat="DD/MM/YYYY"
+                                            label="Fecha Reunión"
+                                            name="date_meet"
+                                            value={cmms?.date_meet ?? null}
+                                            onChange={(value) => changeInputSupport({ target: { name: 'date_meet', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
+                                            renderInput={(params) => <TextField size="small" {...params} />}
                                         />
                                     </LocalizationProvider>
                                 </Grid>
@@ -330,17 +330,17 @@ export const ReportSupportGroupActivityComponent = ({
                                 <Tooltip title="Eliminar Registro" placement="top">
                                     <span>
                                         <IconButton
-                                        disabled={cmms?.approved ? true : false}
-                                        onClick={() => handleDeleteSupportReport(cmms)}
+                                            disabled={cmms?.approved ? true : false}
+                                            onClick={() => handleDeleteSupportReport(cmms)}
                                         >
-                                        <HighlightOffIcon
-                                            sx={{
-                                            color: palette.text.disabled,
-                                            "&:hover": {
-                                                // color: `${palette.text.primary}`,
-                                                cursor: "pointer"
-                                            }
-                                            }}></HighlightOffIcon>
+                                            <HighlightOffIcon
+                                                sx={{
+                                                    color: palette.text.disabled,
+                                                    "&:hover": {
+                                                        // color: `${palette.text.primary}`,
+                                                        cursor: "pointer"
+                                                    }
+                                                }}></HighlightOffIcon>
                                         </IconButton>
                                     </span>
                                 </Tooltip>
@@ -348,53 +348,53 @@ export const ReportSupportGroupActivityComponent = ({
                                 <Tooltip title="Guardar Cambios" placement="top">
                                     <span>
                                         <IconButton
-                                        disabled={supportGActivitySavevalidator(cmms) || cmms?.approved ? true : false}
-                                        onClick={() => handleSaveSupport(cmms)}>
-                                        <SaveIcon></SaveIcon>
+                                            disabled={supportGActivitySavevalidator(cmms) || cmms?.approved ? true : false}
+                                            onClick={() => handleSaveSupport(cmms)}>
+                                            <SaveIcon></SaveIcon>
                                         </IconButton>
                                     </span>
                                 </Tooltip>
 
                                 {
-                                cmms?.id &&
-                                <>
+                                    cmms?.id &&
+                                    <>
 
-                                    <Tooltip title="Evidencias" placement="top">
-                                        <span>
-                                            <IconButton
-                                            disableFocusRipple={cmms?.approved ? true : false}
-                                            onClick={() => handleEvidenceOpen(cmms)}
-                                            ><AttachFileIcon></AttachFileIcon></IconButton>
-                                        </span>
-                                    </Tooltip>
+                                        <Tooltip title="Evidencias" placement="top">
+                                            <span>
+                                                <IconButton
+                                                    disableFocusRipple={cmms?.approved ? true : false}
+                                                    onClick={() => handleEvidenceOpen(cmms)}
+                                                ><AttachFileIcon></AttachFileIcon></IconButton>
+                                            </span>
+                                        </Tooltip>
 
-                                    <Tooltip title={`${cmms?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
-                                        <span>
-                                            <PrivateAgentRoute>
-                                            <IconButton
-                                                onClick={() => handleSaveSupport({ ...cmms, approved: !cmms?.approved })}>
-                                                {!!cmms?.approved &&
-                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
-                                                }
-                                                {!cmms?.approved &&
-                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
-                                                }
-                                            </IconButton>
-                                            </PrivateAgentRoute>
+                                        <Tooltip title={`${cmms?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                                            <span>
+                                                <PrivateAgentRoute>
+                                                    <IconButton
+                                                        onClick={() => handleSaveSupport({ ...cmms, approved: !cmms?.approved })}>
+                                                        {!!cmms?.approved &&
+                                                            <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                        }
+                                                        {!cmms?.approved &&
+                                                            <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                        }
+                                                    </IconButton>
+                                                </PrivateAgentRoute>
 
-                                            <PrivateCustomerRoute>
-                                            <IconButton disabled>
-                                                {cmms?.approved &&
-                                                <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
-                                                }
-                                                {!cmms?.approved &&
-                                                <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
-                                                }
-                                            </IconButton>
-                                            </PrivateCustomerRoute>
-                                        </span>
-                                    </Tooltip>
-                                </>
+                                                <PrivateCustomerRoute>
+                                                    <IconButton disabled>
+                                                        {cmms?.approved &&
+                                                            <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                        }
+                                                        {!cmms?.approved &&
+                                                            <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                        }
+                                                    </IconButton>
+                                                </PrivateCustomerRoute>
+                                            </span>
+                                        </Tooltip>
+                                    </>
                                 }
                             </Grid>
                         </Grid>
@@ -402,66 +402,66 @@ export const ReportSupportGroupActivityComponent = ({
                 )
             })}
 
-        <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
+            <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
                 <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
 
                 </Grid>
                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
-                <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
-                    <Button onClick={() => {
-                    setSupports(cmms => [...cmms, {
-                        support_group: null,
-                        date_meet: null,
-                        responsible: null,
-                        tasks_copasst: null,
-                        report_id: report_id,
-                        save: false
-                    }])
-                    }}
-                    variant="contained"
-                    disabled={!!supports?.find(el => el.save === false)}
-                    sx={{
-                        height: '100%',
-                        color: `${palette.text.custom}`,
-                        // border: '1px solid'
-                    }}>AGREGAR CORRECCIÓN
-                    </Button>
-                </Grid>
+                    <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                        <Button onClick={() => {
+                            setSupports(cmms => [...cmms, {
+                                support_group: null,
+                                date_meet: null,
+                                responsible: null,
+                                tasks_copasst: null,
+                                report_id: report_id,
+                                save: false
+                            }])
+                        }}
+                            variant="contained"
+                            disabled={!!supports?.find(el => el.save === false)}
+                            sx={{
+                                height: '100%',
+                                color: `${palette.text.custom}`,
+                                // border: '1px solid'
+                            }}>AGREGAR ACTIVIDAD
+                        </Button>
+                    </Grid>
                 </Grid>
             </Grid>
 
             {
                 openEvidences.open && <EvidenceGenericComponent
-                open={openEvidences.open}
-                dialogtitle={openEvidences.dialogtitle}
-                dialogcontenttext={openEvidences.dialogcontenttext}
-                object={openEvidences.object}
-                report_id={report_id}
-                commerce_id={commerce_id}
-                approved={openEvidences.approved}
-                handleClose={() => {
-                    setFiles([]);
-                    setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
-                }}
-                upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/supportgroup/${openEvidences?.object?.id ?? null}`}
-                files={files}
-                setFiles={setFiles}
-                getEvidencesById={getEvidencesById}
-                evidenceStore={storeSupportGActivityEvidence}
-                handleRemove={handleRemoveSupportGActivityEvidence}
-                handleFileItemUpload={handleFileItemUpload}
+                    open={openEvidences.open}
+                    dialogtitle={openEvidences.dialogtitle}
+                    dialogcontenttext={openEvidences.dialogcontenttext}
+                    object={openEvidences.object}
+                    report_id={report_id}
+                    commerce_id={commerce_id}
+                    approved={openEvidences.approved}
+                    handleClose={() => {
+                        setFiles([]);
+                        setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
+                    }}
+                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/supportgroup/${openEvidences?.object?.id ?? null}`}
+                    files={files}
+                    setFiles={setFiles}
+                    getEvidencesById={getEvidencesById}
+                    evidenceStore={storeSupportGActivityEvidence}
+                    handleRemove={handleRemoveSupportGActivityEvidence}
+                    handleFileItemUpload={handleFileItemUpload}
                 ></EvidenceGenericComponent>
             }
 
             {
                 handleAlert.openAlert && <DialogAlertComponent
-                open={handleAlert.openAlert}
-                handleClose={() => handleAlert.functionAlertClose()}
-                handleAgree={() => handleAlert.functionAlertAgree()}
-                props={{
-                    tittle: handleAlert.alertTittle,
-                    message: handleAlert.alertMessage
-                }}
+                    open={handleAlert.openAlert}
+                    handleClose={() => handleAlert.functionAlertClose()}
+                    handleAgree={() => handleAlert.functionAlertAgree()}
+                    props={{
+                        tittle: handleAlert.alertTittle,
+                        message: handleAlert.alertMessage
+                    }}
                 ></DialogAlertComponent>
             }
 
