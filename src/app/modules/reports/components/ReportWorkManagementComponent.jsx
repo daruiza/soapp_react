@@ -520,7 +520,7 @@ export const ReportWorkManagementComponent = ({
             setFiles={setFiles}
             getEvidencesById={getEvidencesById}
             evidenceStore={storeWorkManagementEvidence}
-            handleRemove={handleRemoveSupportGActivityEvidence}
+            handleRemove={handleRemoveWorkManagementEvidence}
             handleFileItemUpload={handleFileItemUpload}
         ></EvidenceGenericComponent>
     }
