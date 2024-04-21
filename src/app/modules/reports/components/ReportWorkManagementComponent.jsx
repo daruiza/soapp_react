@@ -237,10 +237,11 @@ export const ReportWorkManagementComponent = ({
   }
 
   useEffect(() => {
-    if (!!worksManagement && worksManagement.length) {
+    if (!!workManagementQuery && workManagementQuery.length) {
       setWorksManagementInit(worksManagement);
+      // setWorksManagementInit(workManagementQuery);
     }
-  }, [worksManagement]);
+  }, [workManagementQuery]);
 
   useEffect(() => {
     generalListQueryMutate("work_activity,work_type");
@@ -518,7 +519,7 @@ export const ReportWorkManagementComponent = ({
             files={files}
             setFiles={setFiles}
             getEvidencesById={getEvidencesById}
-            evidenceStore={storeSupportGActivityEvidence}
+            evidenceStore={storeWorkManagementEvidence}
             handleRemove={handleRemoveSupportGActivityEvidence}
             handleFileItemUpload={handleFileItemUpload}
         ></EvidenceGenericComponent>

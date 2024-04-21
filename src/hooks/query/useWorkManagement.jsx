@@ -46,9 +46,9 @@ const useWorkManagementStore = (dataQuery = {}, fnSuccess=()=>{}) => {
         mutationKey: ['workmanagement_store', { dataQuery, fnSuccess}],
         mutationFn: (dataQuery) => {
             if(('id' in dataQuery)){
-                return dispatch(workManagementUpdate({form: { ...dataQuery }})).then(({ data: { data: { corrective } } }) => (corrective))
+                return dispatch(workManagementUpdate({form: { ...dataQuery }})).then(({ data: { data: { workmanagement } } }) => (workmanagement))
             }
-            return dispatch(workManagementStore({form: { ...dataQuery }})).then(({ data: { data: { corrective } } }) => (corrective))
+            return dispatch(workManagementStore({form: { ...dataQuery }})).then(({ data: { data: { workmanagement } } }) => (workmanagement))
         },
         onSuccess: (response) => fnSuccess(response)        
     });    
