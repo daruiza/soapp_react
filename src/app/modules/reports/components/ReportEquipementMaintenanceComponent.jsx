@@ -32,7 +32,24 @@ export const ReportEquipementMaintenanceComponent = ({
     getequipementMaintenenceQueryRefetch = () => { }
 }) => {
 
+    const dispatch = useDispatch();
+    const { palette } = useTheme();
 
+    const [openEvidences, setOpenEvidences] = useState({
+        open: false,
+        dialogtitle: '',
+        dialogcontenttext: '',
+        object: {}
+    });
+
+    const [handleAlert, setHandleAlert] = useState({
+        openAlert: false,
+        functionAlertClose: () => { },
+        functionAlertAgree: () => { },
+        alertTittle: '',
+        alertMessage: '',
+        alertChildren: false
+    });
 
     return (
         <div>ReportEquipementMaintenanceComponent</div>

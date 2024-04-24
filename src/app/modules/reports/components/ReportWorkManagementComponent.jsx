@@ -43,8 +43,7 @@ export const ReportWorkManagementComponent = ({
     dialogcontenttext: '',
     object: {}
   });
-
-
+  
   const [handleAlert, setHandleAlert] = useState({
     openAlert: false,
     functionAlertClose: () => { },
