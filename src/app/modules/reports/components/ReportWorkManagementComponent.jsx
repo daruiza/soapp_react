@@ -5,9 +5,6 @@ import { TextareaField } from '../../../components/textarea/TextareaField';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
 import { DialogAlertComponent } from '../../../components';
 
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import es from 'dayjs/locale/es';
 import { useTheme } from '@emotion/react';
 
 import { useGeneraNamelList, useWorkManagementDeleteId, useWorkManagementStore } from '../../../../hooks';
@@ -105,7 +102,7 @@ export const ReportWorkManagementComponent = ({
   }
 
   const handleSaveWorkManagement = (cmms) => {
-    if (!cmms.activity || !cmms.work_type) {
+    if ( !cmms.activity || !cmms.work_type || !cmms.workers_activity || !cmms.workers_trained) {
       return;
     }
     workManagementstore(cmms);
@@ -199,10 +196,18 @@ export const ReportWorkManagementComponent = ({
   }
 
   // Validaciones
+  const numberPatternValidation = (value) => {
+        if (!value) return true;
+        const regex = new RegExp(/^\d+$/);
+        return regex.test(value);
+    };
+
   const workManagementSavevalidator = (cmms) => {
     if (
       !cmms.activity ||
-      !cmms.work_type
+      !cmms.work_type ||
+      !cmms.workers_activity ||
+      !cmms.workers_trained
     ) { return true; }
 
     const cmmworkmanagementinit = worksManagementinit?.find(el => el.id === cmms.id);
@@ -352,8 +357,8 @@ export const ReportWorkManagementComponent = ({
                     name="workers_activity"
                     value={cmms?.workers_activity ?? ''}
                     onChange={(event) => changeInputWorkManagement(event, index)}
-                    error={cmms?.workers_activity === ''}
-                    helperText={cmms?.workers_activityTouched && !cmms?.workers_activity ? 'Este campo es requerido' : ''}
+                    error={!numberPatternValidation(cmms?.workers_activity) ? true : false}
+                    helperText={!numberPatternValidation(cmms?.workers_activity) ? 'Se espera un número positivo' : ''}
                   />
                 </Grid>
 
@@ -368,8 +373,11 @@ export const ReportWorkManagementComponent = ({
                     name="workers_trained"
                     value={cmms?.workers_trained ?? ''}
                     onChange={(event) => changeInputWorkManagement(event, index)}
-                    error={cmms?.workers_trained === ''}
-                    helperText={cmms?.workers_trainedTouched && !cmms?.workers_trained ? 'Este campo es requerido' : ''}
+                    error={!numberPatternValidation(cmms?.workers_trained) ? true : false}
+                    helperText={
+                      !numberPatternValidation(cmms?.workers_trained) ? 'Se espera un número positivo' : 
+                      cmms?.workers_trainedTouched && !cmms?.workers_trained ? 'Este campo es requerido' : ''
+                      }
                   />
                 </Grid>                
                 
@@ -484,7 +492,7 @@ export const ReportWorkManagementComponent = ({
                 work_type: null,
                 workers_activity: null,
                 workers_trained: null,
-                permissions: null,
+                permissions: false,
                 observations: null,
                 report_id: report_id,
                 save: false

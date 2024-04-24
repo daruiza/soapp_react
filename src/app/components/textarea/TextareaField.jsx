@@ -58,8 +58,6 @@ const StyledTextarea = styled(TextareaAutosize)(
 export const TextareaField = ({ disabled, ...input }) => {
 
     const { palette } = useTheme();
-    console.log(input.label);
-
     return (       
         <FormControl disabled={disabled} sx={{minWidth:'100%'}}>
             <FormLabel sx={{fontSize:'0.8rem'}}>{input?.label ?? ''}</FormLabel>

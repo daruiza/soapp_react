@@ -466,3 +466,52 @@ export const workManagementEvidenceUpdate = ({ form }) => {
         }
     }
 }
+
+
+// EquipementMaintenance
+
+export const ShowByEquipementMaintenanceEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/equipementmaintenanceevidence/showbyequipementmaintenanceevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+export const ShowByEquipementMaintenanceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/equipementmaintenanceevidence/showbyequipementmaintenanceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+
+export const equipementMaintenanceEvidenceStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/equipementmaintenanceevidence/store`, form);
+        }
+    }
+}
+
+export const deleteEquipementMaintenanceEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/equipementmaintenanceevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const equipementMaintenanceEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/equipementmaintenanceevidence/update/${form.id}`, form);
+        }
+    }
+}

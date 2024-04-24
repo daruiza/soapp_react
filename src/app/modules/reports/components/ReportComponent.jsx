@@ -35,7 +35,8 @@ import {
   useCorrectiveRSSTByReportId,
   useSupportGroupByReportId,
   useInspectionByReportId,
-  useWorkManagementByReportId
+  useWorkManagementByReportId,
+  useEquipementMaintenanceByReportId
 } from "../../../../hooks";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -70,6 +71,7 @@ import { ReportCorrectiveMonitoringRSSTComponent } from "./ReportCorrectiveMonit
 import { ReportSupportGroupActivityComponent } from "./ReportSupportGroupActivityComponent";
 import { ReportEvidenceComponent } from "./ReportEvidenceComponent";
 import { ReportWorkManagementComponent } from "./ReportWorkManagementComponent";
+import { ReportEquipementMaintenanceComponent } from "./ReportEquipementMaintenanceComponent";
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
   const dispatch = useDispatch();
@@ -93,7 +95,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const [inspectionsRSST, setInspectionsRSST] = useState([]);
   const [correctiveRSST, setCorrectiveRSST] = useState([]);
   const [supportGroupActions, setSupportGroupActions] = useState([]);
-  const [worksManagement, setWorksManagement] = useState([]);  
+  const [worksManagement, setWorksManagement] = useState([]);
+  const [equipementsMaintenance, setEquipementsMaintenance] = useState([]);
   const [activities, setActivities] = useState([]);
   const [evidences, setEvidneces] = useState([]);
 
@@ -119,7 +122,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     approved: false,
   });
   const [selectCollaborator, setSelectCollaborator] = useState({});
-  
+
   const [handleAlert, setHandleAlert] = useState({
     openAlert: false,
     functionAlertClose: () => { },
@@ -162,14 +165,14 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       ),
       index,
     }));
-    
+
     setCollaborators([...employees]);
     setInitCollaborators([...employees]);
     setTrainingsst([...report.trainingsst]);
     setActivities([...report.activities]);
     setEvidneces([...report.evidences]);
     dispatch(commerceUpdate({ commerce: report.commerce }));
- }
+  }
 
 
   // Listas genericas llamado
@@ -181,7 +184,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     data: reportid,
     refetch: reportidQuerryReferch
   } = useByReportId({ id: param_report_id }, reportSet)
-  
+
 
   const {
     data: compromiseQuery,
@@ -196,17 +199,22 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const {
     data: supportGroupActionQuery,
     refetch: supportGroupActionQueryRefetch,
-  } = useSupportGroupByReportId({ id: param_report_id }, setSupportGroupActions); 
+  } = useSupportGroupByReportId({ id: param_report_id }, setSupportGroupActions);
 
   const {
     data: inspectionRSSTQuery,
     refetch: inspectionRSSTQueryRefetch,
-  } = useInspectionByReportId({ id: param_report_id }, setInspectionsRSST);   
+  } = useInspectionByReportId({ id: param_report_id }, setInspectionsRSST);
 
   const {
     data: workManagementQuery,
     refetch: getworkManagementQueryRefetch,
-  } = useWorkManagementByReportId({ id: param_report_id }, setWorksManagement);   
+  } = useWorkManagementByReportId({ id: param_report_id }, setWorksManagement);
+
+  const {
+    data: equipementMaintenenceQuery,
+    refetch: getequipementMaintenenceQueryRefetch,
+  } = useEquipementMaintenanceByReportId({ id: param_report_id }, setEquipementsMaintenance);
 
   // Obtener los colaboradores, en su último estado reportado
   const getEmployees = () => {
@@ -478,7 +486,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     //     setSelectCollaborator(collaborators?.collaborators.find(el => el.index === selectCollaborator.index));
     // }
   }, [collaborators]);
- 
+
   useEffect(() => {
     getEmployees();
     reportidQuerryReferch;
@@ -3002,6 +3010,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="15. GESTIÓN DE TRABAJOS DE ALTO RIESGO"
+                  pending={getPending(worksManagement)}
                 >
                   <ReportWorkManagementComponent
                     report_id={param_report_id}
@@ -3016,7 +3025,17 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="16. MANTENIMIENTO PERIODICO A LAS INSTALACIONES, EQUIPOS Y HERRAMIENTAS"
-                ></ReportCardComponent>
+                >
+                  <ReportEquipementMaintenanceComponent
+                    report_id={param_report_id}
+                    commerce_id={param_commerce_id}
+                    equipementsMaintenance={equipementsMaintenance}
+                    setEquipementsMaintenance={setEquipementsMaintenance}
+                    equipementMaintenenceQuery={equipementMaintenenceQuery}
+                    getequipementMaintenenceQueryRefetch={getequipementMaintenenceQueryRefetch}
+                  ></ReportEquipementMaintenanceComponent>
+
+                </ReportCardComponent>
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
@@ -3027,7 +3046,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     commerce_id={param_commerce_id}
                     evidences={evidences}
                     setEvidences={setEvidneces}
-                    upload_evidence_url={`images/commerce/${param_commerce_id??null}/report/${param_report_id??null}/reportevidence`}
+                    upload_evidence_url={`images/commerce/${param_commerce_id ?? null}/report/${param_report_id ?? null}/reportevidence`}
                     getReportById={() => reportidQuerryReferch}
                   ></ReportEvidenceComponent>
                 </ReportCardComponent>
