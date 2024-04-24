@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { FormControl, FormControlLabel, FormLabel, TextareaAutosize } from '@mui/material';
 import { styled } from '@mui/system';
+import { useTheme } from '@emotion/react';
 
 const blue = {
     100: '#DAECFF',
@@ -54,11 +55,19 @@ const StyledTextarea = styled(TextareaAutosize)(
 `,
 );
 
-export const TextareaField = ({ ...input }) => {
+export const TextareaField = ({ disabled, ...input }) => {
+
+    const { palette } = useTheme();
+    console.log(input.label);
+
     return (       
-        <FormControl sx={{minWidth:'100%'}}>
+        <FormControl disabled={disabled} sx={{minWidth:'100%'}}>
             <FormLabel sx={{fontSize:'0.8rem'}}>{input?.label ?? ''}</FormLabel>
-            <StyledTextarea {...input} />
+            {
+                !disabled ? <StyledTextarea  disabled={disabled} {...input} /> :
+                <TextareaAutosize style={{color: palette.text.disabled}} disabled={disabled} {...input}></TextareaAutosize>
+            }
+            
         </FormControl>
     )
 
