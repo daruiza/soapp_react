@@ -3024,7 +3024,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
-                  title="16. MANTENIMIENTO PERIODICO A LAS INSTALACIONES, EQUIPOS Y HERRAMIENTAS"
+                  title="16. MANTENIMIENTO PERIÓDICO A LAS INSTALACIONES, EQUIPOS Y HERRAMIENTAS"
                 >
                   <ReportEquipementMaintenanceComponent
                     report_id={param_report_id}
@@ -3032,7 +3032,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     equipementsMaintenance={equipementsMaintenance}
                     setEquipementsMaintenance={setEquipementsMaintenance}
                     equipementMaintenenceQuery={equipementMaintenenceQuery}
-                    getequipementMaintenenceQueryRefetch={getequipementMaintenenceQueryRefetch}
+                    getequipementMaintenenceByReportIdReport={getequipementMaintenenceQueryRefetch}
                   ></ReportEquipementMaintenanceComponent>
 
                 </ReportCardComponent>

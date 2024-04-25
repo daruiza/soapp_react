@@ -29,7 +29,7 @@ export const ReportEquipementMaintenanceComponent = ({
     equipementsMaintenance = [],
     setEquipementsMaintenance = () => { },
     equipementMaintenenceQuery = [],
-    getequipementMaintenenceQueryRefetch = () => { }
+    getequipementMaintenenceByReportIdReport = () => { }
 }) => {
 
     const dispatch = useDispatch();
@@ -50,6 +50,59 @@ export const ReportEquipementMaintenanceComponent = ({
         alertMessage: '',
         alertChildren: false
     });
+
+    // Query  
+    const { mutate: equipementMaintenanceDelete } = useEquipementMaintenanceDeleteId(
+        {},
+        () => {
+            getequipementMaintenenceByReportIdReport();
+            setHandleAlert({ openAlert: false })
+        }
+    );
+
+    const { mutate: equipementMaintenancestore } = useEquipementMaintenanceStore(
+        {}, getequipementMaintenenceByReportIdReport
+    );
+
+    // Cambios en los inputs del Array support
+    const changeInputEquipementMaintenance = ({ target: { value, name } }, index) => {
+        setEquipementsMaintenance((cmms) => cmms.toSpliced(index, 1,
+            {
+                ...equipementsMaintenance[index],
+                [name]: value,
+                [`${name}Touched`]: true
+            })
+        );
+    }
+
+    const handleDeleteEquipementMaintenence = (cmms) => {
+        setHandleAlert({
+            openAlert: true,
+            functionAlertClose: () => setHandleAlert({ openAlert: false }),
+            functionAlertAgree: () => equipementMaintenanceDelete(cmms),
+            alertTittle: 'Eliminar Registro',
+            alertMessage: `Estas seguro de borrar el registro ${cmms.name}.`
+        });
+    }
+
+    const handleSaveEquipementMaintenenece = (cmms) => {
+        if (!cmms.activity || !cmms.work_type || !cmms.workers_activity || !cmms.workers_trained) {
+            return;
+        }
+        equipementMaintenancestore(cmms);
+    }
+
+    const handleEvidenceOpen = (cmms) => {
+    setOpenEvidences((openEvidences) => ({
+      ...openEvidences,
+      dialogtitle: `Evidencias Mantenimiento Periódico Item: ${cmms?.work}`,
+      dialogcontenttext: ``,
+      object: cmms,
+      approved: cmms.approved,
+      open: true
+    }))
+  }
+
 
     return (
         <div>ReportEquipementMaintenanceComponent</div>

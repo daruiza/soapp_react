@@ -9,6 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "start": "react-scripts start",
     "ln": "ln -s /opt/bitnami/apache2/htdocs/soapp_laravel/public/storage /opt/bitnami/apache2/htdocs/soapp_react/dist/"
   },
   "dependencies": {

@@ -528,9 +528,9 @@
   integrity sha512-aXnw29OWQ6I5A47iuWEI6qSSUfH6G/aCsW9KmW3LiFqr7uXZBK4Ks+z8G+qeIub8k0T5CMqlT2q0L+ZJTMrqpg==
 
 "@mui/core-downloads-tracker@^6.0.0-alpha.3":
-  version "6.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-6.0.0-alpha.3.tgz#20ebb56a410a3cf64d85badb68b02dd6d720da89"
-  integrity sha512-L73oG8sl6kk3iUzMETytfd9WQokMygaWJY1AAnhLusXcgBNBGIs3hwQh4CotElOIngis7yW5gsqhttoE5pFeig==
+  version "6.0.0-dev.240424162023-9968b4889d"
+  resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-6.0.0-dev.240424162023-9968b4889d.tgz#4c86c5f19418c1939cc990002fd307a9c9f9c5ab"
+  integrity sha512-doh3M3U7HUGSBIWGe1yvesSbfDguMRjP0N09ogWSBM2hovXAlgULhMgcRTepAZLLwfRxFII0bCohq6B9NqoKuw==
 
 "@mui/icons-material@^5.10.3":
   version "5.15.15"
@@ -624,9 +624,9 @@
     prop-types "^15.8.1"
 
 "@mui/system@^6.0.0-alpha.3":
-  version "6.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@mui/system/-/system-6.0.0-alpha.3.tgz#fe027b4f8fb7273a0a6d70230f189eb9d8c5fad6"
-  integrity sha512-/UktEPqLfer6OSBLE3TI5EoDvLDtoBidGels9Fe66Pqox14WV12xllWdSbp6lSBU2jvk3fqodOfcFkzDZKB5Ug==
+  version "6.0.0-dev.240424162023-9968b4889d"
+  resolved "https://registry.yarnpkg.com/@mui/system/-/system-6.0.0-dev.240424162023-9968b4889d.tgz#d3d6288b568d97a3468d1525d45cc14f1a5bf93a"
+  integrity sha512-Y3yCFUHN1xMK62hJJBqzZb1YQvHNaHc7JUX01eU6QTPojtIbGMF2jCOP/EQw77/byahNbxeLoAIQx10F0IR3Rw==
   dependencies:
     "@babel/runtime" "^7.24.4"
     "@mui/private-theming" "^6.0.0-alpha.3"
@@ -730,9 +730,9 @@
     warning "^4.0.3"
 
 "@swc/helpers@^0.5.0":
-  version "0.5.10"
-  resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.5.10.tgz#5720082d007197cd85743dd599198097126a3f6e"
-  integrity sha512-CU+RF9FySljn7HVSkkjiB84hWkvTaI3rtLvF433+jRSBL2hMu3zX5bGhHS8C80SM++h4xy8hBSnUHFQHmRXSBw==
+  version "0.5.11"
+  resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.5.11.tgz#5bab8c660a6e23c13b2d23fcd1ee44a2db1b0cb7"
+  integrity sha512-YNlnKRWF2sVojTpIyzwou9XoTNbzbzONwRhOoniEioF1AtaitTvVZblaQRrAzChWQ1bLYyYSWzM18y4WwgzJ+A==
   dependencies:
     tslib "^2.4.0"
 
@@ -1126,9 +1126,9 @@ dom-helpers@^5.0.1, dom-helpers@^5.2.0, dom-helpers@^5.2.1:
     csstype "^3.0.2"
 
 electron-to-chromium@^1.4.668:
-  version "1.4.747"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.747.tgz#e37fa5b7b7e4c22607c5f59b5cf78f947266e77d"
-  integrity sha512-+FnSWZIAvFHbsNVmUxhEqWiaOiPMcfum1GQzlWCg/wLigVtshOsjXHyEFfmt6cFK6+HkS3QOJBv6/3OPumbBfw==
+  version "1.4.748"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.748.tgz#aa7d4f2f3eac3a6a863cd1779bd4682b4bb68ed5"
+  integrity sha512-VWqjOlPZn70UZ8FTKUOkUvBLeTQ0xpty66qV0yJcAGY2/CthI4xyW9aEozRVtuwv3Kpf5xTesmJUcPwuJmgP4A==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
