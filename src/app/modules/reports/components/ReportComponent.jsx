@@ -3039,7 +3039,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
-                  title="17. REGISTRO FOTOGRAFICO"
+                  title="17. ANEXOS"
                 >
                   <ReportEvidenceComponent
                     report_id={param_report_id}
@@ -3049,12 +3049,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     upload_evidence_url={`images/commerce/${param_commerce_id ?? null}/report/${param_report_id ?? null}/reportevidence`}
                     getReportById={() => reportidQuerryReferch}
                   ></ReportEvidenceComponent>
-                </ReportCardComponent>
-
-                <ReportCardComponent
-                  sx={{ borderRadius: "0px 0px 4px 4px" }}
-                  title="18. ANEXOS "
-                ></ReportCardComponent>
+                </ReportCardComponent>               
               </>
             )}
           </Grid>

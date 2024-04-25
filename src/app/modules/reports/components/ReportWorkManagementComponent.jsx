@@ -43,7 +43,7 @@ export const ReportWorkManagementComponent = ({
     dialogcontenttext: '',
     object: {}
   });
-  
+
   const [handleAlert, setHandleAlert] = useState({
     openAlert: false,
     functionAlertClose: () => { },
@@ -101,7 +101,7 @@ export const ReportWorkManagementComponent = ({
   }
 
   const handleSaveWorkManagement = (cmms) => {
-    if ( !cmms.activity || !cmms.work_type || !cmms.workers_activity || !cmms.workers_trained) {
+    if (!cmms.activity || !cmms.work_type || !cmms.workers_activity || !cmms.workers_trained) {
       return;
     }
     workManagementstore(cmms);
@@ -196,10 +196,10 @@ export const ReportWorkManagementComponent = ({
 
   // Validaciones
   const numberPatternValidation = (value) => {
-        if (!value) return true;
-        const regex = new RegExp(/^\d+$/);
-        return regex.test(value);
-    };
+    if (!value) return true;
+    const regex = new RegExp(/^\d+$/);
+    return regex.test(value);
+  };
 
   const workManagementSavevalidator = (cmms) => {
     if (
@@ -374,12 +374,12 @@ export const ReportWorkManagementComponent = ({
                     onChange={(event) => changeInputWorkManagement(event, index)}
                     error={!numberPatternValidation(cmms?.workers_trained) ? true : false}
                     helperText={
-                      !numberPatternValidation(cmms?.workers_trained) ? 'Se espera un número positivo' : 
-                      cmms?.workers_trainedTouched && !cmms?.workers_trained ? 'Este campo es requerido' : ''
-                      }
+                      !numberPatternValidation(cmms?.workers_trained) ? 'Se espera un número positivo' :
+                        cmms?.workers_trainedTouched && !cmms?.workers_trained ? 'Este campo es requerido' : ''
+                    }
                   />
-                </Grid>                
-                
+                </Grid>
+
                 <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                   <TextareaField
                     disabled={cmms?.approved ? true : false}
@@ -403,7 +403,7 @@ export const ReportWorkManagementComponent = ({
                       name="permissions" />}
                     label={`${cmms.permissions ? 'Premisos ejecutados: SI' : 'Premisos ejecutados: NO'}`}
                   />
-                </Grid>                
+                </Grid>
 
 
               </Grid>
@@ -428,52 +428,52 @@ export const ReportWorkManagementComponent = ({
                 </Tooltip>
                 <Tooltip title="Guardar Cambios" placement="top">
                   <span>
-                      <IconButton
-                          disabled={workManagementSavevalidator(cmms) || cmms?.approved ? true : false}
-                          onClick={() => handleSaveWorkManagement(cmms)}>
-                          <SaveIcon></SaveIcon>
-                      </IconButton>
+                    <IconButton
+                      disabled={workManagementSavevalidator(cmms) || cmms?.approved ? true : false}
+                      onClick={() => handleSaveWorkManagement(cmms)}>
+                      <SaveIcon></SaveIcon>
+                    </IconButton>
                   </span>
                 </Tooltip>
                 {
                   cmms?.id &&
                   <>
 
-                      <Tooltip title="Evidencias" placement="top">
-                          <span>
-                              <IconButton
-                                  disableFocusRipple={cmms?.approved ? true : false}
-                                  onClick={() => handleEvidenceOpen(cmms)}
-                              ><AttachFileIcon></AttachFileIcon></IconButton>
-                          </span>
-                      </Tooltip>
+                    <Tooltip title="Evidencias" placement="top">
+                      <span>
+                        <IconButton
+                          disableFocusRipple={cmms?.approved ? true : false}
+                          onClick={() => handleEvidenceOpen(cmms)}
+                        ><AttachFileIcon></AttachFileIcon></IconButton>
+                      </span>
+                    </Tooltip>
 
-                      <Tooltip title={`${cmms?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
-                          <span>
-                              <PrivateAgentRoute>
-                                  <IconButton
-                                      onClick={() => handleSaveWorkManagement({ ...cmms, approved: !cmms?.approved })}>
-                                      {!!cmms?.approved &&
-                                          <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
-                                      }
-                                      {!cmms?.approved &&
-                                          <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
-                                      }
-                                  </IconButton>
-                              </PrivateAgentRoute>
+                    <Tooltip title={`${cmms?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                      <span>
+                        <PrivateAgentRoute>
+                          <IconButton
+                            onClick={() => handleSaveWorkManagement({ ...cmms, approved: !cmms?.approved })}>
+                            {!!cmms?.approved &&
+                              <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                            }
+                            {!cmms?.approved &&
+                              <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                            }
+                          </IconButton>
+                        </PrivateAgentRoute>
 
-                              <PrivateCustomerRoute>
-                                  <IconButton disabled>
-                                      {cmms?.approved &&
-                                          <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
-                                      }
-                                      {!cmms?.approved &&
-                                          <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
-                                      }
-                                  </IconButton>
-                              </PrivateCustomerRoute>
-                          </span>
-                      </Tooltip>
+                        <PrivateCustomerRoute>
+                          <IconButton disabled>
+                            {cmms?.approved &&
+                              <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                            }
+                            {!cmms?.approved &&
+                              <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                            }
+                          </IconButton>
+                        </PrivateCustomerRoute>
+                      </span>
+                    </Tooltip>
                   </>
                 }
               </Grid>
@@ -511,38 +511,38 @@ export const ReportWorkManagementComponent = ({
 
       {
         openEvidences.open && <EvidenceGenericComponent
-            open={openEvidences.open}
-            dialogtitle={openEvidences.dialogtitle}
-            dialogcontenttext={openEvidences.dialogcontenttext}
-            object={openEvidences.object}
-            report_id={report_id}
-            commerce_id={commerce_id}
-            approved={openEvidences.approved}
-            handleClose={() => {
-                setFiles([]);
-                setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
-            }}
-            upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/workmanagement/${openEvidences?.object?.id ?? null}`}
-            files={files}
-            setFiles={setFiles}
-            getEvidencesById={getEvidencesById}
-            evidenceStore={storeWorkManagementEvidence}
-            handleRemove={handleRemoveWorkManagementEvidence}
-            handleFileItemUpload={handleFileItemUpload}
+          open={openEvidences.open}
+          dialogtitle={openEvidences.dialogtitle}
+          dialogcontenttext={openEvidences.dialogcontenttext}
+          object={openEvidences.object}
+          report_id={report_id}
+          commerce_id={commerce_id}
+          approved={openEvidences.approved}
+          handleClose={() => {
+            setFiles([]);
+            setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
+          }}
+          upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/workmanagement/${openEvidences?.object?.id ?? null}`}
+          files={files}
+          setFiles={setFiles}
+          getEvidencesById={getEvidencesById}
+          evidenceStore={storeWorkManagementEvidence}
+          handleRemove={handleRemoveWorkManagementEvidence}
+          handleFileItemUpload={handleFileItemUpload}
         ></EvidenceGenericComponent>
-    }
+      }
 
-    {
+      {
         handleAlert.openAlert && <DialogAlertComponent
-            open={handleAlert.openAlert}
-            handleClose={() => handleAlert.functionAlertClose()}
-            handleAgree={() => handleAlert.functionAlertAgree()}
-            props={{
-                tittle: handleAlert.alertTittle,
-                message: handleAlert.alertMessage
-            }}
+          open={handleAlert.openAlert}
+          handleClose={() => handleAlert.functionAlertClose()}
+          handleAgree={() => handleAlert.functionAlertAgree()}
+          props={{
+            tittle: handleAlert.alertTittle,
+            message: handleAlert.alertMessage
+          }}
         ></DialogAlertComponent>
-    }
+      }
 
     </Grid>
   )
