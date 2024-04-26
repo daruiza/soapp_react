@@ -11,7 +11,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import es from 'dayjs/locale/es';
 import { useTheme } from '@emotion/react';
 
-import { useGeneraNamelList, useEquipementMaintenanceDeleteId, useEquipementMaintenanceStore } from '../../../../hooks';
+import { useEquipementMaintenanceDeleteId, useEquipementMaintenanceStore } from '../../../../hooks';
 import { ShowByEquipementMaintenanceId, equipementMaintenanceEvidenceStore, deleteEquipementMaintenanceEvidenceId, equipementMaintenanceEvidenceUpdate } from '../../../../store';
 import { getSoappDownloadFile } from '../../../../api';
 
@@ -184,41 +184,37 @@ export const ReportEquipementMaintenanceComponent = ({
 
     const equipementMaintenenceSaveValidator = (cmms) => {
         if (
-            !cmms.activity ||
-            !cmms.work_type ||
-            !cmms.workers_activity ||
-            !cmms.workers_trained
+            !cmms.date ||
+            !cmms.observations
         ) { return true; }
 
-        const cmmworkmanagementinit = worksManagementinit?.find(el => el.id === cmms.id);
+        const cmmequipementmaintenanceinit = equipementMaintenanceinit?.find(el => el.id === cmms.id);
 
         // Quitar todos los Touched 
         return 'id' in cmms ?
             JSON.stringify({
-                id: cmmworkmanagementinit?.id,
-                activity: cmmworkmanagementinit?.activity,
-                work_type: cmmworkmanagementinit?.work_type,
-                workers_activity: cmmworkmanagementinit?.workers_activity,
-                workers_trained: cmmworkmanagementinit?.workers_trained,
-                permissions: cmmworkmanagementinit?.permissions,
-                observations: cmmworkmanagementinit?.observations,
-                report_id: cmmworkmanagementinit?.report_id,
-                created_at: cmmworkmanagementinit?.created_at,
-                updated_at: cmmworkmanagementinit?.updated_at,
+                id: cmmequipementmaintenanceinit?.id,
+                buildings: cmmequipementmaintenanceinit?.buildings,
+                tools: cmmequipementmaintenanceinit?.tools,
+                teams: cmmequipementmaintenanceinit?.teams,
+                date: cmmequipementmaintenanceinit?.date,
+                observations: cmmequipementmaintenanceinit?.observations,
+                report_id: cmmequipementmaintenanceinit?.report_id,
+                created_at: cmmequipementmaintenanceinit?.created_at,
+                updated_at: cmmequipementmaintenanceinit?.updated_at,
             }) ==
             JSON.stringify({
                 id: cmms?.id,
-                activity: cmms?.activity,
-                work_type: cmms?.work_type,
-                workers_activity: cmms?.workers_activity,
-                workers_trained: cmms?.workers_trained,
-                permissions: cmms?.permissions,
+                buildings: cmms?.buildings,
+                tools: cmms?.tools,
+                teams: cmms?.teams,
+                date: cmms?.date,
                 observations: cmms?.observations,
                 report_id: cmms?.report_id,
                 created_at: cmms?.created_at,
                 updated_at: cmms?.updated_at,
             }) :
-            !!((!cmms.activity) || (!cmms.work_type))
+            !!((!cmms.date) || (!cmms.observations))
     }
 
     useEffect(() => {
@@ -230,6 +226,93 @@ export const ReportEquipementMaintenanceComponent = ({
 
 
     return (
-        <div>ReportEquipementMaintenanceComponent</div>
+        <Grid container>{
+            equipementsMaintenance?.length !== 0 &&
+            equipementsMaintenance?.map((cmms, index) => {
+                return (
+                    <Grid container key={index} > 
+                        <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
+                        <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
+                            <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
+
+                            <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                <FormControlLabel
+                                    disabled={cmms?.approved ? true : false}
+                                    sx={{ ml: 2 }}
+                                    control={<Switch
+                                    checked={cmms.buildings ? true : false}
+                                    onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'buildings' } }, index)}
+                                    name="buildings" />}
+                                    label={`${cmms.buildings ? 'Edificios: SI' : 'Edificios: NO'}`}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                <FormControlLabel
+                                    disabled={cmms?.approved ? true : false}
+                                    sx={{ ml: 2 }}
+                                    control={<Switch
+                                    checked={cmms.tools ? true : false}
+                                    onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'tools' } }, index)}
+                                    name="tools" />}
+                                    label={`${cmms.tools ? 'Herramientas: SI' : 'Herramientas: NO'}`}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                <FormControlLabel
+                                    disabled={cmms?.approved ? true : false}
+                                    sx={{ ml: 2 }}
+                                    control={<Switch
+                                    checked={cmms.teams ? true : false}
+                                    onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'teams' } }, index)}
+                                    name="teams" />}
+                                    label={`${cmms.teams ? 'Equipo: SI' : 'Equipo: NO'}`}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                                <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        disabled={cmms?.approved ? true : false}
+                                        size="small"
+                                        className='birth-date-piker'
+                                        sx={{ width: '100%' }}
+                                        inputFormat="DD/MM/YYYY"
+                                        label="Fecha"
+                                        name="data"
+                                        value={cmms?.data ?? null}
+                                        onChange={(value) => changeInputEquipementMaintenance({ target: { name: 'data', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
+                                        renderInput={(params) => <TextField size="small" {...params} />}
+                                    />
+                                </LocalizationProvider>
+                            </Grid>
+
+                            <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                <TextareaField
+                                    disabled={cmms?.approved ? true : false}
+                                    label="Observaciones"
+                                    name="observations"
+                                    value={cmms?.observations ?? ''}
+                                    onChange={(event) => changeInputEquipementMaintenance(event, index)}
+                                    placeholder=""
+                                    minRows={2}
+                                    sx={{ minwidth: '100%' }}
+                                ></TextareaField>
+                            </Grid>
+
+                            </Grid>
+                            <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                )
+            })}
+            <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
+                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}></Grid>
+                <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                </Grid>
+            </Grid>
+        </Grid>
     )
 }
