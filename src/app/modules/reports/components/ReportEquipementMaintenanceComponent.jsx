@@ -89,7 +89,7 @@ export const ReportEquipementMaintenanceComponent = ({
     }
 
     const handleSaveEquipementMaintenenece = (cmms) => {
-        if (!cmms.activity || !cmms.work_type || !cmms.workers_activity || !cmms.workers_trained) {
+        if (!cmms.date || !cmms.observations) {
             return;
         }
         equipementMaintenancestore(cmms);
@@ -137,7 +137,7 @@ export const ReportEquipementMaintenanceComponent = ({
             form: {
                 name: file.name.split('.')[0],
                 type: file.type,
-                work_management_id: object.id,
+                equipement_id: object.id,
                 file: data.storage_image_path,
                 approved: false
             }
@@ -224,85 +224,150 @@ export const ReportEquipementMaintenanceComponent = ({
         }
     }, [equipementMaintenenceQuery]);
 
-
     return (
         <Grid container>{
             equipementsMaintenance?.length !== 0 &&
             equipementsMaintenance?.map((cmms, index) => {
                 return (
-                    <Grid container key={index} > 
+                    <Grid container key={index} >
                         <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                         <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
                             <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
 
-                            <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                <FormControlLabel
-                                    disabled={cmms?.approved ? true : false}
-                                    sx={{ ml: 2 }}
-                                    control={<Switch
-                                    checked={cmms.buildings ? true : false}
-                                    onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'buildings' } }, index)}
-                                    name="buildings" />}
-                                    label={`${cmms.buildings ? 'Edificios: SI' : 'Edificios: NO'}`}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                <FormControlLabel
-                                    disabled={cmms?.approved ? true : false}
-                                    sx={{ ml: 2 }}
-                                    control={<Switch
-                                    checked={cmms.tools ? true : false}
-                                    onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'tools' } }, index)}
-                                    name="tools" />}
-                                    label={`${cmms.tools ? 'Herramientas: SI' : 'Herramientas: NO'}`}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                <FormControlLabel
-                                    disabled={cmms?.approved ? true : false}
-                                    sx={{ ml: 2 }}
-                                    control={<Switch
-                                    checked={cmms.teams ? true : false}
-                                    onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'teams' } }, index)}
-                                    name="teams" />}
-                                    label={`${cmms.teams ? 'Equipo: SI' : 'Equipo: NO'}`}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
-                                <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
-                                    <DatePicker
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <FormControlLabel
                                         disabled={cmms?.approved ? true : false}
-                                        size="small"
-                                        className='birth-date-piker'
-                                        sx={{ width: '100%' }}
-                                        inputFormat="DD/MM/YYYY"
-                                        label="Fecha"
-                                        name="data"
-                                        value={cmms?.data ?? null}
-                                        onChange={(value) => changeInputEquipementMaintenance({ target: { name: 'data', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
-                                        renderInput={(params) => <TextField size="small" {...params} />}
+                                        sx={{ ml: 2 }}
+                                        control={<Switch
+                                            checked={cmms.buildings ? true : false}
+                                            onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'buildings' } }, index)}
+                                            name="buildings" />}
+                                        label={`${cmms.buildings ? 'Edificios: SI' : 'Edificios: NO'}`}
                                     />
-                                </LocalizationProvider>
-                            </Grid>
+                                </Grid>
 
-                            <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                <TextareaField
-                                    disabled={cmms?.approved ? true : false}
-                                    label="Observaciones"
-                                    name="observations"
-                                    value={cmms?.observations ?? ''}
-                                    onChange={(event) => changeInputEquipementMaintenance(event, index)}
-                                    placeholder=""
-                                    minRows={2}
-                                    sx={{ minwidth: '100%' }}
-                                ></TextareaField>
-                            </Grid>
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <FormControlLabel
+                                        disabled={cmms?.approved ? true : false}
+                                        sx={{ ml: 2 }}
+                                        control={<Switch
+                                            checked={cmms.tools ? true : false}
+                                            onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'tools' } }, index)}
+                                            name="tools" />}
+                                        label={`${cmms.tools ? 'Herramientas: SI' : 'Herramientas: NO'}`}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <FormControlLabel
+                                        disabled={cmms?.approved ? true : false}
+                                        sx={{ ml: 2 }}
+                                        control={<Switch
+                                            checked={cmms.teams ? true : false}
+                                            onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'teams' } }, index)}
+                                            name="teams" />}
+                                        label={`${cmms.teams ? 'Equipo: SI' : 'Equipo: NO'}`}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                                    <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                            disabled={cmms?.approved ? true : false}
+                                            size="small"
+                                            className='birth-date-piker'
+                                            sx={{ width: '100%' }}
+                                            inputFormat="DD/MM/YYYY"
+                                            label="Fecha"
+                                            name="data"
+                                            value={cmms?.data ?? null}
+                                            onChange={(value) => changeInputEquipementMaintenance({ target: { name: 'data', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
+                                            renderInput={(params) => <TextField size="small" {...params} />}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
+
+                                <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <TextareaField
+                                        disabled={cmms?.approved ? true : false}
+                                        label="Observaciones"
+                                        name="observations"
+                                        value={cmms?.observations ?? ''}
+                                        onChange={(event) => changeInputEquipementMaintenance(event, index)}
+                                        placeholder=""
+                                        minRows={2}
+                                        sx={{ minwidth: '100%' }}
+                                    ></TextareaField>
+                                </Grid>
 
                             </Grid>
                             <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
+                                <Tooltip title="Eliminar Registro" placement="top">
+                                    <span>
+                                        <IconButton
+                                            disabled={cmms?.approved ? true : false}
+                                            onClick={() => handleDeleteEquipementMaintenence(cmms)}>
+                                            <HighlightOffIcon
+                                                sx={{
+                                                    color: palette.text.disabled,
+                                                    "&:hover": {
+                                                        // color: `${palette.text.primary}`,
+                                                        cursor: "pointer"
+                                                    }
+                                                }}></HighlightOffIcon>
+                                        </IconButton>
+                                    </span>
+                                </Tooltip>
+                                <Tooltip title="Guardar Cambios" placement="top">
+                                    <span>
+                                        <IconButton
+                                            disabled={equipementMaintenenceSaveValidator(cmms) || cmms?.approved ? true : false}
+                                            onClick={() => handleSaveEquipementMaintenenece(cmms)}>
+                                            <SaveIcon></SaveIcon>
+                                        </IconButton>
+                                    </span>
+                                </Tooltip>
+                                {
+                                    cmms?.id &&
+                                    <>
+
+                                        <Tooltip title="Evidencias" placement="top">
+                                            <span>
+                                                <IconButton
+                                                    disableFocusRipple={cmms?.approved ? true : false}
+                                                    onClick={() => handleEvidenceOpen(cmms)}
+                                                ><AttachFileIcon></AttachFileIcon></IconButton>
+                                            </span>
+                                        </Tooltip>
+
+                                        <Tooltip title={`${cmms?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                                            <span>
+                                                <PrivateAgentRoute>
+                                                    <IconButton
+                                                        onClick={() => handleSaveEquipementMaintenenece({ ...cmms, approved: !cmms?.approved })}>
+                                                        {!!cmms?.approved &&
+                                                            <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                        }
+                                                        {!cmms?.approved &&
+                                                            <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                        }
+                                                    </IconButton>
+                                                </PrivateAgentRoute>
+
+                                                <PrivateCustomerRoute>
+                                                    <IconButton disabled>
+                                                        {cmms?.approved &&
+                                                            <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                        }
+                                                        {!cmms?.approved &&
+                                                            <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                        }
+                                                    </IconButton>
+                                                </PrivateCustomerRoute>
+                                            </span>
+                                        </Tooltip>
+                                    </>
+                                }
                             </Grid>
                         </Grid>
                     </Grid>
@@ -313,6 +378,40 @@ export const ReportEquipementMaintenanceComponent = ({
                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                 </Grid>
             </Grid>
+            {
+                openEvidences.open && <EvidenceGenericComponent
+                    open={openEvidences.open}
+                    dialogtitle={openEvidences.dialogtitle}
+                    dialogcontenttext={openEvidences.dialogcontenttext}
+                    object={openEvidences.object}
+                    report_id={report_id}
+                    commerce_id={commerce_id}
+                    approved={openEvidences.approved}
+                    handleClose={() => {
+                        setFiles([]);
+                        setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
+                    }}
+                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/equipementmaintenance/${openEvidences?.object?.id ?? null}`}
+                    files={files}
+                    setFiles={setFiles}
+                    getEvidencesById={getEvidencesById}
+                    evidenceStore={storeEquipementMaintenanceEvidence}
+                    handleRemove={handleRemoveEquipementMaintenanceEvidence}
+                    handleFileItemUpload={handleFileItemUpload}
+                ></EvidenceGenericComponent>
+            }
+
+            {
+                handleAlert.openAlert && <DialogAlertComponent
+                    open={handleAlert.openAlert}
+                    handleClose={() => handleAlert.functionAlertClose()}
+                    handleAgree={() => handleAlert.functionAlertAgree()}
+                    props={{
+                        tittle: handleAlert.alertTittle,
+                        message: handleAlert.alertMessage
+                    }}
+                ></DialogAlertComponent>
+            }
         </Grid>
     )
 }
