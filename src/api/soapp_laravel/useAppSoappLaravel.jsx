@@ -24,7 +24,7 @@ export const useAppSoappLaravel = (dispatch) => {
         }
     );
 
-    soappLaravelApi.interceptors.response.use((response) => {
+    soappLaravelApi.interceptors.response.use((response) => {        
         const { data: { message } } = response;
         dispatch(backdropPop(
             {

@@ -17,8 +17,8 @@ export const requestApiSlice = createSlice({
         backdropPop: (state, { payload }) => {
             state.backdrop.pop();
             state.open = state.backdrop.length;
-            state.message = payload.message
-            state.alert = payload.alert
+            state.message = payload.message??null
+            state.alert = payload.alert??null
         },        
         messagePush: (state, { payload }) => { 
             state.message = payload.message

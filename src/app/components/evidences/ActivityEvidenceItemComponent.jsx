@@ -16,7 +16,7 @@ export const ActivityEvidenceItemComponent = ({
     handleEvidenceViewerOpen = () => { },
     file = {},
     approved = false,
-    handleFileItemUpload = () => {} }) => {
+    handleFileItemUpload = () => { } }) => {
 
     const dispatch = useDispatch();
 
@@ -170,9 +170,11 @@ export const ActivityEvidenceItemComponent = ({
 
                                 <Grid item xs={12} md={3} sx={{}} >
                                     <Tooltip disabled={approved ? true : false} title="Quitar Archivo" placement="top">
-                                        <IconButton onClick={() => handleFileDeleteOpen(file)}>
-                                            <CancelIcon></CancelIcon>
-                                        </IconButton>
+                                        <span>
+                                            <IconButton onClick={() => handleFileDeleteOpen(file)}>
+                                                <CancelIcon></CancelIcon>
+                                            </IconButton>
+                                        </span>
                                     </Tooltip>
                                 </Grid>
 

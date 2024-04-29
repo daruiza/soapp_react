@@ -154,7 +154,7 @@ export default function TrainingsstEvidenceItemComponent({ handleRemove = () => 
                                     <Tooltip title="Guardar Archivo" placement="top">
                                         <span>
                                             <IconButton
-                                                disabled={disabledSave || approved}
+                                                disabled={(disabledSave || approved) ? true : false}
                                                 onClick={(event) => handleUpdate(event)}>
                                                 <SaveIcon></SaveIcon>
                                             </IconButton>
@@ -163,11 +163,13 @@ export default function TrainingsstEvidenceItemComponent({ handleRemove = () => 
                                 </Grid>
 
                                 <Grid item xs={12} md={3} sx={{}} >
-                                    <Tooltip title="Quitar Archivo" placement="top">
-                                        <IconButton disabled={approved} onClick={() => handleFileDeleteOpen(file)}>
-                                            <CancelIcon></CancelIcon>
-                                        </IconButton>
-                                    </Tooltip>
+                                    <span>
+                                        <Tooltip title="Quitar Archivo" placement="top">
+                                            <IconButton disabled={approved ? true : false} onClick={() => handleFileDeleteOpen(file)}>
+                                                <CancelIcon></CancelIcon>
+                                            </IconButton>
+                                        </Tooltip>
+                                    </span>
                                 </Grid>
 
                                 <Grid item xs={12} md={11} sx={{}} >

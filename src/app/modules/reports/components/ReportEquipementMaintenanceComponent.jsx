@@ -279,9 +279,9 @@ export const ReportEquipementMaintenanceComponent = ({
                                             sx={{ width: '100%' }}
                                             inputFormat="DD/MM/YYYY"
                                             label="Fecha"
-                                            name="data"
-                                            value={cmms?.data ?? null}
-                                            onChange={(value) => changeInputEquipementMaintenance({ target: { name: 'data', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
+                                            name="date"
+                                            value={cmms?.date ?? null}
+                                            onChange={(value) => changeInputEquipementMaintenance({ target: { name: 'date', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
                                             renderInput={(params) => <TextField size="small" {...params} />}
                                         />
                                     </LocalizationProvider>
