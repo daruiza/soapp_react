@@ -9,12 +9,13 @@ services:
       #- "3000:3000"    
       - "127.0.0.1:3232:3232"    
     volumes:
-      # - C:\software\soapp_react:/app
-      - /home/davidruiz/App/soapp_react:/app
+      - C:\software\soapp_react:/app
+      # - /home/davidruiz/App/soapp_react:/app
     environment:
       - NODE_OPTIONS=--max-old-space-size=4096
-    #command: sh -c "yarn install && yarn dev"
+    # command: sh -c "yarn install && yarn dev"
+    command: sh -c "yarn install && yarn dev --host 0.0.0.0"
+    # command: ["yarn", "dev", "--host", "0.0.0.0"]
     #["ng", "serve", "--host", "0.0.0.0"]
-    command: ["yarn", "dev", "--host", "0.0.0.0"]
 
 #docker container run --name soapp_react -w /app -p 3232:3232 -v C:\software\soapp_react:/app node:20.9.0-alpine3.18 sh -c "yarn dev"
