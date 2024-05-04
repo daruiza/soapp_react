@@ -9,10 +9,10 @@ services:
       #- "3000:3000"    
       - "127.0.0.1:3232:3232"    
     volumes:
-      - C:\software\soapp_react:/app
-      # - /home/davidruiz/App/soapp_react:/app
-    environment:
-      - NODE_OPTIONS=--max-old-space-size=4096
+      # - C:\software\soapp_react:/app
+      - /home/davidruiz/App/soapp_react:/app
+    # environment:
+      # - NODE_OPTIONS=--max-old-space-size=4096
     # command: sh -c "yarn install && yarn dev"
     command: sh -c "yarn install && yarn dev --host 0.0.0.0"
     # command: ["yarn", "dev", "--host", "0.0.0.0"]

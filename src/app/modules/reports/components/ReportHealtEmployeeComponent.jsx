@@ -18,6 +18,7 @@ import dayjs from "dayjs";
 import es from "dayjs/locale/es";
 
 import { EmployeeState } from '../../../types/EmployeeState';
+import { ReportSection } from '../../../types/ReportSection';
 import { useTheme } from "@emotion/react";
 
 import MenuItem from "@mui/material/MenuItem";
