@@ -13,20 +13,8 @@ import {
 } from "../../../../store";
 import {
   Grid,
-  ImageListItem,
-  Typography,
   Button,
-  TextField,
-  IconButton,
-  Switch,
-  FormControl,
-  FormControlLabel,
-  Divider,
-  InputLabel,
-  Select,
-  FormHelperText,
 } from "@mui/material";
-import Tooltip from "@mui/material/Tooltip";
 import { ReportCardComponent } from "./ReportCardComponent";
 import {
   useByReportId,
@@ -38,30 +26,12 @@ import {
   useWorkManagementByReportId,
   useEquipementMaintenanceByReportId
 } from "../../../../hooks";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
-import es from "dayjs/locale/es";
 import { useTheme } from "@emotion/react";
-import MenuItem from "@mui/material/MenuItem";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
-import InfoIcon from "@mui/icons-material/Info";
-import SaveIcon from "@mui/icons-material/Save";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
-import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
-import HealingIcon from "@mui/icons-material/Healing";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
-import CheckIcon from "@mui/icons-material/Check";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { EvidencesComponent } from "../../../components/evidences/EvidencesComponent";
 import { EmployeeState } from "../../../types/EmployeeState";
-import { ReportSection } from "../../../types/ReportSection";
 
 import { DialogAlertComponent } from "../../../components";
-import { ReportEmployeeComponent } from "./ReportEmployeeComponent";
 import { ReportTrainingSSTComponent } from "./ReportTrainingSSTComponent";
-import { PrivateAgentRoute, PrivateCustomerRoute } from "../../../middleware";
 import ReportActivityComponent from "./ReportActivityComponent";
 import { ReportCompromiseComponent } from "./ReportCompromiseComponent";
 import { ReportCompromiseSSTComponent } from "./ReportCompromiseSSTComponent";
@@ -78,6 +48,7 @@ import { ReportEmployeeRecallComponent } from "./ReportEmployeeRecallComponent";
 import { ReportEmployeeInductionComponent } from "./ReportEmployeeInductionComponent";
 import { ReportEmployeeInformationComponent } from "./ReportEmployeeInformationComponent";
 import { ReportCompanyInforamtionComponent } from "./ReportCompanyInforamtionComponent";
+import { ReportHeadInformation } from "./ReportHeadInformation";
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
   const dispatch = useDispatch();
@@ -135,9 +106,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     functionAlertAgree: () => { },
     alertTittle: "",
     alertMessage: "",
-  });
-
-  const asistirEnSaludBran = `${window.location.origin}/src/assets/asistirEnSaludBran.png`;
+  });  
 
   // Query
 
@@ -443,239 +412,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         <Grid container>
           {/* Head Report */}
 
-          <Grid
-            item
-            xs={12}
-            md={12}
-            mb={2}
-            sx={{ marginBottom: "0px" }}
-            display={"flex"}
-          >
-            <Grid
-              item
-              xs={6}
-              md={2}
-              mb={2}
-              sx={{ display: "flex", alignItems: "center" }}
-            >
-              <ImageListItem>
-                <img
-                  src={asistirEnSaludBran}
-                  alt="asistirEnSaludBran"
-                  loading="lazy"
-                />
-              </ImageListItem>
-            </Grid>
-
-            <Grid
-              item
-              xs={6}
-              md={7}
-              mb={2}
-              sx={{ display: "flex", alignItems: "center" }}
-            >
-              <Grid
-                container
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Grid
-                  item
-                  xs={12}
-                  md={12}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Typography>ACTAS DE CONSULTORIA</Typography>
-                </Grid>
-                <Grid
-                  item
-                  xs={12}
-                  md={12}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Typography sx={{ fontSize: "14px" }}>
-                    ÁREA: SEGURIDAD Y SALUD EN EL TRABAJO
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Grid>
-
-            <Grid
-              item
-              xs={6}
-              md={3}
-              mb={2}
-              sx={{ display: "flex", alignItems: "center" }}
-            >
-              <Grid container>
-                {report?.project && (
-                  <Grid
-                    item
-                    xs={12}
-                    md={12}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Grid item xs={12} md={6}>
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          borderTop: "1px solid",
-                          borderRight: "1px solid",
-                          borderLeft: "1px solid",
-                        }}
-                      >
-                        Proyecto
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          borderTop: "1px solid",
-                          borderRight: "1px solid",
-                        }}
-                      >
-                        {report?.project}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                )}
-
-                {report?.elaborated && (
-                  <Grid
-                    item
-                    xs={12}
-                    md={12}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Grid item xs={12} md={6}>
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          borderTop: "1px solid",
-                          borderRight: "1px solid",
-                          borderLeft: "1px solid",
-                        }}
-                      >
-                        Elaboró
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          borderTop: "1px solid",
-                          borderRight: "1px solid",
-                        }}
-                      >
-                        {report?.elaborated}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                )}
-
-                {report?.passed && (
-                  <Grid
-                    item
-                    xs={12}
-                    md={12}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Grid item xs={12} md={6}>
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          borderTop: "1px solid",
-                          borderRight: "1px solid",
-                          borderLeft: "1px solid",
-                        }}
-                      >
-                        Aprobó
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <Typography
-                        sx={{
-                          textAlign: "center",
-                          borderTop: "1px solid",
-                          borderRight: "1px solid",
-                        }}
-                      >
-                        {report?.passed}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                )}
-
-                <Grid
-                  item
-                  xs={12}
-                  md={12}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Grid item xs={12} md={6}>
-                    <Typography
-                      sx={{ textAlign: "center", border: "1px solid" }}
-                    >
-                      Fecha
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography
-                      sx={{
-                        textAlign: "center",
-                        borderTop: "1px solid",
-                        borderRight: "1px solid",
-                        borderBottom: "1px solid",
-                      }}
-                    >
-                      {dayjs(report?.date).format("DD-MM-YYYY")}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item xs={12} md={12} mb={2}>
-            <Typography sx={{ fontSize: "13px", textAlign: "center" }}>
-              Este formulario debe ser diligenciado semanalmente por la persona
-              responsable del sistema de gestion sst de la empresa, resume las
-              principales actividades e indicadores que deben ser reportados
-              mensualmente a la Gerencia de la empresa " cliente"y la consultora
-              ASISTIR EN SALUD Y RIESGOS LABORALES, Los datos reportados deben
-              tener un soporte escrito y se presentaran anexos a este informe.
-              Nota: en caso de tener contratados Sub_contratistas debe incluir
-              información de cada contratista.
-            </Typography>
-          </Grid>
-
+          <ReportHeadInformation
+            report={report}
+          ></ReportHeadInformation>
+          
           <Grid item xs={12} md={12} mb={2}>
             {commerce && (
               <>
@@ -981,6 +721,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
           </Grid>
         </Grid>
       </Grid>
+      
       <Grid container sx={{ justifyContent: "end" }}>
         {commerce && (
           <>
