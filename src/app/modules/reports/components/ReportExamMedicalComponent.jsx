@@ -12,6 +12,7 @@ import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { ReportEmployeeComponent } from './ReportEmployeeComponent';
 
 import { EmployeeState } from '../../../types/EmployeeState';
+import { ReportSection } from '../../../types/ReportSection';
 import { useTheme } from "@emotion/react";
 
 import MenuItem from "@mui/material/MenuItem";
