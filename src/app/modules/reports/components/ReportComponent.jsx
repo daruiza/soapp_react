@@ -236,19 +236,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
         setCompromisesRSST(data);
       });
     }
-  };
-
-  // const getInspectionRSSTByReportId = () => {
-  //   if (param_report_id) {
-  //     dispatch(
-  //       inspectionRSSTShowByReportId({
-  //         form: { id: param_report_id },
-  //       })
-  //     ).then(({ data: { data } }) => {
-  //       setInspectionsRSST(data);
-  //     });
-  //   }
-  // };
+  };  
 
   const setEmployeeReportStore = (collaborator, employee_state) => {
     // se debe llamar al back para que guarde el cambio
@@ -391,10 +379,8 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   useEffect(() => {
     getEmployees();
     reportidQuerryReferch();
-    // getCompromiseByReportId();
     getCompromiseSSTByReportId();
     getCompromiseRSSTByReportId();
-    // getInspectionRSSTByReportId();
     listQueryMutate("exam,type_exam,event,medical_attention,topic_sst");
   }, []);
 
