@@ -515,3 +515,52 @@ export const equipementMaintenanceEvidenceUpdate = ({ form }) => {
         }
     }
 }
+
+// ScheduleCompliance
+
+export const ShowByScheduleComplianceEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/compliancescheduleevidence/showbyequipementmaintenanceevidenceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+export const ShowByScheduleComplianceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.get(`api/compliancescheduleevidence/showbyequipementmaintenanceid/${form.id}`, { params: { ...form } });
+        }
+    }
+}
+
+
+export const scheduleComplianceEvidenceStore = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form) {
+            return soappLaravelApi.post(`api/compliancescheduleevidence/store`, form);
+        }
+    }
+}
+
+export const deleteScheduleComplianceEvidenceId = ({ form = {} }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.delete(`api/compliancescheduleevidence/destroy/${form.id}`);
+        }
+    }
+}
+
+export const scheduleComplianceEvidenceUpdate = ({ form }) => {
+    return async (dispatch) => {
+        const { soappLaravelApi } = useAppSoappLaravel(dispatch);
+        if (form && form.id) {
+            return soappLaravelApi.put(`api/compliancescheduleevidence/update/${form.id}`, form);
+        }
+    }
+}
+
