@@ -49,6 +49,8 @@ import { ReportEmployeeInductionComponent } from "./ReportEmployeeInductionCompo
 import { ReportEmployeeInformationComponent } from "./ReportEmployeeInformationComponent";
 import { ReportCompanyInforamtionComponent } from "./ReportCompanyInforamtionComponent";
 import { ReportHeadInformation } from "./ReportHeadInformation";
+import { ReportScheduleComplianceComponent } from "./ReportScheduleComplianceComponent";
+import { useScheduleComplianceByReportId } from "../../../../hooks/query/useScheduleCompliance";
 
 export const ReportComponent = ({ navBarWidth = 58 }) => {
   const dispatch = useDispatch();
@@ -74,6 +76,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
   const [supportGroupActions, setSupportGroupActions] = useState([]);
   const [worksManagement, setWorksManagement] = useState([]);
   const [equipementsMaintenance, setEquipementsMaintenance] = useState([]);
+  const [scheduleCompliances, setScheduleCompliances] = useState([]);
   const [activities, setActivities] = useState([]);
   const [evidences, setEvidneces] = useState([]);
 
@@ -190,6 +193,12 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     data: equipementMaintenenceQuery,
     refetch: getequipementMaintenenceQueryRefetch,
   } = useEquipementMaintenanceByReportId({ id: param_report_id }, setEquipementsMaintenance);
+
+  const {
+    data: scheduleComplianceQuery,
+    refetch: getScheduleComplianceQueryRefetch,
+  } = useScheduleComplianceByReportId({ id: param_report_id }, setScheduleCompliances);
+
 
   // Obtener los colaboradores, en su último estado reportado
   const getEmployees = () => {
@@ -558,7 +567,17 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="7. CUMPLIMIENTO DE CRONOGRAMA"
-                ></ReportCardComponent>
+                  pending={getPending(scheduleCompliances)}
+                >
+                  <ReportScheduleComplianceComponent
+                    report_id={param_report_id}
+                    commerce_id={param_commerce_id}
+                    scheduleCompliances={scheduleCompliances}
+                    scheduleComplianceQuery={scheduleComplianceQuery}
+                    setScheduleCompliance={setScheduleCompliances}
+                    getScheduleComplianceByReportIdReport={() => getScheduleComplianceQueryRefetch()}
+                  ></ReportScheduleComplianceComponent>
+                </ReportCardComponent>
 
                 {/* 8. COMPROMISOS DE ASISTIR EN SALUD Y RIESGOS LABORALES */}
                 <ReportCardComponent
