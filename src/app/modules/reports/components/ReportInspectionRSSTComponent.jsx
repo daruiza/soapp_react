@@ -392,7 +392,7 @@ export const ReportInspectionRSSTComponent = ({
                                             onChange={(event) => changeInputInspection(event, index)}
                                             error={cmms?.work === ''}
                                             helperText={cmms?.workTouched && !cmms?.work ? 'Este campo es requerido' : ''}
-                                        // helperText={!cmms?.work ? 'Este campo es requerido' : ''}
+                                            // helperText={!cmms?.work ? 'Este campo es requerido' : ''}
                                         />
                                     </Grid>
 
