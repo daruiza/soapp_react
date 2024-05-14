@@ -29,18 +29,20 @@ export const EvidenceViewerComponent = ({ files = [], open = false, handleClose 
                 </Grid>
             </DialogTitle>
             <DialogContent>
-
-                <DocViewer
-                    pluginRenderers={DocViewerRenderers}
-                    documents={docs}
-                    config={{
-                        header: {
-                            disableHeader: false,
-                            disableFileName: false,
-                            retainURLParams: false
-                        }
-                    }}
-                />
+                {
+                    docs.length &&
+                    <DocViewer
+                        pluginRenderers={DocViewerRenderers}
+                        documents={docs}
+                        config={{
+                            header: {
+                                disableHeader: false,
+                                disableFileName: false,
+                                retainURLParams: false
+                            }
+                        }}
+                    />
+                }
             </DialogContent>
 
             <DialogActions>

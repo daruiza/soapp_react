@@ -23,9 +23,9 @@ export const ReportScheduleComplianceComponent = ({
     report_id = null,
     commerce_id = null,
     scheduleCompliances = [],
-    setScheduleCompliance = ()=>{},
+    setScheduleCompliance = () => { },
     scheduleComplianceQuery = [],
-    getScheduleComplianceByReportIdReport = ()=>{},
+    getScheduleComplianceByReportIdReport = () => { },
 }) => {
 
     const dispatch = useDispatch();
@@ -39,7 +39,7 @@ export const ReportScheduleComplianceComponent = ({
         dialogtitle: '',
         dialogcontenttext: '',
         object: {}
-        });
+    });
 
     const [handleAlert, setHandleAlert] = useState({
         openAlert: false,
@@ -48,7 +48,7 @@ export const ReportScheduleComplianceComponent = ({
         alertTittle: '',
         alertMessage: '',
         alertChildren: false
-    });   
+    });
 
     // Query  
     const { mutate: shceduleComplianceDelete } = useScheduleComplianceDeleteId(
@@ -63,8 +63,8 @@ export const ReportScheduleComplianceComponent = ({
         {}, getScheduleComplianceByReportIdReport
     );
 
-     // Cambios en los inputs del Array support
-     const changeInputScheduleCompliance = ({ target: { value, name } }, index) => {
+    // Cambios en los inputs del Array support
+    const changeInputScheduleCompliance = ({ target: { value, name } }, index) => {
         setScheduleCompliance((cmms) => cmms.toSpliced(index, 1,
             {
                 ...scheduleCompliances[index],
@@ -102,8 +102,8 @@ export const ReportScheduleComplianceComponent = ({
         }))
     }
 
-     // Evidences
-     const getEvidencesById = (id) => {
+    // Evidences
+    const getEvidencesById = (id) => {
         if (id) {
             dispatch(ShowByScheduleComplianceId({
                 form: {
@@ -133,7 +133,7 @@ export const ReportScheduleComplianceComponent = ({
             form: {
                 name: file.name.split('.')[0],
                 type: file.type,
-                equipement_id: object.id,
+                compliance_schedule_id: object.id,
                 file: data.storage_image_path,
                 approved: false
             }
@@ -145,7 +145,7 @@ export const ReportScheduleComplianceComponent = ({
     }
 
     const handleRemoveScheduleComplianceEvidence = (file, object) => {
-        dispatch(deleteScheduleComplianceEvidenceId({            
+        dispatch(deleteScheduleComplianceEvidenceId({
             form: { id: file.evidence_id }
         })).then((data) => {
             setFiles((files) => [...files.filter(fl => fl !== file)]);
@@ -180,8 +180,7 @@ export const ReportScheduleComplianceComponent = ({
 
     const scheduleComplianceSaveValidator = (cmms) => {
         if (
-            !cmms.date ||
-            !cmms.observations
+            !cmms.company
         ) { return true; }
 
         const cmmschedulecompliance = scheduleComplianceinit?.find(el => el.id === cmms.id);
@@ -190,27 +189,25 @@ export const ReportScheduleComplianceComponent = ({
         return 'id' in cmms ?
             JSON.stringify({
                 id: cmmschedulecompliance?.id,
-                buildings: cmmschedulecompliance?.buildings,
-                tools: cmmschedulecompliance?.tools,
-                teams: cmmschedulecompliance?.teams,
-                date: cmmschedulecompliance?.date,
-                observations: cmmschedulecompliance?.observations,
+                company: cmmschedulecompliance?.company,
+                planned_activities: cmmschedulecompliance?.planned_activities,
+                executed_activities: cmmschedulecompliance?.executed_activities,
+                compliance: cmmschedulecompliance?.compliance,
                 report_id: cmmschedulecompliance?.report_id,
                 created_at: cmmschedulecompliance?.created_at,
                 updated_at: cmmschedulecompliance?.updated_at,
             }) ==
             JSON.stringify({
                 id: cmms?.id,
-                buildings: cmms?.buildings,
-                tools: cmms?.tools,
-                teams: cmms?.teams,
-                date: cmms?.date,
-                observations: cmms?.observations,
+                company: cmms?.company,
+                planned_activities: cmms?.planned_activities,
+                executed_activities: cmms?.executed_activities,
+                compliance: cmms?.compliance,
                 report_id: cmms?.report_id,
                 created_at: cmms?.created_at,
                 updated_at: cmms?.updated_at,
             }) :
-            !!((!cmms.date) || (!cmms.observations))
+            !!((!cmms.company))
     }
 
     useEffect(() => {
@@ -223,6 +220,76 @@ export const ReportScheduleComplianceComponent = ({
 
 
     return (
-        <div>ReportScheduleComplianceComponent</div>
+        <Grid container> {
+            scheduleCompliances?.length !== 0 &&
+            scheduleCompliances?.map((cmms, index) => {
+                return (
+                    <Grid container key={index} >
+
+                    </Grid>
+                )
+            })}
+            <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
+                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}></Grid>
+                <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                    <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                        <Button onClick={() => {
+                            setScheduleCompliance(cmms => [...cmms, {
+                                activity: null,
+                                company: null,
+                                planned_activities: null,
+                                executed_activities: null,
+                                compliance: null,
+                                report_id: report_id,
+                                save: false
+                            }])
+                        }}
+                            variant="contained"
+                            disabled={!!scheduleCompliances?.find(el => el.save === false)}
+                            sx={{
+                                height: '100%',
+                                color: `${palette.text.custom}`,
+                                // border: '1px solid'
+                            }}>AGREGAR CUMPLIMIENTO DE CRONOGRAMA
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            {
+                openEvidences.open && <EvidenceGenericComponent
+                    open={openEvidences.open}
+                    dialogtitle={openEvidences.dialogtitle}
+                    dialogcontenttext={openEvidences.dialogcontenttext}
+                    object={openEvidences.object}
+                    report_id={report_id}
+                    commerce_id={commerce_id}
+                    approved={openEvidences.approved}
+                    handleClose={() => {
+                        setFiles([]);
+                        setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
+                    }}
+                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/complianceschedule/${openEvidences?.object?.id ?? null}`}
+                    files={files}
+                    setFiles={setFiles}
+                    getEvidencesById={getEvidencesById}
+                    evidenceStore={storeWorkManagementEvidence}
+                    handleRemove={handleRemoveWorkManagementEvidence}
+                    handleFileItemUpload={handleFileItemUpload}
+                ></EvidenceGenericComponent>
+            }
+
+            {
+                handleAlert.openAlert && <DialogAlertComponent
+                    open={handleAlert.openAlert}
+                    handleClose={() => handleAlert.functionAlertClose()}
+                    handleAgree={() => handleAlert.functionAlertAgree()}
+                    props={{
+                        tittle: handleAlert.alertTittle,
+                        message: handleAlert.alertMessage
+                    }}
+                ></DialogAlertComponent>
+            }
+        </Grid>
     )
 }

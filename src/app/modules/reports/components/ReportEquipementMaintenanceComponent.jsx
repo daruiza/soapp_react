@@ -225,7 +225,7 @@ export const ReportEquipementMaintenanceComponent = ({
     }, [equipementMaintenenceQuery]);
 
     return (
-        <Grid container>{
+        <Grid container> {
             equipementsMaintenance?.length !== 0 &&
             equipementsMaintenance?.map((cmms, index) => {
                 return (
@@ -376,6 +376,27 @@ export const ReportEquipementMaintenanceComponent = ({
             <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
                 <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}></Grid>
                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                    <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
+                        <Button onClick={() => {
+                        setEquipementsMaintenance(cmms => [...cmms, {
+                            buildings: false,
+                            tools: false,
+                            teams: false,
+                            date: null,
+                            observations: null,
+                            report_id: report_id,
+                            save: false
+                        }])
+                        }}
+                        variant="contained"
+                        disabled={!!equipementsMaintenance?.find(el => el.save === false)}
+                        sx={{
+                            height: '100%',
+                            color: `${palette.text.custom}`,
+                            // border: '1px solid'
+                        }}>AGREGAR MANTENIMIENTO PERIÓDICO
+                        </Button>
+                    </Grid>
                 </Grid>
             </Grid>
             {

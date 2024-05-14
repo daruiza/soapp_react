@@ -552,16 +552,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                       getReportById={() => reportidQuerryReferch()}
                     ></ReportTrainingSSTComponent>
                   )}
-                </ReportCardComponent>
-
-                {/* HORAS HOMBRE CAPACITACIÓN */}
-                {/* <ReportCardComponent
-                    sx={{ borderRadius: '0px' }}
-                    title="HORAS HOMBRE CAPACITACIÓN"
-                > */}
-                {/* 6. CAPACITACIÓN Y ENTRENAMIENTO SST */}
-                {/* Informes excel linea 66 */}
-                {/* </ReportCardComponent> */}
+                </ReportCardComponent>               
 
                 {/* 7. CUMPLIMIENTO DE CRONOGRAMA */}
                 <ReportCardComponent
@@ -696,6 +687,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
                   title="16. MANTENIMIENTO PERIÓDICO A LAS INSTALACIONES, EQUIPOS Y HERRAMIENTAS"
+                  pending={getPending(equipementsMaintenance)}
                 >
                   <ReportEquipementMaintenanceComponent
                     report_id={param_report_id}
