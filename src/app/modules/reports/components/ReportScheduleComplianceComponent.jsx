@@ -65,14 +65,31 @@ export const ReportScheduleComplianceComponent = ({
 
     // Cambios en los inputs del Array support
     const changeInputScheduleCompliance = ({ target: { value, name } }, index) => {
-        setScheduleCompliance((cmms) => cmms.toSpliced(index, 1,
-            {
-                ...scheduleCompliances[index],
-                [name]: value,
-                [`${name}Touched`]: true
-            })
-        );
-    }
+
+        if (name === 'planned_activities' || name === 'executed_activities') {
+
+            const planned_activities = name === 'planned_activities' ? value : scheduleCompliances[index].planned_activities;
+            const executed_activities = name === 'executed_activities' ? value : scheduleCompliances[index].executed_activities;
+            const planned_activities_value = Number.isNaN(planned_activities)?0:Number(planned_activities);
+            const executed_activities_value = Number.isNaN(executed_activities)?0:Number(executed_activities);            
+            const compliance = (100*executed_activities_value)/(planned_activities_value);
+            setScheduleCompliance((cmms) => cmms.toSpliced(index, 1,{
+                    ...scheduleCompliances[index],
+                    [name]: value,
+                    compliance: `${Number.isNaN(compliance)?0:compliance}%`,
+                    [`${name}Touched`]: true
+                })
+            );
+        } else {
+            setScheduleCompliance((cmms) => cmms.toSpliced(index, 1,
+                {
+                    ...scheduleCompliances[index],
+                    [name]: value,
+                    [`${name}Touched`]: true
+                })
+            );
+        }
+    }    
 
     const handleDeleteScheduleCompliance = (cmms) => {
         setHandleAlert({
@@ -217,14 +234,33 @@ export const ReportScheduleComplianceComponent = ({
         return regex.test(value);
     };
 
+    // Observables
+    const setCompliance = (index) => {
+        // Nulifiación de Complience
+        setScheduleCompliance((cmms) => cmms.toSpliced(index, 1,
+            {
+                ...scheduleCompliances[index],
+                compliance: 0,
+            })
+        );
+
+        if (Number(scheduleCompliances[index].planned_activities) && Number(scheduleCompliances[index].executed_activities)) {
+            setScheduleCompliance((cmms) => cmms.toSpliced(index, 1,
+                {
+                    ...scheduleCompliances[index],
+                    compliance: Number(scheduleCompliances[index].planned_activities) + Number(scheduleCompliances[index].executed_activities),
+                })
+            );
+        }
+    }
+
+
     useEffect(() => {
         if (!!scheduleComplianceQuery && scheduleComplianceQuery.length) {
             setScheduleComplianceInit(scheduleCompliances);
             // setScheduleComplianceInit(scheduleComplianceQuery);
         }
     }, [scheduleComplianceQuery]);
-
-
 
     return (
         <Grid container> {
@@ -265,6 +301,38 @@ export const ReportScheduleComplianceComponent = ({
                                     !numberPatternValidation(cmms?.planned_activities) ? 'Se espera un número positivo' :
                                         cmms?.planned_activitiesTouched && !cmms?.planned_activities ? 'Este campo es requerido' : ''
                                 }
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                            <TextField
+                                disabled={cmms?.approved ? true : false}
+                                variant="standard"
+                                size="small"
+                                label="# Actividades Ejecutadas"
+                                type="text"
+                                fullWidth
+                                name="executed_activities"
+                                value={cmms?.executed_activities ?? ''}
+                                onChange={(event) => changeInputScheduleCompliance(event, index)}
+                                error={!numberPatternValidation(cmms?.executed_activities) ? true : false}
+                                helperText={
+                                    !numberPatternValidation(cmms?.executed_activities) ? 'Se espera un número positivo' :
+                                        cmms?.executed_activitiesTouched && !cmms?.executed_activities ? 'Este campo es requerido' : ''
+                                }
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                            <TextField
+                                disabled={true}
+                                variant="standard"
+                                size="small"
+                                label="Cumplimiento"
+                                type="text"
+                                fullWidth
+                                name="compliance"
+                                value={cmms?.compliance ?? ''}
                             />
                         </Grid>
 
