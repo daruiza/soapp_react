@@ -268,72 +268,74 @@ export const ReportScheduleComplianceComponent = ({
             scheduleCompliances?.map((cmms, index) => {
                 return (
                     <Grid container key={index} >
-                        <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                            <TextField
-                                disabled={cmms?.approved ? true : false}
-                                variant="standard"
-                                size="small"
-                                label="Empresa*"
-                                type="text"
-                                fullWidth
-                                name="company"
-                                value={cmms?.company ?? ''}
-                                onChange={(event) => changeInputScheduleCompliance(event, index)}
-                                error={cmms?.company === ''}
-                                helperText={cmms?.companyTouched && !cmms?.company ? 'Este campo es requerido' : ''}
-                            // helperText={!cmms?.company ? 'Este campo es requerido' : ''}
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                            <TextField
-                                disabled={cmms?.approved ? true : false}
-                                variant="standard"
-                                size="small"
-                                label="# Actividades Programadas"
-                                type="text"
-                                fullWidth
-                                name="planned_activities"
-                                value={cmms?.planned_activities ?? ''}
-                                onChange={(event) => changeInputScheduleCompliance(event, index)}
-                                error={!numberPatternValidation(cmms?.planned_activities) ? true : false}
-                                helperText={
-                                    !numberPatternValidation(cmms?.planned_activities) ? 'Se espera un número positivo' :
-                                        cmms?.planned_activitiesTouched && !cmms?.planned_activities ? 'Este campo es requerido' : ''
-                                }
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                            <TextField
-                                disabled={cmms?.approved ? true : false}
-                                variant="standard"
-                                size="small"
-                                label="# Actividades Ejecutadas"
-                                type="text"
-                                fullWidth
-                                name="executed_activities"
-                                value={cmms?.executed_activities ?? ''}
-                                onChange={(event) => changeInputScheduleCompliance(event, index)}
-                                error={!numberPatternValidation(cmms?.executed_activities) ? true : false}
-                                helperText={
-                                    !numberPatternValidation(cmms?.executed_activities) ? 'Se espera un número positivo' :
-                                        cmms?.executed_activitiesTouched && !cmms?.executed_activities ? 'Este campo es requerido' : ''
-                                }
-                            />
-                        </Grid>
-
-                        <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                            <TextField
-                                disabled={true}
-                                variant="standard"
-                                size="small"
-                                label="Cumplimiento"
-                                type="text"
-                                fullWidth
-                                name="compliance"
-                                value={cmms?.compliance ?? ''}
-                            />
+                        <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
+                        <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
+                            <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>                                
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <TextField
+                                        disabled={cmms?.approved ? true : false}
+                                        variant="standard"
+                                        size="small"
+                                        label="Empresa*"
+                                        type="text"
+                                        fullWidth
+                                        name="company"
+                                        value={cmms?.company ?? ''}
+                                        onChange={(event) => changeInputScheduleCompliance(event, index)}
+                                        error={cmms?.company === ''}
+                                        helperText={cmms?.companyTouched && !cmms?.company ? 'Este campo es requerido' : ''}
+                                    // helperText={!cmms?.company ? 'Este campo es requerido' : ''}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <TextField
+                                        disabled={cmms?.approved ? true : false}
+                                        variant="standard"
+                                        size="small"
+                                        label="# Actividades Programadas"
+                                        type="text"
+                                        fullWidth
+                                        name="planned_activities"
+                                        value={cmms?.planned_activities ?? ''}
+                                        onChange={(event) => changeInputScheduleCompliance(event, index)}
+                                        error={!numberPatternValidation(cmms?.planned_activities) ? true : false}
+                                        helperText={
+                                            !numberPatternValidation(cmms?.planned_activities) ? 'Se espera un número positivo' :
+                                                cmms?.planned_activitiesTouched && !cmms?.planned_activities ? 'Este campo es requerido' : ''
+                                        }
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <TextField
+                                        disabled={cmms?.approved ? true : false}
+                                        variant="standard"
+                                        size="small"
+                                        label="# Actividades Ejecutadas"
+                                        type="text"
+                                        fullWidth
+                                        name="executed_activities"
+                                        value={cmms?.executed_activities ?? ''}
+                                        onChange={(event) => changeInputScheduleCompliance(event, index)}
+                                        error={!numberPatternValidation(cmms?.executed_activities) ? true : false}
+                                        helperText={
+                                            !numberPatternValidation(cmms?.executed_activities) ? 'Se espera un número positivo' :
+                                                cmms?.executed_activitiesTouched && !cmms?.executed_activities ? 'Este campo es requerido' : ''
+                                        }
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <TextField
+                                        disabled={true}
+                                        variant="standard"
+                                        size="small"
+                                        label="Cumplimiento"
+                                        type="text"
+                                        fullWidth
+                                        name="compliance"
+                                        value={cmms?.compliance ?? ''}
+                                    />
+                                </Grid>
+                            </Grid>
                         </Grid>
 
                     </Grid>
