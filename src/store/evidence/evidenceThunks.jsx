@@ -522,7 +522,7 @@ export const ShowByScheduleComplianceEvidenceId = ({ form = {} }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form && form.id) {
-            return soappLaravelApi.get(`api/compliancescheduleevidence/showbyequipementmaintenanceevidenceid/${form.id}`, { params: { ...form } });
+            return soappLaravelApi.get(`api/compliancescheduleevidence/showbycompliancescheduleevidenceid/${form.id}`, { params: { ...form } });
         }
     }
 }
