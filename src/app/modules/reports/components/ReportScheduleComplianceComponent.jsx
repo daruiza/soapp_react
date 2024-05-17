@@ -2,9 +2,9 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
-import { ShowByCompromiseEvidenceId, ShowByScheduleComplianceId, compromiseDeleteById, compromiseEvidenceStore, compromiseShowByReportId, compromiseStore, compromiseUpdate, deleteCompromiseEvidenceId, deleteScheduleComplianceEvidenceId, scheduleComplianceEvidenceStore, scheduleComplianceEvidenceUpdate } from '../../../../store';
+import { ShowByScheduleComplianceId, deleteScheduleComplianceEvidenceId, scheduleComplianceEvidenceStore, scheduleComplianceEvidenceUpdate } from '../../../../store';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
-import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip } from '@mui/material';
+import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip, InputAdornment } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import es from 'dayjs/locale/es';
@@ -65,20 +65,18 @@ export const ReportScheduleComplianceComponent = ({
 
     // Cambios en los inputs del Array support
     const changeInputScheduleCompliance = ({ target: { value, name } }, index) => {
-
         if (name === 'planned_activities' || name === 'executed_activities') {
-
             const planned_activities = name === 'planned_activities' ? value : scheduleCompliances[index].planned_activities;
             const executed_activities = name === 'executed_activities' ? value : scheduleCompliances[index].executed_activities;
-            const planned_activities_value = Number.isNaN(planned_activities)?0:Number(planned_activities);
-            const executed_activities_value = Number.isNaN(executed_activities)?0:Number(executed_activities);            
-            const compliance = (100*executed_activities_value)/(planned_activities_value);
-            setScheduleCompliance((cmms) => cmms.toSpliced(index, 1,{
-                    ...scheduleCompliances[index],
-                    [name]: value,
-                    compliance: `${Number.isNaN(compliance)?0:compliance}%`,
-                    [`${name}Touched`]: true
-                })
+            const planned_activities_value = Number.isNaN(planned_activities) ? 0 : Number(planned_activities);
+            const executed_activities_value = Number.isNaN(executed_activities) ? 0 : Number(executed_activities);
+            const compliance = Math.trunc((100 * executed_activities_value) / (planned_activities_value));
+            setScheduleCompliance((cmms) => cmms.toSpliced(index, 1, {
+                ...scheduleCompliances[index],
+                [name]: value,
+                compliance: `${Number.isNaN(compliance) ? 0 : compliance}`,
+                [`${name}Touched`]: true
+            })
             );
         } else {
             setScheduleCompliance((cmms) => cmms.toSpliced(index, 1,
@@ -89,7 +87,7 @@ export const ReportScheduleComplianceComponent = ({
                 })
             );
         }
-    }    
+    }
 
     const handleDeleteScheduleCompliance = (cmms) => {
         setHandleAlert({
@@ -102,7 +100,7 @@ export const ReportScheduleComplianceComponent = ({
     }
 
     const handleSaveScheduleCompliance = (cmms) => {
-        if (!cmms.date || !cmms.observations) {
+        if (!cmms.company) {
             return;
         }
         shceduleComplianceStore(cmms);
@@ -234,27 +232,6 @@ export const ReportScheduleComplianceComponent = ({
         return regex.test(value);
     };
 
-    // Observables
-    const setCompliance = (index) => {
-        // Nulifiación de Complience
-        setScheduleCompliance((cmms) => cmms.toSpliced(index, 1,
-            {
-                ...scheduleCompliances[index],
-                compliance: 0,
-            })
-        );
-
-        if (Number(scheduleCompliances[index].planned_activities) && Number(scheduleCompliances[index].executed_activities)) {
-            setScheduleCompliance((cmms) => cmms.toSpliced(index, 1,
-                {
-                    ...scheduleCompliances[index],
-                    compliance: Number(scheduleCompliances[index].planned_activities) + Number(scheduleCompliances[index].executed_activities),
-                })
-            );
-        }
-    }
-
-
     useEffect(() => {
         if (!!scheduleComplianceQuery && scheduleComplianceQuery.length) {
             setScheduleComplianceInit(scheduleCompliances);
@@ -270,7 +247,7 @@ export const ReportScheduleComplianceComponent = ({
                     <Grid container key={index} >
                         <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                         <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
-                            <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>                                
+                            <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
                                 <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                     <TextField
                                         disabled={cmms?.approved ? true : false}
@@ -333,8 +310,81 @@ export const ReportScheduleComplianceComponent = ({
                                         fullWidth
                                         name="compliance"
                                         value={cmms?.compliance ?? ''}
+                                        InputProps={{
+                                            endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                                        }}
                                     />
                                 </Grid>
+                            </Grid>
+
+                            <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
+                                <Tooltip title="Eliminar Registro" placement="top">
+                                    <span>
+                                        <IconButton
+                                            disabled={cmms?.approved ? true : false}
+                                            onClick={() => handleDeleteScheduleCompliance(cmms)}
+                                        >
+                                            <HighlightOffIcon
+                                                sx={{
+                                                    color: palette.text.disabled,
+                                                    "&:hover": {
+                                                        // color: `${palette.text.primary}`,
+                                                        cursor: "pointer"
+                                                    }
+                                                }}></HighlightOffIcon>
+                                        </IconButton>
+                                    </span>
+                                </Tooltip>
+                                <Tooltip title="Guardar Cambios" placement="top">
+                                    <span>
+                                        <IconButton
+                                            disabled={scheduleComplianceSaveValidator(cmms) || cmms?.approved ? true : false}
+                                            onClick={() => handleSaveScheduleCompliance(cmms)}>
+                                            <SaveIcon></SaveIcon>
+                                        </IconButton>
+                                    </span>
+                                </Tooltip>
+                                {
+                                    cmms?.id &&
+                                    <>
+
+                                        <Tooltip title="Evidencias" placement="top">
+                                            <span>
+                                                <IconButton
+                                                    disableFocusRipple={cmms?.approved ? true : false}
+                                                    onClick={() => handleEvidenceOpen(cmms)}
+                                                ><AttachFileIcon></AttachFileIcon></IconButton>
+                                            </span>
+                                        </Tooltip>
+
+                                        <Tooltip title={`${cmms?.approved ? 'Aprobado' : 'Aprobar'}`} placement="top">
+                                            <span>
+                                                <PrivateAgentRoute>
+                                                    <IconButton
+                                                        onClick={() => handleSaveScheduleCompliance({ ...cmms, approved: !cmms?.approved })}>
+                                                        {!!cmms?.approved &&
+                                                            <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                        }
+                                                        {!cmms?.approved &&
+                                                            <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                        }
+                                                    </IconButton>
+                                                </PrivateAgentRoute>
+
+                                                <PrivateCustomerRoute>
+                                                    <IconButton disabled>
+                                                        {cmms?.approved &&
+                                                            <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
+                                                        }
+                                                        {!cmms?.approved &&
+                                                            <CheckBoxOutlineBlankIcon></CheckBoxOutlineBlankIcon>
+                                                        }
+                                                    </IconButton>
+                                                </PrivateCustomerRoute>
+                                            </span>
+                                        </Tooltip>
+                                    </>
+                                }
                             </Grid>
                         </Grid>
 
@@ -385,8 +435,8 @@ export const ReportScheduleComplianceComponent = ({
                     files={files}
                     setFiles={setFiles}
                     getEvidencesById={getEvidencesById}
-                    evidenceStore={storeWorkManagementEvidence}
-                    handleRemove={handleRemoveWorkManagementEvidence}
+                    evidenceStore={storeScheduleComplianceEvidence}
+                    handleRemove={handleRemoveScheduleComplianceEvidence}
                     handleFileItemUpload={handleFileItemUpload}
                 ></EvidenceGenericComponent>
             }
