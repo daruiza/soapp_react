@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import es from 'dayjs/locale/es';
 import { uploadEmployeePhoto } from '../../../../api/upload/uploadThuks';
 import { employeeStore, employeeUpdate } from '../../../../store';
+import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 const formValidations = {
     name: [(value) => value.length >= 1, 'El Nombre es obligatorio.'],

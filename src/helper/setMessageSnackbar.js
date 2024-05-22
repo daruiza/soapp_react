@@ -5,7 +5,7 @@ export const setMessageSnackbar = ({ dispatch, error }) => {
         const { validator } = error.response.data.error;
         for (const attr of Object.keys(validator)) {
             dispatch(messagePush({
-                message: validator[attr],
+                message: validator[attr][0],
                 alert: 'error'
             }));
         }

@@ -10,7 +10,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useTheme } from '@emotion/react';
 import dayjs from 'dayjs';
 import esES from 'dayjs/locale/es';
-import { commerceUpdate, employeeDelete, employeeIndex, getCommerceByCommerce, login } from '../../../../store';
+import { commerceUpdate, employeeDelete, employeeIndex, getCommerceByCommerce, login, reportIndex } from '../../../../store';
 import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -71,7 +71,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
   const [employeeArray, setEmployeeArray] = useState([]);
   const [documenttypeArray, setDocumenttypeArray] = useState([]);
   const [employeestateArray, setEmployeestateArray] = useState([]);
-  const [isemployeetypeArray, setIsemployeetypeArray] = useState([]);  
+  const [isemployeetypeArray, setIsemployeetypeArray] = useState([]);
 
   const getEmployees = (attr = {}, form = formState) => {
     const commerce_id = form?.commerce_id ? form.commerce_id : commerce?.id ?? param_commerce_id;
@@ -160,9 +160,27 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
   }
 
   const handleEmployeeSteteSelectClose = () => { setOpenEmployeeSteteSelect(false) }
-  const handleEmployeeSteteSelectOpen = () => {  setOpenEmployeeSteteSelect(true) }
+  const handleEmployeeSteteSelectOpen = () => { setOpenEmployeeSteteSelect(true) }
 
   const onSubmit = () => { getEmployees() }
+
+  // Comportamiento almenos un reporte
+  // Revisamos si tenemos almenos un reporte
+  const handleNewEmployee = () => {
+    dispatch(reportIndex({
+      form: { commerce_id: commerce?.id ?? null }
+    })).then(({ data: { data: { report } } }) => {
+      console.log('report', report);
+      if (report.data.length) {
+        handleEmployeeStoreOpen();
+      } else {
+        dispatch(messagePush({
+          message: 'Debes primero solicitar la creación de almenos un Reporte',
+          alert: 'warning'
+        }));
+      }
+    });
+  }
 
   useEffect(() => {
     if (commerce || param_commerce_id) {
@@ -171,7 +189,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
       getEmployeeState();
       getIsEmployeeTypes();
       setInput('commerce_id', commerce?.id ?? param_commerce_id);
-      setTimeout(() => onResetForm({ initialForm: formState, formState }), 100)      
+      setTimeout(() => onResetForm({ initialForm: formState, formState }), 100)
     }
 
     if (param_commerce_id && !commerce) {
@@ -279,7 +297,7 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
                         height: '100%',
                         // color: `${palette.text.primary}`
                       }}
-                      onClick={handleEmployeeStoreOpen}
+                      onClick={handleNewEmployee}
                       variant="contained">Nuevo Colaborador</Button>
                   </Grid>
                 </Grid>

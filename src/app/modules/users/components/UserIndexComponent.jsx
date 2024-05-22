@@ -47,7 +47,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
 
   const [user, setUser] = useState({});
   const { data: rolArray } = useRol();
-  const usersQuery = useUser();  
+  const usersQuery = useUser();
 
   // EVENTOS
   const onClearForm = () => {
@@ -89,6 +89,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
       if (report.data.length) {
         dispatch(getCommerceByCommerce({ commerce })).then(({ data: { data: { commerce: commercebycommerce } } }) => {
           dispatch(commerceUpdate({ commerce: commercebycommerce }))
+          // Primero navaga el componente y el usuario alla crea los colaboradores
           navigate(`/employees/commerce/${commerce.id}`);
         }, error => {
           dispatch(messagePush({
@@ -104,6 +105,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
         }));
       }
     });
+    
   }
 
   const navegateReports = ({ commerce, id }) => {
@@ -348,7 +350,13 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.lastname}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.email}</TableCell>
                       <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.phone}</TableCell>
-                      <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.rol.name} {` - [${user?.commerce?.name}]`}</TableCell>
+                      <TableCell sx={{ color: `${palette.text.secondary}` }} align="right">{user.rol.name}{' - '}
+                        {
+                          user?.commerce?.name ? 
+                          <span>[{user?.commerce?.name}]</span>:
+                          <span style={{color: `${palette.text.error}`, cursor:'pointer'}} onClick={() => handleCommeceOpen(user)}>!Agregar un negocio¡</span>
+                        }
+                      </TableCell>
 
                       <TableCell align="center">
                         <Grid sx={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'center' }}>
