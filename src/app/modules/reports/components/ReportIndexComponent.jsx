@@ -15,6 +15,7 @@ import { Work } from '@mui/icons-material';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 import { RolTypes } from '../../../types';
 import { useProyectType } from '../../../../hooks/query/useProyectType';
+import { useQueryClient } from 'react-query';
 
 const formValidations = {
   progress: [(value) => (RegExp('^[0-9]+$').test(value) && value < 101) || !value, 'El Progrespo es un número de 0 a 100.'],
@@ -67,6 +68,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   const [report, setReport] = useState({});  
 
   // Query  
+  const queryClient = useQueryClient()
   const reportsQuery = useReport(); 
   const { data: projecTypetArray } = useProyectType();
   const { data: monthArray } = useGeneralList('month');
@@ -156,6 +158,13 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
   const onSubmit = () => {
     getReports();
   }
+
+  useEffect(()=>{
+    if(reportsQuery) {
+      queryClient.invalidateQueries({ queryKey: ['reportindex'] })
+      // reportsQuery.refetch();
+    }
+  },[])
 
   return (
     <Grid container

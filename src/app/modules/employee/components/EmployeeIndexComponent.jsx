@@ -10,7 +10,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useTheme } from '@emotion/react';
 import dayjs from 'dayjs';
 import esES from 'dayjs/locale/es';
-import { commerceUpdate, employeeDelete, employeeIndex, getCommerceByCommerce, login, reportIndex } from '../../../../store';
+import { commerceUpdate, employeeDelete, employeeIndex, getCommerceByCommerce, login, messagePush, reportIndex } from '../../../../store';
 import { genericListGetByName } from '../../../../store/genericlist/genericlistThunks';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -170,7 +170,6 @@ export const EmployeeIndexComponent = ({ navBarWidth = 58 }) => {
     dispatch(reportIndex({
       form: { commerce_id: commerce?.id ?? null }
     })).then(({ data: { data: { report } } }) => {
-      console.log('report', report);
       if (report.data.length) {
         handleEmployeeStoreOpen();
       } else {

@@ -10,14 +10,19 @@ const useReport = (dataQueryinit = {}) => {
     const [dataQuery, setDataQuery] = useState(dataQueryinit);
 
     const query = useQuery({
-        queryKey: ['reportid', dataQuery],
+        queryKey: ['reportindex', dataQuery],
         queryFn: () => dispatch(reportIndex({ form: { ...dataQuery } })).then(({ data: { data: { report } } }) => (report)),
         enabled: true,
         staleTime: Infinity,
         cacheTime: Infinity
     });
 
-    return { isSuccess: query.isSuccess, data: query.data, setDataQuery, refetch: query.refetch }
+    return { 
+        isSuccess: query.isSuccess, 
+        data: query.data, 
+        setDataQuery, 
+        refetch: query.refetch 
+    }
 }
 
 
