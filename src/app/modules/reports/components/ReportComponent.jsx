@@ -709,7 +709,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     commerce_id={param_commerce_id}
                     evidences={evidences}
                     setEvidences={setEvidneces}
-                    upload_evidence_url={`images/commerce/${param_commerce_id ?? null}/report/${param_report_id ?? null}/reportevidence`}
+                    upload_evidence_url={`commerce/${param_commerce_id ?? null}/report/${param_report_id ?? null}/reportevidence`}
                     getReportById={() => reportidQuerryReferch()}
                   ></ReportEvidenceComponent>
                 </ReportCardComponent>               

@@ -54,7 +54,7 @@ export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext 
         ) return;
 
 
-        dispatch(uploadEvidenceFileName(file, `images/commerce/${commerce_id}/report/${report_id}/activities/${activity?.id}`))
+        dispatch(uploadEvidenceFileName(file, `commerce/${commerce_id}/report/${report_id}/activities/${activity?.id}`))
             .then(({ data }) => {
                 // Guardamos la evidencia
                 dispatch(activityEvidenceStore({

@@ -412,7 +412,7 @@ export const ReportEquipementMaintenanceComponent = ({
                         setFiles([]);
                         setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
                     }}
-                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/equipementmaintenance/${openEvidences?.object?.id ?? null}`}
+                    upload_evidence_url={`commerce/${commerce_id}/report/${report_id}/equipementmaintenance/${openEvidences?.object?.id ?? null}`}
                     files={files}
                     setFiles={setFiles}
                     getEvidencesById={getEvidencesById}

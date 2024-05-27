@@ -5,7 +5,7 @@ export const uploadPhoto = (file) => {
         const { uploadApi } = useUpload(dispatch);
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('folder', 'images/users');
+        formData.append('folder', 'users');
         return uploadApi.post('api/upload/photo', formData);
     }
 }
@@ -15,7 +15,7 @@ export const uploadEmployeePhoto = (file, commerce_id) => {
         const { uploadApi } = useUpload(dispatch);
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('folder', `images/employee/${commerce_id}`);
+        formData.append('folder', `employee/${commerce_id}`);
         return uploadApi.post('api/upload/photo', formData);
     }
 }
@@ -25,7 +25,7 @@ export const uploadLogo = (file) => {
         const { uploadApi } = useUpload(dispatch);
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('folder', 'images/commerce/logos');
+        formData.append('folder', 'commerce/logos');
         return uploadApi.post('api/upload/photo', formData);
     }
 }
@@ -35,7 +35,7 @@ export const uploadEvidence = (file, commerce_id, report_id, employee_report) =>
         const { uploadApi } = useUpload(dispatch);
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('folder', `images/commerce/${commerce_id}/report/${report_id}/employee_report/${employee_report}`);
+        formData.append('folder', `commerce/${commerce_id}/report/${report_id}/employee_report/${employee_report}`);
         return uploadApi.post('api/upload/photo', formData);
     }
 }

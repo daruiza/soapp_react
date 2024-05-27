@@ -54,7 +54,7 @@ export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontentte
         ) return;
 
 
-        dispatch(uploadEvidenceFileName(file, `images/commerce/${commerce_id}/report/${report_id}/trainingsst/${trainingsst?.id}`))
+        dispatch(uploadEvidenceFileName(file, `commerce/${commerce_id}/report/${report_id}/trainingsst/${trainingsst?.id}`))
             .then(({ data }) => {
                 // Guardamos la evidencia
                 dispatch(trainingsstEvidenceStore({
