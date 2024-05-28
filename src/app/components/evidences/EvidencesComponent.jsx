@@ -62,7 +62,7 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                         name: file.name.split('.')[0],
                         type: file.type,
                         employee_report_id: employee_report.id,
-                        file: data.storage_image_path,
+                        file: data.image_path,
                         approved: false
                     }
                 })).then(({ data: { data: { evidence } } }) => {

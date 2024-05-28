@@ -52,7 +52,7 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
         if (file.type.includes('image')) {
             setImage(URL.createObjectURL(event.target.files[0]));
             dispatch(uploadPhoto(file)).then(({ data }) => {
-                setInput('photo', data.storage_image_path)
+                setInput('photo', data.image_path)
             });
         }
     }

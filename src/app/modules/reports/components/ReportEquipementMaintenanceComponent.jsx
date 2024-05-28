@@ -138,7 +138,7 @@ export const ReportEquipementMaintenanceComponent = ({
                 name: file.name.split('.')[0],
                 type: file.type,
                 equipement_id: object.id,
-                file: data.storage_image_path,
+                file: data.image_path,
                 approved: false
             }
         })).then(({ data: { data: { evidence } } }) => {

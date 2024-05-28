@@ -94,7 +94,7 @@ export const ReportEvidenceComponent = ({
         name: file.name.split('.')[0],
         type: file.type,
         report_id: report_id,
-        file: data.storage_image_path,
+        file: data.image_path,
         approved: false
       }
     })).then(({ data: { data: { evidence } } }) => {

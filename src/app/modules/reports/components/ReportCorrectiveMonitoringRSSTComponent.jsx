@@ -138,7 +138,7 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
                 name: file.name.split('.')[0],
                 type: file.type,
                 corrective_id: object.id,
-                file: data.storage_image_path,
+                file: data.image_path,
                 approved: false
             }
         })).then(({ data: { data: { evidence } } }) => {

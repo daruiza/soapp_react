@@ -156,7 +156,7 @@ export const ReportCompromiseSSTComponent = ({ report_id = null, commerce_id = n
                 name: file.name.split('.')[0],
                 type: file.type,
                 compromise_id: object.id,
-                file: data.storage_image_path,
+                file: data.image_path,
                 approved: false
             }
         })).then(({ data: { data: { evidence } } }) => {

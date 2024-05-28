@@ -150,7 +150,7 @@ export const ReportWorkManagementComponent = ({
         name: file.name.split('.')[0],
         type: file.type,
         work_management_id: object.id,
-        file: data.storage_image_path,
+        file: data.image_path,
         approved: false
       }
     })).then(({ data: { data: { evidence } } }) => {

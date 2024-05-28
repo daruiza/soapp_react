@@ -62,7 +62,7 @@ export const TrainingsstEvidenceComponent = ({ dialogtitle = '', dialogcontentte
                         name: file.name.split('.')[0],
                         type: file.type,
                         trainingsst_id: trainingsst.id,
-                        file: data.storage_image_path,
+                        file: data.image_path,
                         approved: false
                     }
                 })).then(({ data: { data: { evidence } } }) => {

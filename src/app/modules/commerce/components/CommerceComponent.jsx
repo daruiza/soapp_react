@@ -83,7 +83,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
         if (file.type.includes('image')) {
             setImage(URL.createObjectURL(event.target.files[0]));
             dispatch(uploadLogo(file)).then(({ data }) => {
-                setInput('logo', data.storage_image_path)
+                setInput('logo', data.image_path)
             });
         }
     }
