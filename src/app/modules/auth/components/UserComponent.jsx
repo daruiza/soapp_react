@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Avatar, Button, capitalize, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from '@mui/material'
 import { useDispatch } from 'react-redux';
-import { uploadPhoto } from '../../../../api/upload/uploadThuks';
+import { getSoappDownloadFile, uploadPhoto } from '../../../../api/upload/uploadThuks';
 import { useForm } from '../../../../hooks';
 import { updateUser, userUpdate } from '../../../../store';
 
@@ -40,7 +40,7 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
         onResetForm
     } = useForm(setInputsForm(user), formValidations);
 
-    const [image, setImage] = useState(user.photo ? `${window.location.origin}${user.photo}` : null);
+    const [image, setImage] = useState(null);
     const inputFileRef = useRef();
 
     // Behavior
@@ -67,6 +67,16 @@ export const UserComponent = ({ user = {}, open = false, handleClose = () => { }
             }, error => setMessageSnackbar({ dispatch, error }));
         }
     }
+
+    useEffect(() => {
+        if (user.photo) {
+            dispatch(getSoappDownloadFile({ path: user.photo }))
+                .then((response) => {
+                    const newfile = new Blob([response.data], { type: response.data.type });
+                    setImage(URL.createObjectURL(newfile));
+                })
+        }
+    }, [user])
 
     return (
         <Dialog
