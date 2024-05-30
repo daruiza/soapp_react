@@ -30,7 +30,7 @@ export const ReportEmployeeInductionComponent = ({
     changeInputCollaborator = () => { },    
     putEmployeeReportStore = () => { },
     handleDeleteEmployeeReport = () => { },
-    handleEvidenceOpen= () => { }
+    handleEvidenceOpen = () => { },
 }) => {
 
     const { palette } = useTheme();

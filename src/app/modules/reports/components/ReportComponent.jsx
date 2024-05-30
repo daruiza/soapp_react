@@ -433,6 +433,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                 >
                   <ReportEmployeeInformationComponent
                     collaborators={collaborators}
+                    handleAddStatus={handleAddStatus}
                   ></ReportEmployeeInformationComponent>
                 </ReportCardComponent>
 

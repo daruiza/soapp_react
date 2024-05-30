@@ -8,7 +8,17 @@ import { deleteEvidenceId, evidenceStore, showByEmpoyeeReportId } from '../../..
 import { getSoappDownloadFile, uploadEvidence } from '../../../api/upload/uploadThuks';
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
 
-export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', collaborator = {}, setSelectCollaborator = () => { }, collaboratorsChangeInput = () => { }, open = false, handleClose = () => { }, employee_report = {}, approved = false }) => {
+export const EvidencesComponent = ({ 
+    dialogtitle = '', 
+    dialogcontenttext = '', 
+    collaborator = {}, 
+    setSelectCollaborator = () => { }, 
+    collaboratorsChangeInput = () => { }, 
+    open = false, 
+    handleClose = () => { },
+    employee_report = {}, 
+    approved = false }) => {
+        
     const { palette } = useTheme();
     const dispatch = useDispatch();
     const inputFileRef = useRef();

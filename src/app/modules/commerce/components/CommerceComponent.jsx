@@ -116,7 +116,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
             formState: { ...formState }
         })
 
-        if(commerce.logo){
+        if(commerce?.logo){
             dispatch(getSoappDownloadFile({ path: commerce.logo }))
                 .then((response) => {
                     const newfile = new Blob([response.data], { type: response.data.type });

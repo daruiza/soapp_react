@@ -16,6 +16,7 @@ import HealingIcon from "@mui/icons-material/Healing";
 
 export const ReportEmployeeInformationComponent = ({
     collaborators = [],
+    handleAddStatus = () => {}
 }) => {
 
     const { palette } = useTheme();
