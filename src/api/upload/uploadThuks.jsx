@@ -15,7 +15,7 @@ export const uploadEmployeePhoto = (file, commerce_id) => {
         const { uploadApi } = useUpload(dispatch);
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('folder', `employee/${commerce_id}`);
+        formData.append('folder', `commerce/${commerce_id}/employee`);
         return uploadApi.post('api/upload/photo', formData);
     }
 }
