@@ -13,8 +13,9 @@ services:
       # - "127.0.0.1:3232:3232" 
     volumes:
       # - C:\software\soapp_react:/app
-      - /mnt/c/software/soapp_react:/app
+      # - /mnt/c/software/soapp_react:/app
       # - /home/davidruiz/App/soapp_react:/app
+      - /home/david/Software/soapp_react:/app
     # environment:
       # - NODE_OPTIONS=--max-old-space-size=4096
     # command: sh -c "yarn install && yarn dev"
