@@ -110,9 +110,10 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
     }, [department])
 
     useEffect(() => {
-        // Update de Formulario        
+        // Update de Formulario
+        // Le quitamos el logo al formulario, causa problemas        
         onResetForm({
-            initialForm: commerce ? setInputsForm(commerce) : formData,
+            initialForm: commerce ? setInputsForm({...commerce, logo: null}) : formData,
             formState: { ...formState }
         })
 
