@@ -58,6 +58,7 @@ export const NavBar = ({ navBarWidth = 58 }) => {
                             {!commerce &&
                                 <ImageListItem sx={{width: '160px', maxHeight: `calc(100vh - ${navBarWidth}px)`}}>
                                     <img
+                                        sx={{ width: 32, height: 32, mr: 1 }}
                                         src={image}
                                         alt="asistirEnSaludBran"
                                         loading="lazy" />
