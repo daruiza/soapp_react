@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useMediaQuery } from "react-responsive";
 import { NavBarAuthEnd, NavBarAuthStart } from "./modules/auth";
 import { NavBarUsers } from "./modules/users/NavBarUsers";
@@ -10,14 +10,29 @@ import { TooltipAvatarComponent } from "./modules/auth/navbar/TooltipAvatarCompo
 import { Avatar, ImageListItem } from "@mui/material";
 import { NavBarEmployee } from "./modules/employee/NavBarEmployee";
 import { NavBarReport } from "./modules/reports/NavBarReports";
+import { getSoappDownloadFile } from "../api";
 
 export const NavBar = ({ navBarWidth = 58 }) => {
+
+    const dispatch = useDispatch();
+
     const { palette } = useTheme();
     const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
     const { commerce: commerceState } = useSelector(state => state.commerce);
     const commerce = useMemo(() => commerceState, [commerceState]);
 
-    const asistirEnSaludBran = `${window.location.origin}/src/assets/asistirEnSaludBran.png`;
+    const [image, setImage] = useState(`${window.location.origin}/src/assets/asistirEnSaludBran.png`);    
+    
+    useEffect(()=>{
+        setImage(`${window.location.origin}/src/assets/asistirEnSaludBran.png`);
+        if(commerce?.logo){
+            dispatch(getSoappDownloadFile({ path: commerce.logo }))
+                .then((response) => {
+                    const newfile = new Blob([response.data], { type: response.data.type });
+                    setImage(URL.createObjectURL(newfile));
+                })
+        }
+    },[commerce])
 
     return (
         <>
@@ -35,7 +50,7 @@ export const NavBar = ({ navBarWidth = 58 }) => {
                             <Avatar
                                 style={{ cursor: 'pointer' }}
                                 alt="Logo"
-                                src={commerce.logo}
+                                src={image}
                                 sx={{ width: 32, height: 32, mr: 1 }}
                             />
                         }
@@ -43,7 +58,7 @@ export const NavBar = ({ navBarWidth = 58 }) => {
                             {!commerce &&
                                 <ImageListItem sx={{width: '160px', maxHeight: `calc(100vh - ${navBarWidth}px)`}}>
                                     <img
-                                        src={asistirEnSaludBran}
+                                        src={image}
                                         alt="asistirEnSaludBran"
                                         loading="lazy" />
                                 </ImageListItem>

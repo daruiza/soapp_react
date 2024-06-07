@@ -156,6 +156,7 @@ export const UserIndexComponent = ({ navBarWidth = 58 }) => {
   }
 
   useEffect(() => {
+    // Inicia el commercio al entrar en clientes
     dispatch(commerceInitialState());
   }, []);
 

@@ -113,7 +113,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
         // Update de Formulario
         // Le quitamos el logo al formulario, causa problemas        
         onResetForm({
-            initialForm: commerce ? setInputsForm({...commerce, logo: null}) : formData,
+            initialForm: commerce ? setInputsForm({...commerce}) : formData,
             formState: { ...formState }
         })
 
