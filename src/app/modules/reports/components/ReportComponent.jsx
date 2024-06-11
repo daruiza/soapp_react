@@ -605,10 +605,10 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                   ></ReportCompromiseSSTComponent>
                 </ReportCardComponent>
 
-                {/* 10. TAREAS Y COMPROMISOS COMPROMISOS DEL RESPONSABLE DEL SST" */}
+                {/* 10. TAREAS Y COMPROMISOS DEL RESPONSABLE DEL SST" */}
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
-                  title="10. TAREAS Y COMPROMISOS COMPROMISOS DEL RESPONSABLE DEL SST"
+                  title="10. TAREAS Y COMPROMISOS DEL RESPONSABLE DEL SST"
                   pending={getPending(compromisesRSST)}
                 >
                   <ReportCompromiseRSSTComponent
