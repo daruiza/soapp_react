@@ -374,10 +374,9 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
       cll.state.find((el) => el.employee_state === EmployeeState)
     ).length;  
 
-  // Muy peligroso y enrreda en demasia
+  // TODO: Muy peligroso y enrreda en demasia
   useEffect(() => {
-    console.log("ReportcollaboratorsEffect", collaborators);
-
+    //console.log("ReportcollaboratorsEffect", collaborators);
     // console.log('selectCollaborator', selectCollaborator);
     // refrescamos el selectCollaborator
     // if (selectCollaborator && (selectCollaborator?.index || selectCollaborator?.index === 0 || selectCollaborator?.index === '0')) {
@@ -454,6 +453,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
                     putEmployeeReportStore={putEmployeeReportStore}
                     handleDeleteEmployeeReport={handleDeleteEmployeeReport}
                     handleEvidenceOpen={handleEvidenceOpen}
+                    changeInputCollaboratorValue={changeInputCollaboratorValue}
                   ></ReportEmployeeInductionComponent>
                 </ReportCardComponent>
 

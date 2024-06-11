@@ -199,7 +199,7 @@ export const EvidenceItemComponent = ({ collaborator = {}, setSelectCollaborator
                         <Grid item xs={12} md={11} sx={{}} >
                             <Tooltip title={selectFile?.evidence?.name}>
                                 <TextField
-                                    disabled={approved}
+                                    disabled={approved?true:false}
                                     variant="standard"
                                     size="small"
                                     label="Nombre"

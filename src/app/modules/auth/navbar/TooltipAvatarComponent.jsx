@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { PrivateCustomerRoute, PrivateNavBar } from '../../../middleware';
 import { UserComponent } from '../components';
@@ -8,13 +8,17 @@ import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import CloseIcon from '@mui/icons-material/Close';
 import { Settings, Work } from '@mui/icons-material';
 import { CommerceComponent } from '../../commerce';
+import { getSoappDownloadFile } from '../../../../api';
 
 export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
     const dispatch = useDispatch();
 
+    
     const { commerce: commerceState } = useSelector(state => state.commerce);
     const { user: userauth } = useSelector(state => state.auth);
     const user = useMemo(() => userauth, [userauth])
+    
+    const [image, setImage] = useState();    
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [openUser, setOpenUser] = useState(false);
@@ -31,6 +35,16 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
 
     const onLogout = () => dispatch(logoutDispatcher());
 
+    useEffect(()=>{
+        if(user?.photo){
+            dispatch(getSoappDownloadFile({ path: commerce.logo }))
+            .then((response) => {
+                const newfile = new Blob([response.data], { type: response.data.type });
+                setImage(URL.createObjectURL(newfile));
+            })
+        }
+    },[])
+    
     return (
         <PrivateNavBar>
             <Box sx={{ display: { xs: xs, sm: sm }, margin: '0 10px 0 auto' }}>
@@ -49,7 +63,7 @@ export const TooltipAvatarComponent = ({ xs = 'none', sm = 'block' }) => {
                                 width: 32,
                                 height: 32
                             }}
-                            src={user?.photo ? `${window.location.origin}${user.photo}` : null}
+                            src={image}
                         >
                             {user?.capital ?? 'A'}
                         </Avatar>

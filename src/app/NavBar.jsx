@@ -21,10 +21,10 @@ export const NavBar = ({ navBarWidth = 58 }) => {
     const { commerce: commerceState } = useSelector(state => state.commerce);
     const commerce = useMemo(() => commerceState, [commerceState]);
 
-    const [image, setImage] = useState(`${window.location.origin}/src/assets/asistirEnSaludBran.png`);    
+    const [image, setImage] = useState(`${window.location.origin}/src/assets/asistirEnSalud.png`);    
     
     useEffect(()=>{
-        setImage(`${window.location.origin}/src/assets/asistirEnSaludBran.png`);
+        //setImage(`${window.location.origin}/src/assets/asistirEnSalud.png`);
         if(commerce?.logo){
             dispatch(getSoappDownloadFile({ path: commerce.logo }))
                 .then((response) => {
@@ -38,32 +38,25 @@ export const NavBar = ({ navBarWidth = 58 }) => {
         <>
             <Navbar style={{ backgroundColor: `${palette.primary.main}` }} expand="lg">
                 <Container fluid>
-                    <Navbar.Brand as={Link} to="/" style={{
+                    <Navbar.Brand as={Link} to="/"
+                        sx={{ maxHeight: `calc(100vh - ${navBarWidth}px)`}}
+                        style={{
                         padding: '0px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center'
                     }}>
                         {/* <img src={asistirEnSaludBran} alt="asistirEnSaludBran" /> */}
-                        {
-                            commerce && commerce.logo && commerce.logo !== '' &&
-                            <Avatar
-                                style={{ cursor: 'pointer' }}
-                                alt="Logo"
-                                src={image}
-                                sx={{ width: 32, height: 32, mr: 1 }}
-                            />
-                        }
-                        <Navbar.Text style={{ color: `${palette.text.primary}`, padding: '0px' }} >
-                            {!commerce &&
-                                <ImageListItem sx={{width: '160px', maxHeight: `calc(100vh - ${navBarWidth}px)`}}>
-                                    <img
-                                        sx={{ width: 32, height: 32, mr: 1 }}
-                                        src={image}
-                                        alt="asistirEnSaludBran"
-                                        loading="lazy" />
-                                </ImageListItem>
-                            }
+                        
+                        <Avatar
+                            style={{ cursor: 'pointer' }}
+                            alt="Logo"
+                            src={image}
+                            sx={{ width: 32, height: 32, mr: 1 }}
+                        />
+                        
+                        <Navbar.Text style={{ color: `${palette.text.primary}`, padding: '0px' }} >                            
+                            {!commerce && `Asistir En Salud`}
                             {commerce && `${commerce.name}`}
                         </Navbar.Text>
 

@@ -127,7 +127,7 @@ export default function TrainingsstEvidenceItemComponent({ handleRemove = () => 
                                     <Tooltip title={`${selectFile?.evidence?.approved ? 'Invalidar' : 'Validar'}`} placement="top">
                                         <span>
                                             <PrivateAgentRoute>
-                                                <IconButton disabled={approved} onClick={() => handleApprovedToggle()}>
+                                                <IconButton disabled={approved ? true: false} onClick={() => handleApprovedToggle()}>
                                                     {selectFile?.evidence?.approved &&
                                                         <CheckIcon sx={{ color: `${!approved ? palette.primary.main : null}` }}></CheckIcon>
                                                     }
@@ -175,7 +175,7 @@ export default function TrainingsstEvidenceItemComponent({ handleRemove = () => 
                                 <Grid item xs={12} md={11} sx={{}} >
                                     <Tooltip title={selectFile?.evidence?.name}>
                                         <TextField
-                                            disabled={approved}
+                                            disabled={approved?true:false}
                                             variant="standard"
                                             size="small"
                                             label="Nombre"
