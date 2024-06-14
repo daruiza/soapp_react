@@ -8,7 +8,17 @@ import { deleteEvidenceId, evidenceStore, showByEmpoyeeReportId } from '../../..
 import { getSoappDownloadFile, uploadEvidence } from '../../../api/upload/uploadThuks';
 import { setMessageSnackbar } from '../../../helper/setMessageSnackbar';
 
-export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', collaborator = {}, setSelectCollaborator = () => { }, collaboratorsChangeInput = () => { }, open = false, handleClose = () => { }, employee_report = {}, approved = false }) => {
+export const EvidencesComponent = ({ 
+    dialogtitle = '', 
+    dialogcontenttext = '', 
+    collaborator = {}, 
+    setSelectCollaborator = () => { }, 
+    collaboratorsChangeInput = () => { }, 
+    open = false, 
+    handleClose = () => { },
+    employee_report = {}, 
+    approved = false }) => {
+        
     const { palette } = useTheme();
     const dispatch = useDispatch();
     const inputFileRef = useRef();
@@ -62,7 +72,7 @@ export const EvidencesComponent = ({ dialogtitle = '', dialogcontenttext = '', c
                         name: file.name.split('.')[0],
                         type: file.type,
                         employee_report_id: employee_report.id,
-                        file: data.storage_image_path,
+                        file: data.image_path,
                         approved: false
                     }
                 })).then(({ data: { data: { evidence } } }) => {

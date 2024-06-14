@@ -16,7 +16,13 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 
-export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setTrainingsst = () => { }, topicSSTArray = [], getReportById = () => { }, commerce_id = null }) => {
+export const ReportTrainingSSTComponent = ({ 
+    trainingsst = [], 
+    report = {}, 
+    setTrainingsst = () => { }, 
+    topicSSTArray = [], 
+    getReportById = () => { }, 
+    commerce_id = null }) => {
 
     const dispatch = useDispatch();
     const { palette } = useTheme();
@@ -90,6 +96,7 @@ export const ReportTrainingSSTComponent = ({ trainingsst = [], report = {}, setT
         dispatch(trainingsstDeleteById({
             form: { ...tsst }
         })).then((data) => {
+            console.log('al borrar un entrenamiento', data);
             getReportById();
             setHandleAlertDelete({ openAlert: false })
         });

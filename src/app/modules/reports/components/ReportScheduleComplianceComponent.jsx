@@ -1,40 +1,37 @@
-
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { Divider, Grid, FormControl, TextField, Select, InputLabel, MenuItem, FormHelperText, IconButton, Tooltip, Button } from "@mui/material";
-import { TextareaField } from '../../../components/textarea/TextareaField';
+import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
+import { ShowByScheduleComplianceId, deleteScheduleComplianceEvidenceId, scheduleComplianceEvidenceStore, scheduleComplianceEvidenceUpdate } from '../../../../store';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
-import { DialogAlertComponent } from '../../../components';
-
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { Button, Divider, FormControlLabel, Grid, IconButton, Switch, TextField, Tooltip, InputAdornment } from '@mui/material';
+import { useTheme } from '@emotion/react';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import es from 'dayjs/locale/es';
-import { useTheme } from '@emotion/react';
-
-import { useGeneralList, useSupportGroupDeleteId, useSupportGroupStore } from '../../../../hooks';
-import { ShowBySupportGActivityId, supportGActivityEvidenceStore, deleteSupportGActivityEvidenceId, supportGActivityEvidenceUpdate } from '../../../../store';
-import { getSoappDownloadFile } from '../../../../api';
-
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import SaveIcon from '@mui/icons-material/Save';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckIcon from '@mui/icons-material/Check';
-import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
+import CloseIcon from '@mui/icons-material/Close';
+import { DialogAlertComponent } from '../../../components';
+import { getSoappDownloadFile } from '../../../../api';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
+import { useScheduleComplianceDeleteId, useScheduleComplianceStore } from '../../../../hooks/query/useScheduleCompliance';
 
-export const ReportSupportGroupActivityComponent = ({
+export const ReportScheduleComplianceComponent = ({
     report_id = null,
     commerce_id = null,
-    supports = [],
-    setSupports = () => { },
-    supportGroupActionQuery = [],
-    getSupportGrpupByReportIdReport = () => { } }) => {
+    scheduleCompliances = [],
+    setScheduleCompliance = () => { },
+    scheduleComplianceQuery = [],
+    getScheduleComplianceByReportIdReport = () => { },
+}) => {
 
     const dispatch = useDispatch();
     const { palette } = useTheme();
 
-    const [supporstsinit, setSupporstsInit] = useState([]);
+    const [scheduleComplianceinit, setScheduleComplianceInit] = useState([]);
     const [files, setFiles] = useState([]);
 
     const [openEvidences, setOpenEvidences] = useState({
@@ -53,56 +50,66 @@ export const ReportSupportGroupActivityComponent = ({
         alertChildren: false
     });
 
-
     // Query  
-    const { data: supportGroupArray } = useGeneralList('support_group');
-
-    const { mutate: supportGActivityDelete } = useSupportGroupDeleteId(
+    const { mutate: shceduleComplianceDelete } = useScheduleComplianceDeleteId(
         {},
         () => {
-            getSupportGrpupByReportIdReport();
+            getScheduleComplianceByReportIdReport();
             setHandleAlert({ openAlert: false })
         }
     );
 
-    const { mutate: supporGActivitystore } = useSupportGroupStore(
-        {}, getSupportGrpupByReportIdReport
+    const { mutate: shceduleComplianceStore } = useScheduleComplianceStore(
+        {}, getScheduleComplianceByReportIdReport
     );
 
-    // Eventos
-
     // Cambios en los inputs del Array support
-    const changeInputSupport = ({ target: { value, name } }, index) => {
-        setSupports((cmms) => cmms.toSpliced(index, 1,
-            {
-                ...supports[index],
+    const changeInputScheduleCompliance = ({ target: { value, name } }, index) => {
+        if (name === 'planned_activities' || name === 'executed_activities') {
+            const planned_activities = name === 'planned_activities' ? value : scheduleCompliances[index].planned_activities;
+            const executed_activities = name === 'executed_activities' ? value : scheduleCompliances[index].executed_activities;
+            const planned_activities_value = Number.isNaN(planned_activities) ? 0 : Number(planned_activities);
+            const executed_activities_value = Number.isNaN(executed_activities) ? 0 : Number(executed_activities);
+            const compliance = Math.trunc((100 * executed_activities_value) / (planned_activities_value));
+            setScheduleCompliance((cmms) => cmms.toSpliced(index, 1, {
+                ...scheduleCompliances[index],
                 [name]: value,
+                compliance: `${Number.isNaN(compliance) ? 0 : compliance}`,
                 [`${name}Touched`]: true
             })
-        );
+            );
+        } else {
+            setScheduleCompliance((cmms) => cmms.toSpliced(index, 1,
+                {
+                    ...scheduleCompliances[index],
+                    [name]: value,
+                    [`${name}Touched`]: true
+                })
+            );
+        }
     }
 
-    const handleDeleteSupportReport = (cmms) => {
+    const handleDeleteScheduleCompliance = (cmms) => {
         setHandleAlert({
             openAlert: true,
             functionAlertClose: () => setHandleAlert({ openAlert: false }),
-            functionAlertAgree: () => supportGActivityDelete(cmms),
+            functionAlertAgree: () => shceduleComplianceDelete(cmms),
             alertTittle: 'Eliminar Registro',
             alertMessage: `Estas seguro de borrar el registro ${cmms.name}.`
         });
     }
 
-    const handleSaveSupport = (cmms) => {
-        if (!cmms.support_group || !cmms.responsible) {
+    const handleSaveScheduleCompliance = (cmms) => {
+        if (!cmms.company) {
             return;
         }
-        supporGActivitystore(cmms);
+        shceduleComplianceStore(cmms);
     }
 
     const handleEvidenceOpen = (cmms) => {
         setOpenEvidences((openEvidences) => ({
             ...openEvidences,
-            dialogtitle: `Evidencias Actividades Grupo Apoyo Item: ${cmms?.work}`,
+            dialogtitle: `Evidencias Cumplimiento de Cronogama Item: ${cmms?.work}`,
             dialogcontenttext: ``,
             object: cmms,
             approved: cmms.approved,
@@ -113,7 +120,7 @@ export const ReportSupportGroupActivityComponent = ({
     // Evidences
     const getEvidencesById = (id) => {
         if (id) {
-            dispatch(ShowBySupportGActivityId({
+            dispatch(ShowByScheduleComplianceId({
                 form: {
                     id: id ?? ''
                 }
@@ -136,12 +143,12 @@ export const ReportSupportGroupActivityComponent = ({
         }
     }
 
-    const storeSupportGActivityEvidence = (data, file, object) => {
-        dispatch(supportGActivityEvidenceStore({
+    const storeScheduleComplianceEvidence = (data, file, object) => {
+        dispatch(scheduleComplianceEvidenceStore({
             form: {
                 name: file.name.split('.')[0],
                 type: file.type,
-                support_group_id: object.id,
+                compliance_schedule_id: object.id,
                 file: data.image_path,
                 approved: false
             }
@@ -152,8 +159,8 @@ export const ReportSupportGroupActivityComponent = ({
         }, error => setMessageSnackbar({ dispatch, error }))
     }
 
-    const handleRemoveSupportGActivityEvidence = (file, object) => {
-        dispatch(deleteSupportGActivityEvidenceId({
+    const handleRemoveScheduleComplianceEvidence = (file, object) => {
+        dispatch(deleteScheduleComplianceEvidenceId({
             form: { id: file.evidence_id }
         })).then((data) => {
             setFiles((files) => [...files.filter(fl => fl !== file)]);
@@ -163,7 +170,7 @@ export const ReportSupportGroupActivityComponent = ({
     }
 
     const handleFileItemUpload = (selectFile, setFormInit = () => { }, setSelectFile = () => { }) => {
-        dispatch(supportGActivityEvidenceUpdate({
+        dispatch(scheduleComplianceEvidenceUpdate({
             form: {
                 ...selectFile?.evidence ?? {},
                 id: selectFile?.evidence?.evidence_id ?? null,
@@ -186,144 +193,128 @@ export const ReportSupportGroupActivityComponent = ({
         }, error => setMessageSnackbar({ dispatch, error }))
     }
 
-    // Validaciones
-    const supportGActivitySavevalidator = (cmms) => {
+    const scheduleComplianceSaveValidator = (cmms) => {
         if (
-            !cmms.support_group ||
-            !cmms.responsible
+            !cmms.company
         ) { return true; }
 
-        const cmmsupporstinit = supporstsinit?.find(el => el.id === cmms.id);
+        const cmmschedulecompliance = scheduleComplianceinit?.find(el => el.id === cmms.id);
 
         // Quitar todos los Touched 
         return 'id' in cmms ?
             JSON.stringify({
-                id: cmmsupporstinit?.id,
-                support_group: cmmsupporstinit?.support_group,
-                date_meet: cmmsupporstinit?.date_meet,
-                responsible: cmmsupporstinit?.responsible,
-                tasks_copasst: cmmsupporstinit?.tasks_copasst,
-                report_id: cmmsupporstinit?.report_id,
-                created_at: cmmsupporstinit?.created_at,
-                updated_at: cmmsupporstinit?.updated_at,
+                id: cmmschedulecompliance?.id,
+                company: cmmschedulecompliance?.company,
+                planned_activities: cmmschedulecompliance?.planned_activities,
+                executed_activities: cmmschedulecompliance?.executed_activities,
+                compliance: cmmschedulecompliance?.compliance,
+                report_id: cmmschedulecompliance?.report_id,
+                created_at: cmmschedulecompliance?.created_at,
+                updated_at: cmmschedulecompliance?.updated_at,
             }) ==
             JSON.stringify({
                 id: cmms?.id,
-                support_group: cmms?.support_group,
-                date_meet: cmms?.date_meet,
-                responsible: cmms?.responsible,
-                tasks_copasst: cmms?.tasks_copasst,
+                company: cmms?.company,
+                planned_activities: cmms?.planned_activities,
+                executed_activities: cmms?.executed_activities,
+                compliance: cmms?.compliance,
                 report_id: cmms?.report_id,
                 created_at: cmms?.created_at,
                 updated_at: cmms?.updated_at,
             }) :
-            !!((!cmms.support_group) || (!cmms.responsible))
+            !!((!cmms.company))
     }
 
+    // Validaciones
+    const numberPatternValidation = (value) => {
+        if (!value) return true;
+        const regex = new RegExp(/^\d+$/);
+        return regex.test(value);
+    };
+
     useEffect(() => {
-        if (!!supportGroupActionQuery && supportGroupActionQuery.length) {
-            setSupports(supportGroupActionQuery);
-            setSupporstsInit(supportGroupActionQuery);
+        if (!!scheduleComplianceQuery && scheduleComplianceQuery.length) {
+            setScheduleComplianceInit(scheduleCompliances);
+            // setScheduleComplianceInit(scheduleComplianceQuery);
         }
-    }, [supportGroupActionQuery]);
+    }, [scheduleComplianceQuery]);
 
     return (
         <Grid container> {
-            supports?.length !== 0 &&
-            supports?.map((cmms, index) => {
+            scheduleCompliances?.length !== 0 &&
+            scheduleCompliances?.map((cmms, index) => {
                 return (
                     <Grid container key={index} >
                         <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                         <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
                             <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
-                                <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
-                                    {
-                                        supportGroupArray &&
-                                        supportGroupArray.length &&
-                                        <FormControl
-                                            fullWidth
-                                            className='FormControlExamType'
-                                            error={cmms?.support_groupTouched && !cmms?.support_group}
-                                            required={true}
-                                            sx={{ marginTop: '0px' }}>
-                                            <InputLabel
-                                                variant="standard"
-                                                id="demo-simple-select-label"
-                                                sx={{
-                                                    color: `${palette.text.primary}`
-                                                }}
-                                            >Grupo de Soporte</InputLabel>
-                                            <Select
-                                                disabled={cmms?.approved ? true : false}
-                                                variant="standard"
-                                                labelId="demo-simple-select-label"
-                                                id="demo-simple-select"
-                                                name="support_group"
-                                                value={cmms?.support_group ?? ''}
-                                                label="Grupo de soporte"
-                                                onChange={(event) => changeInputSupport(event, index)}>
-                                                <MenuItem value={null}><em></em></MenuItem>
-                                                {
-                                                    supportGroupArray.map((el, index) => (
-                                                        <MenuItem key={index} value={el?.value}>{el?.value}</MenuItem>
-                                                    ))
-                                                }
-                                            </Select>
-                                            {
-                                                (cmms?.support_groupTouched && !cmms?.support_group) &&
-                                                <FormHelperText>Este campo es requerido</FormHelperText>
-                                            }
-
-                                        </FormControl>
-                                    }
-                                </Grid>
-
-                                <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
-                                    <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
-                                        <DatePicker
-                                            disabled={cmms?.approved ? true : false}
-                                            size="small"
-                                            className='birth-date-piker'
-                                            sx={{ width: '100%' }}
-                                            inputFormat="DD/MM/YYYY"
-                                            label="Fecha Reunión"
-                                            name="date_meet"
-                                            value={cmms?.date_meet ?? null}
-                                            onChange={(value) => changeInputSupport({ target: { name: 'date_meet', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
-                                            renderInput={(params) => <TextField size="small" {...params} />}
-                                        />
-                                    </LocalizationProvider>
-                                </Grid>
-
-                                <Grid item xs={12} md={4} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                     <TextField
                                         disabled={cmms?.approved ? true : false}
                                         variant="standard"
                                         size="small"
-                                        label="Responsable*"
+                                        label="Empresa*"
                                         type="text"
                                         fullWidth
-                                        name="responsible"
-                                        value={cmms?.responsible ?? ''}
-                                        onChange={(event) => changeInputSupport(event, index)}
-                                        error={cmms?.responsible === ''}
-                                        helperText={cmms?.responsibleTouched && !cmms?.responsible ? 'Este campo es requerido' : ''}
+                                        name="company"
+                                        value={cmms?.company ?? ''}
+                                        onChange={(event) => changeInputScheduleCompliance(event, index)}
+                                        error={cmms?.company === ''}
+                                        helperText={cmms?.companyTouched && !cmms?.company ? 'Este campo es requerido' : ''}
+                                    // helperText={!cmms?.company ? 'Este campo es requerido' : ''}
                                     />
                                 </Grid>
-
-                                <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                    <TextareaField
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <TextField
                                         disabled={cmms?.approved ? true : false}
-                                        label="Tareas del Copasst"
-                                        name="tasks_copasst"
-                                        value={cmms?.tasks_copasst ?? ''}
-                                        onChange={(event) => changeInputSupport(event, index)}
-                                        placeholder=""
-                                        minRows={2}
-                                        sx={{ minwidth: '100%' }}
-                                    ></TextareaField>
+                                        variant="standard"
+                                        size="small"
+                                        label="# Actividades Programadas"
+                                        type="text"
+                                        fullWidth
+                                        name="planned_activities"
+                                        value={cmms?.planned_activities ?? ''}
+                                        onChange={(event) => changeInputScheduleCompliance(event, index)}
+                                        error={!numberPatternValidation(cmms?.planned_activities) ? true : false}
+                                        helperText={
+                                            !numberPatternValidation(cmms?.planned_activities) ? 'Se espera un número positivo' :
+                                                cmms?.planned_activitiesTouched && !cmms?.planned_activities ? 'Este campo es requerido' : ''
+                                        }
+                                    />
                                 </Grid>
-
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <TextField
+                                        disabled={cmms?.approved ? true : false}
+                                        variant="standard"
+                                        size="small"
+                                        label="# Actividades Ejecutadas"
+                                        type="text"
+                                        fullWidth
+                                        name="executed_activities"
+                                        value={cmms?.executed_activities ?? ''}
+                                        onChange={(event) => changeInputScheduleCompliance(event, index)}
+                                        error={!numberPatternValidation(cmms?.executed_activities) ? true : false}
+                                        helperText={
+                                            !numberPatternValidation(cmms?.executed_activities) ? 'Se espera un número positivo' :
+                                                cmms?.executed_activitiesTouched && !cmms?.executed_activities ? 'Este campo es requerido' : ''
+                                        }
+                                    />
+                                </Grid>
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <TextField
+                                        disabled={true}
+                                        variant="standard"
+                                        size="small"
+                                        label="Cumplimiento"
+                                        type="text"
+                                        fullWidth
+                                        name="compliance"
+                                        value={cmms?.compliance ?? ''}
+                                        InputProps={{
+                                            endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                                        }}
+                                    />
+                                </Grid>
                             </Grid>
 
                             <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
@@ -331,7 +322,7 @@ export const ReportSupportGroupActivityComponent = ({
                                     <span>
                                         <IconButton
                                             disabled={cmms?.approved ? true : false}
-                                            onClick={() => handleDeleteSupportReport(cmms)}
+                                            onClick={() => handleDeleteScheduleCompliance(cmms)}
                                         >
                                             <HighlightOffIcon
                                                 sx={{
@@ -344,17 +335,15 @@ export const ReportSupportGroupActivityComponent = ({
                                         </IconButton>
                                     </span>
                                 </Tooltip>
-
                                 <Tooltip title="Guardar Cambios" placement="top">
                                     <span>
                                         <IconButton
-                                            disabled={supportGActivitySavevalidator(cmms) || cmms?.approved ? true : false}
-                                            onClick={() => handleSaveSupport(cmms)}>
+                                            disabled={scheduleComplianceSaveValidator(cmms) || cmms?.approved ? true : false}
+                                            onClick={() => handleSaveScheduleCompliance(cmms)}>
                                             <SaveIcon></SaveIcon>
                                         </IconButton>
                                     </span>
                                 </Tooltip>
-
                                 {
                                     cmms?.id &&
                                     <>
@@ -372,7 +361,7 @@ export const ReportSupportGroupActivityComponent = ({
                                             <span>
                                                 <PrivateAgentRoute>
                                                     <IconButton
-                                                        onClick={() => handleSaveSupport({ ...cmms, approved: !cmms?.approved })}>
+                                                        onClick={() => handleSaveScheduleCompliance({ ...cmms, approved: !cmms?.approved })}>
                                                         {!!cmms?.approved &&
                                                             <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
                                                         }
@@ -398,33 +387,32 @@ export const ReportSupportGroupActivityComponent = ({
                                 }
                             </Grid>
                         </Grid>
+
                     </Grid>
                 )
             })}
-
             <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
-                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
-
-                </Grid>
+                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}></Grid>
                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                     <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                         <Button onClick={() => {
-                            setSupports(cmms => [...cmms, {
-                                support_group: null,
-                                date_meet: null,
-                                responsible: null,
-                                tasks_copasst: null,
+                            setScheduleCompliance(cmms => [...cmms, {
+                                activity: null,
+                                company: null,
+                                planned_activities: null,
+                                executed_activities: null,
+                                compliance: null,
                                 report_id: report_id,
                                 save: false
                             }])
                         }}
                             variant="contained"
-                            disabled={!!supports?.find(el => el.save === false)}
+                            disabled={!!scheduleCompliances?.find(el => el.save === false)}
                             sx={{
                                 height: '100%',
                                 color: `${palette.text.custom}`,
                                 // border: '1px solid'
-                            }}>AGREGAR ACTIVIDAD
+                            }}>AGREGAR CUMPLIMIENTO DE CRONOGRAMA
                         </Button>
                     </Grid>
                 </Grid>
@@ -443,12 +431,12 @@ export const ReportSupportGroupActivityComponent = ({
                         setFiles([]);
                         setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
                     }}
-                    upload_evidence_url={`commerce/${commerce_id}/report/${report_id}/supportgroup/${openEvidences?.object?.id ?? null}`}
+                    upload_evidence_url={`commerce/${commerce_id}/report/${report_id}/complianceschedule/${openEvidences?.object?.id ?? null}`}
                     files={files}
                     setFiles={setFiles}
                     getEvidencesById={getEvidencesById}
-                    evidenceStore={storeSupportGActivityEvidence}
-                    handleRemove={handleRemoveSupportGActivityEvidence}
+                    evidenceStore={storeScheduleComplianceEvidence}
+                    handleRemove={handleRemoveScheduleComplianceEvidence}
                     handleFileItemUpload={handleFileItemUpload}
                 ></EvidenceGenericComponent>
             }
@@ -464,7 +452,6 @@ export const ReportSupportGroupActivityComponent = ({
                     }}
                 ></DialogAlertComponent>
             }
-
         </Grid>
     )
 }

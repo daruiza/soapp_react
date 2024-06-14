@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { Divider, Grid, FormControl, TextField, Select, InputLabel, MenuItem, FormHelperText, IconButton, Tooltip, Button } from "@mui/material";
+import { Divider, Grid, FormControl, TextField, Select, InputLabel, MenuItem, FormHelperText, IconButton, Tooltip, Button, FormControlLabel, Switch } from "@mui/material";
 import { TextareaField } from '../../../components/textarea/TextareaField';
 import { EvidenceGenericComponent } from '../../../components/evidences/EvidenceGenericComponent';
 import { DialogAlertComponent } from '../../../components';
@@ -11,8 +11,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import es from 'dayjs/locale/es';
 import { useTheme } from '@emotion/react';
 
-import { useGeneralList, useSupportGroupDeleteId, useSupportGroupStore } from '../../../../hooks';
-import { ShowBySupportGActivityId, supportGActivityEvidenceStore, deleteSupportGActivityEvidenceId, supportGActivityEvidenceUpdate } from '../../../../store';
+import { useEquipementMaintenanceDeleteId, useEquipementMaintenanceStore } from '../../../../hooks';
+import { ShowByEquipementMaintenanceId, equipementMaintenanceEvidenceStore, deleteEquipementMaintenanceEvidenceId, equipementMaintenanceEvidenceUpdate } from '../../../../store';
 import { getSoappDownloadFile } from '../../../../api';
 
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -23,18 +23,19 @@ import CheckIcon from '@mui/icons-material/Check';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
-export const ReportSupportGroupActivityComponent = ({
+export const ReportEquipementMaintenanceComponent = ({
     report_id = null,
     commerce_id = null,
-    supports = [],
-    setSupports = () => { },
-    supportGroupActionQuery = [],
-    getSupportGrpupByReportIdReport = () => { } }) => {
+    equipementsMaintenance = [],
+    setEquipementsMaintenance = () => { },
+    equipementMaintenenceQuery = [],
+    getequipementMaintenenceByReportIdReport = () => { }
+}) => {
 
     const dispatch = useDispatch();
     const { palette } = useTheme();
 
-    const [supporstsinit, setSupporstsInit] = useState([]);
+    const [equipementMaintenanceinit, setEquipementMaintenanceInit] = useState([]);
     const [files, setFiles] = useState([]);
 
     const [openEvidences, setOpenEvidences] = useState({
@@ -53,56 +54,51 @@ export const ReportSupportGroupActivityComponent = ({
         alertChildren: false
     });
 
-
     // Query  
-    const { data: supportGroupArray } = useGeneralList('support_group');
-
-    const { mutate: supportGActivityDelete } = useSupportGroupDeleteId(
+    const { mutate: equipementMaintenanceDelete } = useEquipementMaintenanceDeleteId(
         {},
         () => {
-            getSupportGrpupByReportIdReport();
+            getequipementMaintenenceByReportIdReport();
             setHandleAlert({ openAlert: false })
         }
     );
 
-    const { mutate: supporGActivitystore } = useSupportGroupStore(
-        {}, getSupportGrpupByReportIdReport
+    const { mutate: equipementMaintenancestore } = useEquipementMaintenanceStore(
+        {}, getequipementMaintenenceByReportIdReport
     );
 
-    // Eventos
-
     // Cambios en los inputs del Array support
-    const changeInputSupport = ({ target: { value, name } }, index) => {
-        setSupports((cmms) => cmms.toSpliced(index, 1,
+    const changeInputEquipementMaintenance = ({ target: { value, name } }, index) => {
+        setEquipementsMaintenance((cmms) => cmms.toSpliced(index, 1,
             {
-                ...supports[index],
+                ...equipementsMaintenance[index],
                 [name]: value,
                 [`${name}Touched`]: true
             })
         );
     }
 
-    const handleDeleteSupportReport = (cmms) => {
+    const handleDeleteEquipementMaintenence = (cmms) => {
         setHandleAlert({
             openAlert: true,
             functionAlertClose: () => setHandleAlert({ openAlert: false }),
-            functionAlertAgree: () => supportGActivityDelete(cmms),
+            functionAlertAgree: () => equipementMaintenanceDelete(cmms),
             alertTittle: 'Eliminar Registro',
             alertMessage: `Estas seguro de borrar el registro ${cmms.name}.`
         });
     }
 
-    const handleSaveSupport = (cmms) => {
-        if (!cmms.support_group || !cmms.responsible) {
+    const handleSaveEquipementMaintenenece = (cmms) => {
+        if (!cmms.date || !cmms.observations) {
             return;
         }
-        supporGActivitystore(cmms);
+        equipementMaintenancestore(cmms);
     }
 
     const handleEvidenceOpen = (cmms) => {
         setOpenEvidences((openEvidences) => ({
             ...openEvidences,
-            dialogtitle: `Evidencias Actividades Grupo Apoyo Item: ${cmms?.work}`,
+            dialogtitle: `Evidencias Mantenimiento Periódico Item: ${cmms?.work}`,
             dialogcontenttext: ``,
             object: cmms,
             approved: cmms.approved,
@@ -113,7 +109,7 @@ export const ReportSupportGroupActivityComponent = ({
     // Evidences
     const getEvidencesById = (id) => {
         if (id) {
-            dispatch(ShowBySupportGActivityId({
+            dispatch(ShowByEquipementMaintenanceId({
                 form: {
                     id: id ?? ''
                 }
@@ -136,12 +132,12 @@ export const ReportSupportGroupActivityComponent = ({
         }
     }
 
-    const storeSupportGActivityEvidence = (data, file, object) => {
-        dispatch(supportGActivityEvidenceStore({
+    const storeEquipementMaintenanceEvidence = (data, file, object) => {
+        dispatch(equipementMaintenanceEvidenceStore({
             form: {
                 name: file.name.split('.')[0],
                 type: file.type,
-                support_group_id: object.id,
+                equipement_id: object.id,
                 file: data.image_path,
                 approved: false
             }
@@ -152,8 +148,8 @@ export const ReportSupportGroupActivityComponent = ({
         }, error => setMessageSnackbar({ dispatch, error }))
     }
 
-    const handleRemoveSupportGActivityEvidence = (file, object) => {
-        dispatch(deleteSupportGActivityEvidenceId({
+    const handleRemoveEquipementMaintenanceEvidence = (file, object) => {
+        dispatch(deleteEquipementMaintenanceEvidenceId({
             form: { id: file.evidence_id }
         })).then((data) => {
             setFiles((files) => [...files.filter(fl => fl !== file)]);
@@ -163,7 +159,7 @@ export const ReportSupportGroupActivityComponent = ({
     }
 
     const handleFileItemUpload = (selectFile, setFormInit = () => { }, setSelectFile = () => { }) => {
-        dispatch(supportGActivityEvidenceUpdate({
+        dispatch(equipementMaintenanceEvidenceUpdate({
             form: {
                 ...selectFile?.evidence ?? {},
                 id: selectFile?.evidence?.evidence_id ?? null,
@@ -186,99 +182,95 @@ export const ReportSupportGroupActivityComponent = ({
         }, error => setMessageSnackbar({ dispatch, error }))
     }
 
-    // Validaciones
-    const supportGActivitySavevalidator = (cmms) => {
+    const equipementMaintenenceSaveValidator = (cmms) => {
         if (
-            !cmms.support_group ||
-            !cmms.responsible
+            !cmms.date ||
+            !cmms.observations
         ) { return true; }
 
-        const cmmsupporstinit = supporstsinit?.find(el => el.id === cmms.id);
+        const cmmequipementmaintenanceinit = equipementMaintenanceinit?.find(el => el.id === cmms.id);
 
         // Quitar todos los Touched 
         return 'id' in cmms ?
             JSON.stringify({
-                id: cmmsupporstinit?.id,
-                support_group: cmmsupporstinit?.support_group,
-                date_meet: cmmsupporstinit?.date_meet,
-                responsible: cmmsupporstinit?.responsible,
-                tasks_copasst: cmmsupporstinit?.tasks_copasst,
-                report_id: cmmsupporstinit?.report_id,
-                created_at: cmmsupporstinit?.created_at,
-                updated_at: cmmsupporstinit?.updated_at,
+                id: cmmequipementmaintenanceinit?.id,
+                buildings: cmmequipementmaintenanceinit?.buildings,
+                tools: cmmequipementmaintenanceinit?.tools,
+                teams: cmmequipementmaintenanceinit?.teams,
+                date: cmmequipementmaintenanceinit?.date,
+                observations: cmmequipementmaintenanceinit?.observations,
+                report_id: cmmequipementmaintenanceinit?.report_id,
+                created_at: cmmequipementmaintenanceinit?.created_at,
+                updated_at: cmmequipementmaintenanceinit?.updated_at,
             }) ==
             JSON.stringify({
                 id: cmms?.id,
-                support_group: cmms?.support_group,
-                date_meet: cmms?.date_meet,
-                responsible: cmms?.responsible,
-                tasks_copasst: cmms?.tasks_copasst,
+                buildings: cmms?.buildings,
+                tools: cmms?.tools,
+                teams: cmms?.teams,
+                date: cmms?.date,
+                observations: cmms?.observations,
                 report_id: cmms?.report_id,
                 created_at: cmms?.created_at,
                 updated_at: cmms?.updated_at,
             }) :
-            !!((!cmms.support_group) || (!cmms.responsible))
+            !!((!cmms.date) || (!cmms.observations))
     }
 
     useEffect(() => {
-        if (!!supportGroupActionQuery && supportGroupActionQuery.length) {
-            setSupports(supportGroupActionQuery);
-            setSupporstsInit(supportGroupActionQuery);
+        if (!!equipementMaintenenceQuery && equipementMaintenenceQuery.length) {
+            setEquipementMaintenanceInit(equipementsMaintenance);
+            // setEquipementMaintenanceInit(equipementMaintenenceQuery);
         }
-    }, [supportGroupActionQuery]);
+    }, [equipementMaintenenceQuery]);
 
     return (
         <Grid container> {
-            supports?.length !== 0 &&
-            supports?.map((cmms, index) => {
+            equipementsMaintenance?.length !== 0 &&
+            equipementsMaintenance?.map((cmms, index) => {
                 return (
                     <Grid container key={index} >
                         <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
                         <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
                             <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
-                                <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
-                                    {
-                                        supportGroupArray &&
-                                        supportGroupArray.length &&
-                                        <FormControl
-                                            fullWidth
-                                            className='FormControlExamType'
-                                            error={cmms?.support_groupTouched && !cmms?.support_group}
-                                            required={true}
-                                            sx={{ marginTop: '0px' }}>
-                                            <InputLabel
-                                                variant="standard"
-                                                id="demo-simple-select-label"
-                                                sx={{
-                                                    color: `${palette.text.primary}`
-                                                }}
-                                            >Grupo de Soporte</InputLabel>
-                                            <Select
-                                                disabled={cmms?.approved ? true : false}
-                                                variant="standard"
-                                                labelId="demo-simple-select-label"
-                                                id="demo-simple-select"
-                                                name="support_group"
-                                                value={cmms?.support_group ?? ''}
-                                                label="Grupo de soporte"
-                                                onChange={(event) => changeInputSupport(event, index)}>
-                                                <MenuItem value={null}><em></em></MenuItem>
-                                                {
-                                                    supportGroupArray.map((el, index) => (
-                                                        <MenuItem key={index} value={el?.value}>{el?.value}</MenuItem>
-                                                    ))
-                                                }
-                                            </Select>
-                                            {
-                                                (cmms?.support_groupTouched && !cmms?.support_group) &&
-                                                <FormHelperText>Este campo es requerido</FormHelperText>
-                                            }
 
-                                        </FormControl>
-                                    }
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <FormControlLabel
+                                        disabled={cmms?.approved ? true : false}
+                                        sx={{ ml: 2 }}
+                                        control={<Switch
+                                            checked={cmms.buildings ? true : false}
+                                            onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'buildings' } }, index)}
+                                            name="buildings" />}
+                                        label={`${cmms.buildings ? 'Edificios: SI' : 'Edificios: NO'}`}
+                                    />
                                 </Grid>
 
-                                <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <FormControlLabel
+                                        disabled={cmms?.approved ? true : false}
+                                        sx={{ ml: 2 }}
+                                        control={<Switch
+                                            checked={cmms.tools ? true : false}
+                                            onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'tools' } }, index)}
+                                            name="tools" />}
+                                        label={`${cmms.tools ? 'Herramientas: SI' : 'Herramientas: NO'}`}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                                    <FormControlLabel
+                                        disabled={cmms?.approved ? true : false}
+                                        sx={{ ml: 2 }}
+                                        control={<Switch
+                                            checked={cmms.teams ? true : false}
+                                            onChange={(event) => changeInputEquipementMaintenance({ target: { value: event.target.checked, name: 'teams' } }, index)}
+                                            name="teams" />}
+                                        label={`${cmms.teams ? 'Equipo: SI' : 'Equipo: NO'}`}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
                                     <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                                         <DatePicker
                                             disabled={cmms?.approved ? true : false}
@@ -286,38 +278,22 @@ export const ReportSupportGroupActivityComponent = ({
                                             className='birth-date-piker'
                                             sx={{ width: '100%' }}
                                             inputFormat="DD/MM/YYYY"
-                                            label="Fecha Reunión"
-                                            name="date_meet"
-                                            value={cmms?.date_meet ?? null}
-                                            onChange={(value) => changeInputSupport({ target: { name: 'date_meet', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
+                                            label="Fecha"
+                                            name="date"
+                                            value={cmms?.date ?? null}
+                                            onChange={(value) => changeInputEquipementMaintenance({ target: { name: 'date', value: value?.format('YYYY-MM-DD'), date: true } }, index)}
                                             renderInput={(params) => <TextField size="small" {...params} />}
                                         />
                                     </LocalizationProvider>
                                 </Grid>
 
-                                <Grid item xs={12} md={4} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                                    <TextField
-                                        disabled={cmms?.approved ? true : false}
-                                        variant="standard"
-                                        size="small"
-                                        label="Responsable*"
-                                        type="text"
-                                        fullWidth
-                                        name="responsible"
-                                        value={cmms?.responsible ?? ''}
-                                        onChange={(event) => changeInputSupport(event, index)}
-                                        error={cmms?.responsible === ''}
-                                        helperText={cmms?.responsibleTouched && !cmms?.responsible ? 'Este campo es requerido' : ''}
-                                    />
-                                </Grid>
-
                                 <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                                     <TextareaField
                                         disabled={cmms?.approved ? true : false}
-                                        label="Tareas del Copasst"
-                                        name="tasks_copasst"
-                                        value={cmms?.tasks_copasst ?? ''}
-                                        onChange={(event) => changeInputSupport(event, index)}
+                                        label="Observaciones"
+                                        name="observations"
+                                        value={cmms?.observations ?? ''}
+                                        onChange={(event) => changeInputEquipementMaintenance(event, index)}
                                         placeholder=""
                                         minRows={2}
                                         sx={{ minwidth: '100%' }}
@@ -325,14 +301,12 @@ export const ReportSupportGroupActivityComponent = ({
                                 </Grid>
 
                             </Grid>
-
                             <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5, alignItems: 'center', justifyContent: 'start' }}>
                                 <Tooltip title="Eliminar Registro" placement="top">
                                     <span>
                                         <IconButton
                                             disabled={cmms?.approved ? true : false}
-                                            onClick={() => handleDeleteSupportReport(cmms)}
-                                        >
+                                            onClick={() => handleDeleteEquipementMaintenence(cmms)}>
                                             <HighlightOffIcon
                                                 sx={{
                                                     color: palette.text.disabled,
@@ -344,17 +318,15 @@ export const ReportSupportGroupActivityComponent = ({
                                         </IconButton>
                                     </span>
                                 </Tooltip>
-
                                 <Tooltip title="Guardar Cambios" placement="top">
                                     <span>
                                         <IconButton
-                                            disabled={supportGActivitySavevalidator(cmms) || cmms?.approved ? true : false}
-                                            onClick={() => handleSaveSupport(cmms)}>
+                                            disabled={equipementMaintenenceSaveValidator(cmms) || cmms?.approved ? true : false}
+                                            onClick={() => handleSaveEquipementMaintenenece(cmms)}>
                                             <SaveIcon></SaveIcon>
                                         </IconButton>
                                     </span>
                                 </Tooltip>
-
                                 {
                                     cmms?.id &&
                                     <>
@@ -372,7 +344,7 @@ export const ReportSupportGroupActivityComponent = ({
                                             <span>
                                                 <PrivateAgentRoute>
                                                     <IconButton
-                                                        onClick={() => handleSaveSupport({ ...cmms, approved: !cmms?.approved })}>
+                                                        onClick={() => handleSaveEquipementMaintenenece({ ...cmms, approved: !cmms?.approved })}>
                                                         {!!cmms?.approved &&
                                                             <CheckIcon sx={{ color: `${palette.primary.main}` }}></CheckIcon>
                                                         }
@@ -401,35 +373,32 @@ export const ReportSupportGroupActivityComponent = ({
                     </Grid>
                 )
             })}
-
             <Grid item xs={12} md={12} sx={{ display: "flex", justifyContent: "end" }}>
-                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
-
-                </Grid>
+                <Grid item xs={12} md={9} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}></Grid>
                 <Grid item xs={12} md={3} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                     <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1, pr: 0.5, pl: 0.5 }}>
                         <Button onClick={() => {
-                            setSupports(cmms => [...cmms, {
-                                support_group: null,
-                                date_meet: null,
-                                responsible: null,
-                                tasks_copasst: null,
-                                report_id: report_id,
-                                save: false
-                            }])
+                        setEquipementsMaintenance(cmms => [...cmms, {
+                            buildings: false,
+                            tools: false,
+                            teams: false,
+                            date: null,
+                            observations: null,
+                            report_id: report_id,
+                            save: false
+                        }])
                         }}
-                            variant="contained"
-                            disabled={!!supports?.find(el => el.save === false)}
-                            sx={{
-                                height: '100%',
-                                color: `${palette.text.custom}`,
-                                // border: '1px solid'
-                            }}>AGREGAR ACTIVIDAD
+                        variant="contained"
+                        disabled={!!equipementsMaintenance?.find(el => el.save === false)}
+                        sx={{
+                            height: '100%',
+                            color: `${palette.text.custom}`,
+                            // border: '1px solid'
+                        }}>AGREGAR MANTENIMIENTO PERIÓDICO
                         </Button>
                     </Grid>
                 </Grid>
             </Grid>
-
             {
                 openEvidences.open && <EvidenceGenericComponent
                     open={openEvidences.open}
@@ -443,12 +412,12 @@ export const ReportSupportGroupActivityComponent = ({
                         setFiles([]);
                         setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
                     }}
-                    upload_evidence_url={`commerce/${commerce_id}/report/${report_id}/supportgroup/${openEvidences?.object?.id ?? null}`}
+                    upload_evidence_url={`commerce/${commerce_id}/report/${report_id}/equipementmaintenance/${openEvidences?.object?.id ?? null}`}
                     files={files}
                     setFiles={setFiles}
                     getEvidencesById={getEvidencesById}
-                    evidenceStore={storeSupportGActivityEvidence}
-                    handleRemove={handleRemoveSupportGActivityEvidence}
+                    evidenceStore={storeEquipementMaintenanceEvidence}
+                    handleRemove={handleRemoveEquipementMaintenanceEvidence}
                     handleFileItemUpload={handleFileItemUpload}
                 ></EvidenceGenericComponent>
             }
@@ -464,7 +433,6 @@ export const ReportSupportGroupActivityComponent = ({
                     }}
                 ></DialogAlertComponent>
             }
-
         </Grid>
     )
 }

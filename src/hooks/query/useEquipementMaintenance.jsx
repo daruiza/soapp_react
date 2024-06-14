@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { useDispatch } from 'react-redux';
-import { workManagementStore, workManagementUpdate, workManagementDeleteById, workManagementShowByReportId } from '../../store';
+import { equipementMaintenanceStore, equipementMaintenanceUpdate, equipementMaintenanceDeleteById, equipementMaintenanceShowByReportId } from '../../store';
 
 // dataQueryinit, debe tener un parametro llamado id, con el id de reporte
-const useWorkManagementByReportId = (dataQueryinit = {}, fnSuccess = ()=> {}) => {
+const useEquipementMaintenanceByReportId = (dataQueryinit = {}, fnSuccess = ()=> {}) => {
 
     const dispatch = useDispatch();
 
     const [dataQuery, setDataQuery] = useState(dataQueryinit);
 
     const query = useQuery({
-        queryKey: ['workmanagement', {dataQuery, fnSuccess}],
+        queryKey: ['equipementmaintenance', {dataQuery, fnSuccess}],
         queryFn: () => {    
             if(!('id' in dataQuery)){return ()=>([])}
-            return dispatch(workManagementShowByReportId({ form: { ...dataQuery } }))
+            return dispatch(equipementMaintenanceShowByReportId({ form: { ...dataQuery } }))
             .then(({ data: { data } }) => (data))
         },
         enabled: true,
@@ -26,13 +26,13 @@ const useWorkManagementByReportId = (dataQueryinit = {}, fnSuccess = ()=> {}) =>
     return { isSuccess: query.isSuccess, isRefetching: query.isRefetching, data: query.data, setDataQuery, refetch: query.refetch }
 }
 
-const useWorkManagementDeleteId = (dataQuery = {}, fnSuccess=()=>{}) => {
+const useEquipementMaintenanceDeleteId = (dataQuery = {}, fnSuccess=()=>{}) => {
     const dispatch = useDispatch();    
     const query = useMutation({
-        mutationKey: ['workmanagement_delete', { dataQuery, fnSuccess}],
+        mutationKey: ['equipementmaintenance_delete', { dataQuery, fnSuccess}],
         mutationFn: (dataQuery) => {
             if(!('id' in dataQuery)){return ()=>({})}
-            return dispatch(workManagementDeleteById({form: { ...dataQuery }})).then((response) => (response))
+            return dispatch(equipementMaintenanceDeleteById({form: { ...dataQuery }})).then((response) => (response))
         },
         onSuccess: (response) => fnSuccess(response)        
     });    
@@ -40,15 +40,15 @@ const useWorkManagementDeleteId = (dataQuery = {}, fnSuccess=()=>{}) => {
     return { data: query.data, mutate: query.mutate }
 }
 
-const useWorkManagementStore = (dataQuery = {}, fnSuccess=()=>{}) => {
+const useEquipementMaintenanceStore = (dataQuery = {}, fnSuccess=()=>{}) => {
     const dispatch = useDispatch();    
     const query = useMutation({
-        mutationKey: ['workmanagement_store', { dataQuery, fnSuccess}],
+        mutationKey: ['equipementmaintenance_store', { dataQuery, fnSuccess}],
         mutationFn: (dataQuery) => {
             if(('id' in dataQuery)){
-                return dispatch(workManagementUpdate({form: { ...dataQuery }})).then(({ data: { data: { workmanagement } } }) => (workmanagement))
+                return dispatch(equipementMaintenanceUpdate({form: { ...dataQuery }})).then(({ data: { data: { equipementmaintenance } } }) => (equipementmaintenance))
             }
-            return dispatch(workManagementStore({form: { ...dataQuery }})).then(({ data: { data: { workmanagement } } }) => (workmanagement))
+            return dispatch(equipementMaintenanceStore({form: { ...dataQuery }})).then(({ data: { data: { equipementmaintenance } } }) => (equipementmaintenance))
         },
         onSuccess: (response) => fnSuccess(response)        
     });    
@@ -56,4 +56,4 @@ const useWorkManagementStore = (dataQuery = {}, fnSuccess=()=>{}) => {
     return { data: query.data, mutate: query.mutate }
 }
 
-export { useWorkManagementByReportId, useWorkManagementDeleteId, useWorkManagementStore }
+export { useEquipementMaintenanceByReportId, useEquipementMaintenanceDeleteId, useEquipementMaintenanceStore }

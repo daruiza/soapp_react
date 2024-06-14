@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useForm } from '../../../../hooks';
-import { uploadLogo } from '../../../../api/upload/uploadThuks';
+import { getSoappDownloadFile, uploadLogo } from '../../../../api/upload/uploadThuks';
 import { commerceSave, geoDivCommecerDepartamentos, geoDivCommecerMunicipios } from '../../../../store/commerce/commerceThuks';
 import {
     capitalize,
@@ -63,7 +63,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
         onResetForm
     } = useForm(setInputsForm(commerce), formValidations);
 
-    const [image, setImage] = useState(commerce?.logo ? `${window.location.origin}${commerce.logo}` : null);
+    const [image, setImage] = useState(null);
     const inputFileRef = useRef();
 
     // Behavior
@@ -83,7 +83,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
         if (file.type.includes('image')) {
             setImage(URL.createObjectURL(event.target.files[0]));
             dispatch(uploadLogo(file)).then(({ data }) => {
-                setInput('logo', data.storage_image_path)
+                setInput('logo', data.image_path)
             });
         }
     }
@@ -110,11 +110,20 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
     }, [department])
 
     useEffect(() => {
-        // Update de Formulario        
+        // Update de Formulario
+        // Le quitamos el logo al formulario, causa problemas        
         onResetForm({
-            initialForm: commerce ? setInputsForm(commerce) : formData,
+            initialForm: commerce ? setInputsForm({...commerce}) : formData,
             formState: { ...formState }
         })
+
+        if(commerce?.logo){
+            dispatch(getSoappDownloadFile({ path: commerce.logo }))
+                .then((response) => {
+                    const newfile = new Blob([response.data], { type: response.data.type });
+                    setImage(URL.createObjectURL(newfile));
+                })
+        }
     }, [commerce])
 
     useEffect(() => {
@@ -149,7 +158,7 @@ export const CommerceComponent = ({ commerce = {}, user = {}, open = false, hand
                 </Grid>
             </DialogTitle>
             <DialogContent>
-                <DialogContentText id="alert-dialog-description" sx={{ mb: 2 }}>Editar y Actualizar la Información de mi Negocio</DialogContentText>
+                <DialogContentText id="alert-dialog-description" sx={{ mb: 2 }}>Editar y Actualizar la Información de mi negocio</DialogContentText>
                 <form onSubmit={handleSubmit}>
                     <input style={{ display: 'none' }} ref={inputFileRef} type="file" onChange={handleInputFileChange} />
                     <Grid container spacing={0} justifyContent="flex-start" sx={{ mb: 2 }}>

@@ -5,7 +5,7 @@ import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { Grid, Divider, Button, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, Switch, MenuItem, Tooltip } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTStore, inspectionRSSTUpdate } from '../../../../store/inspection/inspectionRSSTThunks';
-import { ShowByInspectionRSSTId, inspectionRSSTEvidenceStore, compromiseRSSTEvidenceUpdate } from '../../../../store';
+import { ShowByInspectionRSSTId, inspectionRSSTEvidenceStore, compromiseRSSTEvidenceUpdate, deleteInspectionRSSTEvidenceId } from '../../../../store';
 import SaveIcon from '@mui/icons-material/Save';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -157,7 +157,7 @@ export const ReportInspectionRSSTComponent = ({
                 name: file.name.split('.')[0],
                 type: file.type,
                 inspection_id: object.id,
-                file: data.storage_image_path,
+                file: data.image_path,
                 approved: false
             }
         })).then(({ data: { data: { evidence } } }) => {
@@ -168,7 +168,7 @@ export const ReportInspectionRSSTComponent = ({
     }
 
     const handleRemoveInspectionEvidence = (file, object) => {
-        dispatch(deleteCompromiseRSSTEvidenceId({
+        dispatch(deleteInspectionRSSTEvidenceId({
             form: { id: file.evidence_id }
         })).then((data) => {
             setFiles((files) => [...files.filter(fl => fl !== file)]);
@@ -392,7 +392,7 @@ export const ReportInspectionRSSTComponent = ({
                                             onChange={(event) => changeInputInspection(event, index)}
                                             error={cmms?.work === ''}
                                             helperText={cmms?.workTouched && !cmms?.work ? 'Este campo es requerido' : ''}
-                                        // helperText={!cmms?.work ? 'Este campo es requerido' : ''}
+                                            // helperText={!cmms?.work ? 'Este campo es requerido' : ''}
                                         />
                                     </Grid>
 
@@ -521,7 +521,7 @@ export const ReportInspectionRSSTComponent = ({
                         setFiles([]);
                         setOpenEvidences((openEvidences) => ({ ...openEvidences, open: false }))
                     }}
-                    upload_evidence_url={`images/commerce/${commerce_id}/report/${report_id}/inspectionsrsst/${openEvidences?.object?.id ?? null}`}
+                    upload_evidence_url={`commerce/${commerce_id}/report/${report_id}/inspectionsrsst/${openEvidences?.object?.id ?? null}`}
                     files={files}
                     setFiles={setFiles}
                     getEvidencesById={getEvidencesById}

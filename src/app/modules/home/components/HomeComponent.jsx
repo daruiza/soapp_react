@@ -1,16 +1,27 @@
-import { useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Alert, Grid, Stack, Typography } from "@mui/material";
-import { authstatusTypes } from "../../../../store";
+import { authstatusTypes, commerceInitialState } from "../../../../store";
 import { RolTypes } from "../../../types";
 
 export const HomeComponent = ({ navBarWidth = 58 }) => {
+  const dispatch = useDispatch();
+
   const { status, user } = useSelector(state => state.auth);
   const { commerce: commerceState } = useSelector(state => state.commerce);
   const commerce = useMemo(() => commerceState, [commerceState]);
   const CUSTOMERAUTHENTICATED = useMemo(() =>
     status === authstatusTypes.AUTHENTICATED && user?.rol?.id === RolTypes.customer,
     [status, user]);
+
+  useEffect(() => {
+    // Inicia el commercio al entrar Home
+    // Para validar lo del commercio de debe consultar con el u
+    dispatch(commerceInitialState());
+  }, []);
+
+  // TODO: CONSULTAR EL COMERCIO PRA REALIZAR LA VALIDACIÓN
+
 
   return (
     <Grid container spacing={0} justifyContent="center"
@@ -28,7 +39,7 @@ export const HomeComponent = ({ navBarWidth = 58 }) => {
           </Alert>
         </Stack>
       }
-      <Typography>HomeComponent</Typography>
+      <Typography sx={{fontSize: '84px', fontFamily: "'Nunito', sans-serif", fontWeight: '200'}}>SOAPP</Typography>
     </Grid>
   )
 }

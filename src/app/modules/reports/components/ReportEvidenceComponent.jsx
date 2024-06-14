@@ -6,6 +6,8 @@ import { ActivityEvidenceItemComponent } from '../../../components';
 import { getSoappDownloadFile, uploadEvidenceFileName } from '../../../../api';
 import { evidenceReportStore, deleteReportEvidenceId, reportEvidenceUpdate } from '../../../../store';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
+import { EvidenceViewerComponent } from '../../../components/evidences/EvidenceViewerComponent';
+import { useQueryClient } from 'react-query';
 
 export const ReportEvidenceComponent = ({
   report_id = null,
@@ -22,6 +24,10 @@ export const ReportEvidenceComponent = ({
   const { palette } = useTheme();
 
   const [files, setFiles] = useState([]);
+  const [openEvidencesViewer, setOpenEvidencesViewer] = useState(false);
+
+  // Query  
+  const queryClient = useQueryClient()
 
   const AddFile = () => { inputFileRef.current.click(); }
 
@@ -55,18 +61,23 @@ export const ReportEvidenceComponent = ({
 
   const handleEvidenceViewerOpen = () => {
     setOpenEvidencesViewer(true)
-  } 
+  }
+
+  const handleEvidenceViewerClose = () => {
+    setOpenEvidencesViewer(false)
+  }
 
   const handleRemove = (file) => {
     dispatch(deleteReportEvidenceId({
-        form: { id: file.evidence_id }
+      form: { id: file.evidence_id }
     })).then((data) => {
-        setFiles((files) => [...files.filter(fl => fl !== file)]);
-        // Refrescamos el Report Component
-        getReportById(report_id ?? null);
+      setFiles((files) => [...files.filter(fl => fl !== file)]);
+      // Refrescamos el Report Component
+      getReportById(report_id ?? null);
+      //queryClient.invalidateQueries({ queryKey: ['reportid'] });
     });
 
-}
+  }
 
   // Evidences
   const getEvidencesByReportId = (id) => {
@@ -94,45 +105,49 @@ export const ReportEvidenceComponent = ({
         name: file.name.split('.')[0],
         type: file.type,
         report_id: report_id,
-        file: data.storage_image_path,
+        file: data.image_path,
         approved: false
       }
     })).then(({ data: { data: { evidence } } }) => {
       file.approved = evidence?.approved ? true : false;
       file.evidence_id = evidence.id;
       setFiles((files) => [...files, file]);
+      // Refrescamos el Report Component
+      getReportById(report_id ?? null);
+      //queryClient.invalidateQueries({ queryKey: ['reportid'] });
     }, error => setMessageSnackbar({ dispatch, error }))
   }
 
 
   const handleFileItemUpload = (selectFile, setFormInit = () => { }, setSelectFile = () => { }) => {
     dispatch(reportEvidenceUpdate({
-        form: {
-            ...selectFile?.evidence ?? {},
-            id: selectFile?.evidence?.evidence_id ?? null,
-            approved: selectFile?.evidence?.approved ? 1 : 0,
+      form: {
+        ...selectFile?.evidence ?? {},
+        id: selectFile?.evidence?.evidence_id ?? null,
+        approved: selectFile?.evidence?.approved ? 1 : 0,
 
-        }
+      }
     })).then(({ data: { data: { evidence } } }) => {
 
-        setFormInit(JSON.stringify({
-            name: evidence.name,
-            approved: evidence.approved ? true : false,
-        })
-        )
+      setFormInit(JSON.stringify({
+        name: evidence.name,
+        approved: evidence.approved ? true : false,
+      }))
 
-        setSelectFile({
-            ...selectFile,
-            evidence: {
-                ...selectFile.evidence,
-                name: evidence.name,
-                approved: evidence.approved ? true : false
-            }
-        });
+      setSelectFile({
+        ...selectFile,
+        evidence: {
+          ...selectFile.evidence,
+          name: evidence.name,
+          approved: evidence.approved ? true : false
+        }
+      });  
+
     }, error => setMessageSnackbar({ dispatch, error }))
-}
+  }
 
   useEffect(() => {
+    
     getEvidencesByReportId(report_id ?? null);
   }, [])
 
@@ -183,6 +198,15 @@ export const ReportEvidenceComponent = ({
           }
         </Grid>
       </Grid>
+
+      {
+        openEvidencesViewer &&
+        <EvidenceViewerComponent
+          open={openEvidencesViewer}
+          files={files}
+          handleClose={handleEvidenceViewerClose}
+        ></EvidenceViewerComponent>
+      }
     </Grid>
   )
 }

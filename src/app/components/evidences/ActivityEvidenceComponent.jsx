@@ -54,7 +54,7 @@ export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext 
         ) return;
 
 
-        dispatch(uploadEvidenceFileName(file, `images/commerce/${commerce_id}/report/${report_id}/activities/${activity?.id}`))
+        dispatch(uploadEvidenceFileName(file, `commerce/${commerce_id}/report/${report_id}/activities/${activity?.id}`))
             .then(({ data }) => {
                 // Guardamos la evidencia
                 dispatch(activityEvidenceStore({
@@ -62,7 +62,7 @@ export const ActivityEvidenceComponent = ({ dialogtitle = '', dialogcontenttext 
                         name: file.name.split('.')[0],
                         type: file.type,
                         activity_id: activity.id,
-                        file: data.storage_image_path,
+                        file: data.image_path,
                         approved: false
                     }
                 })).then(({ data: { data: { evidence } } }) => {

@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import es from 'dayjs/locale/es';
 import { uploadEmployeePhoto } from '../../../../api/upload/uploadThuks';
 import { employeeStore, employeeUpdate } from '../../../../store';
+import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 const formValidations = {
     name: [(value) => value.length >= 1, 'El Nombre es obligatorio.'],
@@ -90,7 +91,7 @@ export const EmployeeStoreComponent = ({ employee = {}, open = false, identifica
         if (file.type.includes('image')) {
             setImage(URL.createObjectURL(event.target.files[0]));
             dispatch(uploadEmployeePhoto(file, commerce.id ?? 1)).then(({ data }) => {
-                setInput('photo', data.storage_image_path)
+                setInput('photo', data.image_path)
             });
         }
     }

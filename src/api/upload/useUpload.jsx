@@ -23,11 +23,12 @@ export const useUpload = (dispatch) => {
     );
 
     uploadApi.interceptors.response.use((response) => {
-        const { data: { message } } = response;
+        // Comentado para que no haga tanto ruido en el Front
+        const { data: { type } } = response;
         dispatch(backdropPop(
             {
-                message: `${message}`,
-                alert: 'success'
+                message: null,
+                alert: null
             }
         ));
         return response;
