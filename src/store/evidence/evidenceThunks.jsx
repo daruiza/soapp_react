@@ -310,7 +310,7 @@ export const deleteInspectionRSSTEvidenceId = ({ form = {} }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form && form.id) {
-            return soappLaravelApi.delete(`api/compromisersstevidence/destroy/${form.id}`);
+            return soappLaravelApi.delete(`api/inspectionrsstevidence/destroy/${form.id}`);
         }
     }
 }
@@ -319,7 +319,7 @@ export const inspectionRSSTEvidenceUpdate = ({ form }) => {
     return async (dispatch) => {
         const { soappLaravelApi } = useAppSoappLaravel(dispatch);
         if (form && form.id) {
-            return soappLaravelApi.put(`api/compromisersstevidence/update/${form.id}`, form);
+            return soappLaravelApi.put(`api/inspectionrsstevidence/update/${form.id}`, form);
         }
     }
 }

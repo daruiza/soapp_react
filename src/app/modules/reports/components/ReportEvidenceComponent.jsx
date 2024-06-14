@@ -7,6 +7,7 @@ import { getSoappDownloadFile, uploadEvidenceFileName } from '../../../../api';
 import { evidenceReportStore, deleteReportEvidenceId, reportEvidenceUpdate } from '../../../../store';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 import { EvidenceViewerComponent } from '../../../components/evidences/EvidenceViewerComponent';
+import { useQueryClient } from 'react-query';
 
 export const ReportEvidenceComponent = ({
   report_id = null,
@@ -25,6 +26,8 @@ export const ReportEvidenceComponent = ({
   const [files, setFiles] = useState([]);
   const [openEvidencesViewer, setOpenEvidencesViewer] = useState(false);
 
+  // Query  
+  const queryClient = useQueryClient()
 
   const AddFile = () => { inputFileRef.current.click(); }
 
@@ -71,6 +74,7 @@ export const ReportEvidenceComponent = ({
       setFiles((files) => [...files.filter(fl => fl !== file)]);
       // Refrescamos el Report Component
       getReportById(report_id ?? null);
+      //queryClient.invalidateQueries({ queryKey: ['reportid'] });
     });
 
   }
@@ -108,6 +112,9 @@ export const ReportEvidenceComponent = ({
       file.approved = evidence?.approved ? true : false;
       file.evidence_id = evidence.id;
       setFiles((files) => [...files, file]);
+      // Refrescamos el Report Component
+      getReportById(report_id ?? null);
+      //queryClient.invalidateQueries({ queryKey: ['reportid'] });
     }, error => setMessageSnackbar({ dispatch, error }))
   }
 
@@ -125,8 +132,7 @@ export const ReportEvidenceComponent = ({
       setFormInit(JSON.stringify({
         name: evidence.name,
         approved: evidence.approved ? true : false,
-      })
-      )
+      }))
 
       setSelectFile({
         ...selectFile,
@@ -135,11 +141,13 @@ export const ReportEvidenceComponent = ({
           name: evidence.name,
           approved: evidence.approved ? true : false
         }
-      });
+      });  
+
     }, error => setMessageSnackbar({ dispatch, error }))
   }
 
   useEffect(() => {
+    
     getEvidencesByReportId(report_id ?? null);
   }, [])
 

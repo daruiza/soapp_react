@@ -237,7 +237,7 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
             <Divider sx={{ mb: 2, mt: 2, width: '100%', bgcolor: "text.primary" }} />
             <Grid item xs={12} md={12} sx={{ display: "flex", mb: 1 }}>
               <Grid item xs={12} md={9} sx={{ display: "flex", flexWrap: 'wrap', mb: 1, pr: 0.5, pl: 0.5 }}>
-                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                <Grid item xs={12} md={4  } sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
                   <TextField
                     disabled={cmms?.approved ? true : false}
                     variant="standard"
@@ -251,9 +251,47 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
                     error={cmms?.work === ''}
                     helperText={cmms?.workTouched && !cmms?.work ? 'Este campo es requerido' : ''}
                   />
+                </Grid>               
+
+                <Grid item xs={12} md={4} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                  <FormControlLabel
+                    disabled={cmms?.approved ? true : false}
+                    sx={{ ml: 2 }}
+                    control={<Switch
+                      checked={cmms.corrective_action ? true : false}
+                      onChange={(event) => changeInputCorrective({ target: { value: event.target.checked, name: 'corrective_action' } }, index)}
+                      name="corrective_action" />}
+                    label={`${cmms.corrective_action ? 'Acción correctiva SI' : 'Acción correctiva NO'}`}
+                  />
                 </Grid>
 
-                <Grid item xs={12} md={3} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
+                <Grid item xs={12} md={4} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                  <FormControlLabel
+                    disabled={cmms?.approved ? true : false}
+                    sx={{ ml: 2 }}
+                    control={<Switch
+                      checked={cmms.executed ? true : false}
+                      onChange={(event) => changeInputCorrective({ target: { value: event.target.checked, name: 'executed' } }, index)}
+                      name="executed" />}
+                    label={`${cmms.executed ? 'Acción correctiva ejecutada' : 'Acción Correctiva no ejecutada'}`}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={7} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
+                  <TextField
+                    disabled={cmms?.approved ? true : false}
+                    variant="standard"
+                    size="small"
+                    label="Observaciones"
+                    type="text"
+                    fullWidth
+                    name="observations"
+                    value={cmms?.observations ?? ''}
+                    onChange={(event) => changeInputCorrective(event, index)}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4} sx={{ mb: 1, pl: 0.5, pr: 0.5, display: 'flex', alignItems: 'center', marginTop: '-10px' }} >
                   <LocalizationProvider adapterLocale={es} dateAdapter={AdapterDayjs}>
                     <DatePicker
                       disabled={cmms?.approved ? true : false}
@@ -268,44 +306,6 @@ export const ReportCorrectiveMonitoringRSSTComponent = ({
                       renderInput={(params) => <TextField size="small" {...params} />}
                     />
                   </LocalizationProvider>
-                </Grid>
-
-                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                  <FormControlLabel
-                    disabled={cmms?.approved ? true : false}
-                    sx={{ ml: 2 }}
-                    control={<Switch
-                      checked={cmms.corrective_action ? true : false}
-                      onChange={(event) => changeInputCorrective({ target: { value: event.target.checked, name: 'corrective_action' } }, index)}
-                      name="corrective_action" />}
-                    label={`${cmms.corrective_action ? 'Acción correctiva SI' : 'Acción correctiva NO'}`}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={3} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                  <FormControlLabel
-                    disabled={cmms?.approved ? true : false}
-                    sx={{ ml: 2 }}
-                    control={<Switch
-                      checked={cmms.executed ? true : false}
-                      onChange={(event) => changeInputCorrective({ target: { value: event.target.checked, name: 'executed' } }, index)}
-                      name="executed" />}
-                    label={`${cmms.executed ? 'Acción correctiva ejecutada' : 'Acción Correctiva no ejecutada'}`}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6} sx={{ mb: 3, pr: 0.5, pl: 0.5 }}>
-                  <TextField
-                    disabled={cmms?.approved ? true : false}
-                    variant="standard"
-                    size="small"
-                    label="Observaciones"
-                    type="text"
-                    fullWidth
-                    name="observations"
-                    value={cmms?.observations ?? ''}
-                    onChange={(event) => changeInputCorrective(event, index)}
-                  />
                 </Grid>
 
               </Grid>

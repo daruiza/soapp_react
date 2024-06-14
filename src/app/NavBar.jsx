@@ -23,7 +23,6 @@ export const NavBar = ({ navBarWidth = 58 }) => {
 
     const [image, setImage] = useState(`${window.location.origin}/src/assets/asistirEnSalud.png`);    
     
-    console.log('image', image);
     useEffect(()=>{
         setImage(`${window.location.origin}/src/assets/asistirEnSalud.png`);
         if(commerce?.logo){

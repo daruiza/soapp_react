@@ -29,6 +29,7 @@ import { reportStore, reportUpdate } from '../../../../store';
 import dayjs from 'dayjs';
 import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
+import { useQueryClient } from 'react-query';
 
 const formData = {
   id: '',
@@ -71,9 +72,10 @@ export const ReportStoreComponent = ({
   projecTypetArray = [],
   responsibleArray = [],
   getReports = () => { },
-  handleClose = () => { } }) => {
+  handleClose = () => { },
+  refetchReport = () => {} }) => {
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch(); 
 
   const {
     formState,
@@ -214,7 +216,8 @@ export const ReportStoreComponent = ({
             date: dayjs(`${year}-${month}`).format('YYYY-MM-DD')
           }
         })).then((response) => {
-          getReports();// Refrescamos la tabla
+          // getReports();// Refrescamos la tabla
+          refetchReport();// Refrescamos la tabla
           handleClose();
         }, error => setMessageSnackbar({ dispatch, error }))
       } else {
@@ -226,7 +229,8 @@ export const ReportStoreComponent = ({
             date: dayjs(`${year}-${month}`).format('YYYY-MM-DD')
           }
         })).then((response) => {
-          getReports();// Refrescamos la tabla
+          // getReports();// Refrescamos la tabla
+          refetchReport();// Refrescamos la tabla
           handleClose();
         }, error => setMessageSnackbar({ dispatch, error }))
       }

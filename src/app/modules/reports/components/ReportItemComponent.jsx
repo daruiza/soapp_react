@@ -20,6 +20,7 @@ import { styled } from '@mui/material/styles';
 import { grey, yellow } from '@mui/material/colors';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { PrivateCustomerRoute, PrivateAgentRoute } from '../../../middleware';
+import { setMessageSnackbar } from '../../../../helper/setMessageSnackbar';
 
 const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
@@ -32,7 +33,12 @@ const ExpandMore = styled((props) => {
     }),
 }));
 
-export const ReportItemComponent = ({ report, monthArray, getReports, handleReportUpdate }) => {
+export const ReportItemComponent = ({ 
+    report = [], 
+    monthArray = [], 
+    getReports= () => {}, 
+    handleReportUpdate= () => {},
+    refetchReport = () => {} }) => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate()
@@ -57,7 +63,8 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                 focus: report.focus === 1 ? 0 : 1
             }
         })).then((response) => {
-            getReports();// Refrescamos la tabla
+            // getReports();// Refrescamos la tabla
+            refetchReport()// Refrescamos la tabla
         }, error => setMessageSnackbar({ dispatch, error }))
     }
 
@@ -70,7 +77,8 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                 active: report.active === 1 ? 0 : 1
             }
         })).then((response) => {
-            getReports();// Refrescamos la tabla
+            // getReports();// Refrescamos la tabla
+            refetchReport()// Refrescamos la tabla
         }, error => setMessageSnackbar({ dispatch, error }))
     }
 
@@ -81,7 +89,9 @@ export const ReportItemComponent = ({ report, monthArray, getReports, handleRepo
                 ...report
             }
         })).then((response) => {
-            getReports();// Refrescamos la tabla
+           // getReports();// Refrescamos la tabla
+           refetchReport()// Refrescamos la tabla
+           handleReportDeleteClose();
         }, error => setMessageSnackbar({ dispatch, error }))
     }
 

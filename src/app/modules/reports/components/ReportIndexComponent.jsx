@@ -397,8 +397,9 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
                   report={report}
                   monthArray={monthArray}
                   getReports={getReports}
-                  handleReportUpdate={() => handleReportUpdate(report)
-                  }></ReportItemComponent>
+                  handleReportUpdate={() => handleReportUpdate(report)}
+                  refetchReport={reportsQuery.refetch}  
+                  ></ReportItemComponent>
               ))}
             </Grid>
           </Grid>
@@ -434,6 +435,7 @@ export const ReportIndexComponent = ({ navBarWidth = 58 }) => {
         projecTypetArray={projecTypetArray}
         responsibleArray={responsibleArray}
         handleClose={handleReportStoreClose}
+        refetchReport={reportsQuery.refetch}
       ></ReportStoreComponent>}
     </Grid>
   )

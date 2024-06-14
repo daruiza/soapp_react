@@ -5,7 +5,7 @@ import { PrivateAgentRoute, PrivateCustomerRoute } from '../../../middleware';
 import { Grid, Divider, Button, IconButton, TextField, FormControl, FormControlLabel, InputLabel, Select, Switch, MenuItem, Tooltip } from '@mui/material';
 import { useTheme } from '@emotion/react';
 import { inspectionRSSTDeleteById, inspectionRSSTShowByReportId, inspectionRSSTStore, inspectionRSSTUpdate } from '../../../../store/inspection/inspectionRSSTThunks';
-import { ShowByInspectionRSSTId, inspectionRSSTEvidenceStore, compromiseRSSTEvidenceUpdate } from '../../../../store';
+import { ShowByInspectionRSSTId, inspectionRSSTEvidenceStore, compromiseRSSTEvidenceUpdate, deleteInspectionRSSTEvidenceId } from '../../../../store';
 import SaveIcon from '@mui/icons-material/Save';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -168,7 +168,7 @@ export const ReportInspectionRSSTComponent = ({
     }
 
     const handleRemoveInspectionEvidence = (file, object) => {
-        dispatch(deleteCompromiseRSSTEvidenceId({
+        dispatch(deleteInspectionRSSTEvidenceId({
             form: { id: file.evidence_id }
         })).then((data) => {
             setFiles((files) => [...files.filter(fl => fl !== file)]);

@@ -152,7 +152,6 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
     dispatch(commerceUpdate({ commerce: report.commerce }));
   }
 
-
   // Listas genericas llamado
   const { data: listsQuery, mutate: listQueryMutate } = useGeneraNamelList(
     "exam,type_exam,event,medical_attention,topic_sst", setGenericList
@@ -641,7 +640,7 @@ export const ReportComponent = ({ navBarWidth = 58 }) => {
 
                 <ReportCardComponent
                   sx={{ borderRadius: "0px" }}
-                  title="11.1 SEGUIMIENTE A MEDIDAS CORRECTIVAS PROPUESTAS POR EL RESPONSABLE DEL SST DE LA EMPRESA"
+                  title="11.1 SEGUIMIENTO A MEDIDAS CORRECTIVAS PROPUESTAS POR EL RESPONSABLE DEL SST DE LA EMPRESA"
                   pending={getPending(correctiveRSST)}
                 >
                   <ReportCorrectiveMonitoringRSSTComponent
