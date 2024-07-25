@@ -146,8 +146,7 @@ export const ReportEvidenceComponent = ({
     }, error => setMessageSnackbar({ dispatch, error }))
   }
 
-  useEffect(() => {
-    
+  useEffect(() => {    
     getEvidencesByReportId(report_id ?? null);
   }, [])
 
