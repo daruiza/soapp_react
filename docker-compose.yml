@@ -6,10 +6,12 @@ services:
     image: node:20.9.0-alpine3.18
     working_dir: /app
     ports:
-      - "3232:3232"
-      - "0.0.0.0:3232:3232" 
-      - ":::3232:3232" 
+      # - "3232:3232"
+      # - "0.0.0.0:3232:3232" 
+      # - ":::3232:3232"
+      - 3232:3232
     volumes:
       # - C:\software\soapp_react:/app
-      - /home/david/Software/soapp_react:/app
-    command: sh -c "yarn install && yarn dev --host 0.0.0.0"
+      # - /home/david/Software/soapp_react:/app
+      - /mnt/c/software/soapp_react:/app
+    command: sh -c "yarn dev --host 0.0.0.0"
